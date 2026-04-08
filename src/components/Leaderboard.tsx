@@ -1,7 +1,7 @@
 import type { AppData } from '../types'
 import { GMETA, PLAYERS } from '../data/constants'
 import { allScores, getTotals, fmt } from '../lib/scoring'
-import { projectPlayerTotal } from '../lib/cyProjection'
+import { getProjectedTotals } from '../lib/projectedScores'
 import Card from './ui/Card'
 
 interface LeaderboardProps {
@@ -11,12 +11,17 @@ interface LeaderboardProps {
 export default function Leaderboard({ data }: LeaderboardProps) {
   const sc = allScores(data)
   const tot = getTotals(sc)
+  const proj = getProjectedTotals(data)
   const leader = tot.Scott > tot.Ty ? 'Scott' : tot.Ty > tot.Scott ? 'Ty' : null
+  const projLeader = proj.Scott > proj.Ty ? 'Scott' : proj.Ty > proj.Scott ? 'Ty' : null
   const gap = Math.abs(tot.Scott - tot.Ty)
+  const projGap = Math.abs(proj.Scott - proj.Ty)
   const sCol = leader === 'Scott' ? '#fbbf24' : '#f1f5f9'
   const tCol = leader === 'Ty' ? '#fbbf24' : '#f1f5f9'
   const sShadow = leader === 'Scott' ? '0 0 30px rgba(251,191,36,0.4)' : 'none'
   const tShadow = leader === 'Ty' ? '0 0 30px rgba(251,191,36,0.4)' : 'none'
+
+  const hasProjections = Object.values(proj.breakdown).some(b => b.isProjected)
 
   return (
     <>
@@ -28,7 +33,7 @@ export default function Leaderboard({ data }: LeaderboardProps) {
           alignItems: 'center',
           gap: 8,
           padding: '24px 16px',
-          marginBottom: 16,
+          marginBottom: hasProjections ? 8 : 16,
           background: 'linear-gradient(135deg,rgba(34,197,94,0.07),rgba(59,130,246,0.07))',
           border: '1px solid rgba(255,255,255,0.09)',
           borderRadius: 14,
@@ -54,6 +59,42 @@ export default function Leaderboard({ data }: LeaderboardProps) {
         </div>
       </div>
 
+      {/* Projected standings banner */}
+      {hasProjections && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 60px 1fr',
+            alignItems: 'center',
+            gap: 8,
+            padding: '12px 16px',
+            marginBottom: 16,
+            background: 'rgba(59,130,246,0.06)',
+            border: '1px solid rgba(59,130,246,0.15)',
+            borderRadius: 10,
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 28, fontWeight: 900, lineHeight: 1, fontFamily: 'monospace', color: projLeader === 'Scott' ? '#3b82f6' : '#64748b' }}>
+              ~{proj.Scott}
+            </div>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#64748b', marginTop: 2 }}>SCOTT</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 8, letterSpacing: 1, color: '#3b82f6', fontWeight: 700, textTransform: 'uppercase' }}>
+              Forecast
+            </div>
+            {projGap > 0 && projLeader && <div style={{ fontSize: 9, color: '#64748b', marginTop: 2 }}>+{projGap}</div>}
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 28, fontWeight: 900, lineHeight: 1, fontFamily: 'monospace', color: projLeader === 'Ty' ? '#3b82f6' : '#64748b' }}>
+              ~{proj.Ty}
+            </div>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#64748b', marginTop: 2 }}>TY</div>
+          </div>
+        </div>
+      )}
+
       {/* Section label */}
       <div
         style={{
@@ -74,7 +115,9 @@ export default function Leaderboard({ data }: LeaderboardProps) {
       {Object.keys(GMETA).map(key => {
         const meta = GMETA[key]
         const gs = sc[key as keyof typeof sc] || { Scott: 0, Ty: 0 }
+        const pb = proj.breakdown[key]
         const max = Math.max(gs.Scott, gs.Ty, 1)
+        const projMax = pb ? Math.max(pb.Scott, pb.Ty, 1) : 1
         const gl = gs.Scott > gs.Ty ? 'Scott' : gs.Ty > gs.Scott ? 'Ty' : null
 
         return (
@@ -106,38 +149,65 @@ export default function Leaderboard({ data }: LeaderboardProps) {
               </span>
               {gl && <span style={{ fontSize: 11, color: meta.c, fontWeight: 700 }}>{'\u25B2'} {gl}</span>}
             </div>
-            {PLAYERS.map(p => {
-              const cyProj = key === 'cy' ? projectPlayerTotal(data.cy, p as 'Scott' | 'Ty') : 0
-              return (
-                <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-                  <span style={{ width: 40, fontSize: 12, color: '#94a3b8' }}>{p}</span>
-                  <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
-                    <div
-                      style={{
-                        height: '100%',
-                        borderRadius: 3,
-                        transition: 'width 0.6s',
-                        width: `${Math.round((gs[p] / max) * 100)}%`,
-                        background: meta.c,
-                      }}
-                    />
-                  </div>
-                  <span
+
+            {/* Actual scores */}
+            {PLAYERS.map(p => (
+              <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                <span style={{ width: 40, fontSize: 12, color: '#94a3b8' }}>{p}</span>
+                <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                  <div
                     style={{
-                      width: 40, fontSize: 13, fontWeight: 800, fontFamily: 'monospace',
-                      textAlign: 'right', color: gs[p] > 0 ? meta.c : '#64748b',
+                      height: '100%',
+                      borderRadius: 3,
+                      transition: 'width 0.6s',
+                      width: `${Math.round((gs[p] / max) * 100)}%`,
+                      background: meta.c,
                     }}
-                  >
-                    {fmt(gs[p])}
-                  </span>
-                  {key === 'cy' && cyProj > 0 && gs[p] === 0 && (
-                    <span style={{ fontSize: 9, color: '#3b82f6', fontFamily: 'monospace', fontWeight: 700, minWidth: 45 }}>
-                      ~{cyProj}
-                    </span>
-                  )}
+                  />
                 </div>
-              )
-            })}
+                <span
+                  style={{
+                    width: 40, fontSize: 13, fontWeight: 800, fontFamily: 'monospace',
+                    textAlign: 'right', color: gs[p] > 0 ? meta.c : '#64748b',
+                  }}
+                >
+                  {fmt(gs[p])}
+                </span>
+              </div>
+            ))}
+
+            {/* Projected scores (if different from actual) */}
+            {pb?.isProjected && (
+              <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed rgba(255,255,255,0.06)' }}>
+                <div style={{ fontSize: 8, letterSpacing: 1, textTransform: 'uppercase', color: '#3b82f6', fontWeight: 700, marginBottom: 4 }}>
+                  Forecast
+                </div>
+                {PLAYERS.map(p => (
+                  <div key={`proj-${p}`} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                    <span style={{ width: 40, fontSize: 11, color: '#64748b' }}>{p}</span>
+                    <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.04)', borderRadius: 2, overflow: 'hidden' }}>
+                      <div
+                        style={{
+                          height: '100%',
+                          borderRadius: 2,
+                          width: `${Math.round((pb[p] / projMax) * 100)}%`,
+                          background: '#3b82f6',
+                          opacity: 0.5,
+                        }}
+                      />
+                    </div>
+                    <span
+                      style={{
+                        width: 40, fontSize: 11, fontWeight: 700, fontFamily: 'monospace',
+                        textAlign: 'right', color: '#3b82f6',
+                      }}
+                    >
+                      ~{fmt(pb[p])}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
         )
       })}
