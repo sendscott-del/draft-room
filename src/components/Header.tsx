@@ -3,6 +3,7 @@ import type { AppData } from '../types'
 import type { CountdownState } from '../lib/locks'
 import { allScores, getTotals } from '../lib/scoring'
 import { projectPlayerTotal } from '../lib/cyProjection'
+import { projectAwards } from '../lib/awardsProjection'
 import { PLAYERS, OUL } from '../data/constants'
 import SyncDot from './ui/SyncDot'
 import Countdown from './ui/Countdown'
@@ -42,6 +43,9 @@ export default function Header({ data, syncStatus, countdown, onStatsUpdated }: 
 
   const ouProj = useMemo(() => projectedOUScore(data.ou), [data.ou])
 
+  const awardsOdds = (data as any).awardsOdds || {}
+  const awProj = useMemo(() => projectAwards(data.aw, awardsOdds), [data.aw, awardsOdds])
+
   const displayScores = useMemo(() => {
     const d = { ...sc }
     let hasProjection = false
@@ -53,8 +57,12 @@ export default function Header({ data, syncStatus, countdown, onStatsUpdated }: 
       d.ou = ouProj
       hasProjection = true
     }
+    if (sc.aw.Scott === 0 && sc.aw.Ty === 0 && (awProj.totals.Scott > 0 || awProj.totals.Ty > 0)) {
+      d.aw = awProj.totals
+      hasProjection = true
+    }
     return { scores: d, hasProjection }
-  }, [sc, cyProj, ouProj])
+  }, [sc, cyProj, ouProj, awProj])
 
   const tot = getTotals(displayScores.scores)
   const hasProj = displayScores.hasProjection

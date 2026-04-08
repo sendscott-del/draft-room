@@ -224,79 +224,96 @@ async function fetchUnitWAR(): Promise<UnitWAR[]> {
   return result
 }
 
-// ── CY Young Odds (The Odds API) ────────────────────────────
-async function fetchCYOdds(): Promise<Record<string, string>> {
-  const oddsMap: Record<string, string> = {}
+// ── Award Odds (The Odds API) ────────────────────────────────
+// Fetches odds for all MLB awards: MVP, ROY, CY Young, etc.
+// Returns { "al_mvp": { "Aaron Judge": "+200", ... }, "nl_cy_young": { ... }, ... }
+// Also returns CY-specific odds for backward compatibility
+interface AllAwardOdds {
+  cy: Record<string, string>  // pitcher name → odds
+  awards: Record<string, Record<string, string>>  // category → { player → odds }
+}
+
+// Map The Odds API sport titles to our award category keys
+const AWARD_TITLE_MAP: Record<string, string> = {
+  'al mvp': 'alMVP',
+  'nl mvp': 'nlMVP',
+  'al rookie of the year': 'alROY',
+  'nl rookie of the year': 'nlROY',
+  'al cy young': 'alCY',
+  'nl cy young': 'nlCY',
+  'al manager of the year': 'alMGR',
+  'nl manager of the year': 'nlMGR',
+  // Alternate names
+  'american league mvp': 'alMVP',
+  'national league mvp': 'nlMVP',
+  'american league rookie': 'alROY',
+  'national league rookie': 'nlROY',
+  'american league cy young': 'alCY',
+  'national league cy young': 'nlCY',
+}
+
+async function fetchAllAwardOdds(): Promise<AllAwardOdds> {
+  const result: AllAwardOdds = { cy: {}, awards: {} }
   const apiKey = process.env.ODDS_API_KEY
-  if (!apiKey) return oddsMap
+  if (!apiKey) return result
 
   try {
-    // First get the sport key for MLB CY Young
     const sportsRes = await fetch(`https://api.the-odds-api.com/v4/sports?apiKey=${apiKey}`)
     const sports = await sportsRes.json()
-    // Look for MLB award outrights
-    const cyKey = sports.find((s: any) =>
-      s.key?.includes('baseball_mlb') && s.key?.includes('cy_young') && s.has_outrights
-    )?.key
 
-    if (!cyKey) {
-      // Try the general baseball outrights endpoint
-      const altKeys = sports
-        .filter((s: any) => s.key?.includes('baseball_mlb') && s.has_outrights)
-        .map((s: any) => s.key)
+    // Find all MLB outright markets (awards, futures)
+    const mlbKeys = sports
+      .filter((s: any) => s.key?.includes('baseball_mlb') && s.has_outrights)
+      .map((s: any) => s.key)
 
-      for (const key of altKeys) {
-        const oddsRes = await fetch(
-          `https://api.the-odds-api.com/v4/sports/${key}/odds?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american`
-        )
-        if (oddsRes.ok) {
-          const oddsData = await oddsRes.json()
-          // Check if this is CY Young market
-          for (const event of oddsData) {
-            if (event.sport_title?.toLowerCase().includes('cy young')) {
-              for (const bookmaker of event.bookmakers || []) {
-                for (const market of bookmaker.markets || []) {
-                  for (const outcome of market.outcomes || []) {
-                    const name = outcome.name
-                    const price = outcome.price
-                    if (name && price != null) {
-                      const prefix = price >= 0 ? '+' : ''
-                      oddsMap[name] = `${prefix}${price}`
-                    }
-                  }
-                }
-                break // Just use first bookmaker
-              }
-            }
-          }
-        }
-      }
-      return oddsMap
-    }
+    for (const key of mlbKeys) {
+      const oddsRes = await fetch(
+        `https://api.the-odds-api.com/v4/sports/${key}/odds?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american`
+      )
+      if (!oddsRes.ok) continue
 
-    const oddsRes = await fetch(
-      `https://api.the-odds-api.com/v4/sports/${cyKey}/odds?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american`
-    )
-    if (oddsRes.ok) {
       const oddsData = await oddsRes.json()
       for (const event of oddsData) {
+        const title = (event.sport_title || '').toLowerCase()
+
+        // Extract outcomes from first bookmaker
+        const outcomes: { name: string; price: number }[] = []
         for (const bookmaker of event.bookmakers || []) {
           for (const market of bookmaker.markets || []) {
             for (const outcome of market.outcomes || []) {
               if (outcome.name && outcome.price != null) {
-                const prefix = outcome.price >= 0 ? '+' : ''
-                oddsMap[outcome.name] = `${prefix}${outcome.price}`
+                outcomes.push({ name: outcome.name, price: outcome.price })
               }
             }
           }
-          break // Just use first bookmaker
+          break // first bookmaker only
+        }
+
+        if (outcomes.length === 0) continue
+
+        const oddsMap: Record<string, string> = {}
+        for (const o of outcomes) {
+          const prefix = o.price >= 0 ? '+' : ''
+          oddsMap[o.name] = `${prefix}${o.price}`
+        }
+
+        // CY Young → also save to cy-specific map
+        if (title.includes('cy young')) {
+          Object.assign(result.cy, oddsMap)
+        }
+
+        // Map to our category keys
+        for (const [pattern, cat] of Object.entries(AWARD_TITLE_MAP)) {
+          if (title.includes(pattern)) {
+            result.awards[cat] = { ...(result.awards[cat] || {}), ...oddsMap }
+          }
         }
       }
     }
   } catch (e) {
-    console.error('Failed to fetch CY odds:', e)
+    console.error('Failed to fetch award odds:', e)
   }
-  return oddsMap
+  return result
 }
 
 // ── Main Handler ─────────────────────────────────────────────
@@ -416,25 +433,34 @@ export default async function handler(req: Request) {
     }
     updates.push(`CY stats: ${cyUpdated}/20 pitchers`)
 
-    // 5. Update CY odds (if API key configured)
-    const cyOdds = await fetchCYOdds()
-    let oddsUpdated = 0
-    if (Object.keys(cyOdds).length > 0) {
+    // 5. Update all award odds (CY + MVP + ROY + MGR)
+    const allOdds = await fetchAllAwardOdds()
+
+    // 5a. CY odds on pitcher cards
+    let cyOddsUpdated = 0
+    if (Object.keys(allOdds.cy).length > 0) {
       for (const player of ['Scott', 'Ty']) {
         if (!appData.cy?.[player]) continue
         for (let i = 0; i < appData.cy[player].length; i++) {
           const pick = appData.cy[player][i]
-          // Try exact match and common name variations
-          const matchedOdds = cyOdds[pick.pitcher]
+          const matchedOdds = allOdds.cy[pick.pitcher]
           if (matchedOdds) {
             appData.cy[player][i] = { ...pick, liveOdds: matchedOdds }
-            oddsUpdated++
+            cyOddsUpdated++
           }
         }
       }
-      updates.push(`CY odds: ${oddsUpdated} matched`)
+      updates.push(`CY odds: ${cyOddsUpdated} matched`)
     } else {
       updates.push('CY odds: no API key or no data')
+    }
+
+    // 5b. Award odds saved to appData.awardsOdds for the Awards component
+    if (Object.keys(allOdds.awards).length > 0) {
+      appData.awardsOdds = allOdds.awards
+      updates.push(`Award odds: ${Object.keys(allOdds.awards).length} categories`)
+    } else {
+      updates.push('Award odds: no data')
     }
 
     // 6. Update projected wins for O/U

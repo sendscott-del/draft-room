@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import type { AppData } from '../types'
 import { GMETA, PLAYERS } from '../data/constants'
-import { allScores, getTotals, fmt } from  '../lib/scoring'
+import { allScores, getTotals, fmt } from '../lib/scoring'
 import { projectPlayerTotal } from '../lib/cyProjection'
+import { projectAwards } from '../lib/awardsProjection'
 import { OUL } from '../data/constants'
 import Card from './ui/Card'
 
@@ -36,22 +37,27 @@ export default function Leaderboard({ data }: LeaderboardProps) {
 
   const ouProj = useMemo(() => projectedOUScore(data.ou), [data.ou])
 
+  const awardsOdds = (data as any).awardsOdds || {}
+  const awProj = useMemo(() => projectAwards(data.aw, awardsOdds), [data.aw, awardsOdds])
+
   const displayScores = useMemo(() => {
     const d = { ...sc }
     const projected: Record<string, boolean> = {}
 
-    // CY: use projection if no actual votes
     if (sc.cy.Scott === 0 && sc.cy.Ty === 0 && (cyProj.Scott > 0 || cyProj.Ty > 0)) {
       d.cy = cyProj
       projected.cy = true
     }
-    // OU: use projection if no actual results
     if (sc.ou.Scott === 0 && sc.ou.Ty === 0 && (ouProj.Scott > 0 || ouProj.Ty > 0)) {
       d.ou = ouProj
       projected.ou = true
     }
+    if (sc.aw.Scott === 0 && sc.aw.Ty === 0 && (awProj.totals.Scott > 0 || awProj.totals.Ty > 0)) {
+      d.aw = awProj.totals
+      projected.aw = true
+    }
     return { scores: d, projected }
-  }, [sc, cyProj, ouProj])
+  }, [sc, cyProj, ouProj, awProj])
 
   const displayTot = getTotals(displayScores.scores)
   const hasAnyProjection = Object.keys(displayScores.projected).length > 0
