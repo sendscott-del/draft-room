@@ -98,12 +98,23 @@ export function sAW(aw: AppData['aw']): { Scott: number; Ty: number } {
 
 export function sOU(ou: AppData['ou']): { Scott: number; Ty: number } {
   const s = { Scott: 0, Ty: 0 }
+  const seasonOver = new Date() >= new Date('2026-09-28T03:59:59Z')
+
   PLAYERS.forEach(p => {
     OUL.forEach(t => {
-      const sl = ou[p][t.a]
-      if (!sl || !sl.pick || !sl.actual) return
-      const a = Number(sl.actual)
-      if ((sl.pick === 'over' && a > t.l) || (sl.pick === 'under' && a < t.l)) s[p] += 3
+      const sl = ou[p][t.a] as any
+      if (!sl || !sl.pick) return
+
+      // Use projected wins during season, actual wins only after season ends
+      let compareVal: number | null = null
+      if (seasonOver && sl.actual) {
+        compareVal = Number(sl.actual)
+      } else if (sl.projected) {
+        compareVal = Number(sl.projected)
+      }
+
+      if (compareVal === null) return
+      if ((sl.pick === 'over' && compareVal > t.l) || (sl.pick === 'under' && compareVal < t.l)) s[p] += 3
     })
   })
   return s

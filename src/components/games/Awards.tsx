@@ -39,6 +39,13 @@ const PROJ_COLORS: Record<string, string> = {
   none: '#64748b',
 }
 
+const PROJ_LABELS: Record<string, string> = {
+  winner: 'Winner (25pts)',
+  finalist: 'Top 3 (10pts)',
+  top10: 'Top 10 (5pts)',
+  none: 'Outside Top 10',
+}
+
 export default function Awards({ data, setData }: Props) {
   const locked = isLocked('aw')
   const d = data.aw
@@ -51,7 +58,6 @@ export default function Awards({ data, setData }: Props) {
     })
   }
 
-  // Calculate actual totals
   const actualTotals = { Scott: 0, Ty: 0 }
   PLAYERS.forEach(p => {
     CATEGORIES.forEach(([, , res]) => {
@@ -60,11 +66,9 @@ export default function Awards({ data, setData }: Props) {
   })
   const hasActualResults = actualTotals.Scott > 0 || actualTotals.Ty > 0
 
-  // Projections
   const awardsOdds = (data as any).awardsOdds || {}
   const proj = useMemo(() => projectAwards(d, awardsOdds), [d, awardsOdds])
 
-  // Display totals: use projection when no actual results
   const displayTotals = hasActualResults ? actualTotals : proj.totals
   const isProjected = !hasActualResults && (proj.totals.Scott > 0 || proj.totals.Ty > 0)
 
@@ -72,20 +76,13 @@ export default function Awards({ data, setData }: Props) {
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started \u2014 Award picks are locked.'} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-        <Pills items={['Winner 25pts', 'Top 3 finalist 10pts', 'Top 10 5pts', 'MVP \u00B7 RoY \u00B7 Cy Young \u00B7 Manager of Year']} />
+        <Pills items={['Winner 25pts', 'Top 3 finalist 10pts', 'Top 10 5pts']} />
         {isProjected && (
           <InfoPopup title="Awards Projection">
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>How it works:</strong> Projected award finishes are estimated from current betting odds sourced from major sportsbooks via The Odds API.</p>
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Odds → Probability:</strong> American odds are converted to implied probability. For example, +200 = 33% chance, +500 = 17% chance, +1000 = 9% chance.</p>
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Probability → Projected Finish:</strong></p>
-            <ul style={{ marginBottom: 10, paddingLeft: 18 }}>
-              <li>{'>'} 40% implied → <strong style={{ color: '#22c55e' }}>Winner</strong> (25 pts)</li>
-              <li>15–40% implied → <strong style={{ color: '#f59e0b' }}>Top 3 Finalist</strong> (10 pts)</li>
-              <li>5–15% implied → <strong style={{ color: '#3b82f6' }}>Top 10</strong> (5 pts)</li>
-              <li>{'<'} 5% implied → None (0 pts)</li>
-            </ul>
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Award categories:</strong> AL/NL MVP, AL/NL Rookie of the Year, AL/NL Cy Young, AL/NL Manager of the Year (8 awards total).</p>
-            <p><strong style={{ color: '#f1f5f9' }}>When no odds are available</strong> (e.g. Manager of the Year early in the season), a default projection of Top 10 (5 pts) is used as a placeholder.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>How it works:</strong> When betting odds are available, they're converted to implied probability to project each pick's finish.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>With odds:</strong> {'>'}40% = Winner, 20-40% = Top 3, 8-20% = Top 10, {'<'}8% = None.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Without odds:</strong> Picks are ranked against preseason favorites lists. #1 favorite = projected Winner, #2-3 = Top 3, #4-5 = Top 10.</p>
+            <p><strong style={{ color: '#f1f5f9' }}>Projected Field</strong> shows who's currently expected to win each award based on odds or preseason rankings.</p>
           </InfoPopup>
         )}
       </div>
@@ -103,91 +100,101 @@ export default function Awards({ data, setData }: Props) {
         ))}
       </div>
 
-      {CATEGORIES.map(([label, field, res]) => (
-        <Card key={field} style={{ borderLeft: '3px solid #06b6d4' }}>
-          <div style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: '#64748b', marginBottom: 7, paddingBottom: 5, borderBottom: '1px solid rgba(255,255,255,0.09)' }}>
-            {label}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {PLAYERS.map(p => {
-              const pickName = d[p][field as keyof typeof d.Scott] as string
-              const resultVal = d[p][res as keyof typeof d.Scott] as string
-              const ptVal = PTS[resultVal] || 0
-              const hasResult = resultVal !== 'none'
-              const projection: AwardProjection | undefined = proj[p]?.[field]
+      {CATEGORIES.map(([label, field, res]) => {
+        const fieldData = proj.fields?.[field]
 
-              return (
-                <div key={p} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 7, padding: 10 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>{p}</div>
-                    <div style={{ fontWeight: 900, fontSize: 18, fontFamily: 'monospace', color: ptVal > 0 ? '#06b6d4' : hasResult ? '#ef4444' : '#64748b' }}>
-                      {hasResult ? `${ptVal}pt` : '\u2014'}
-                    </div>
-                  </div>
+        return (
+          <Card key={field} style={{ borderLeft: '3px solid #06b6d4' }}>
+            <div style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: '#64748b', marginBottom: 7, paddingBottom: 5, borderBottom: '1px solid rgba(255,255,255,0.09)' }}>
+              {label}
+            </div>
 
-                  {/* Player pick name */}
-                  <div style={{
-                    fontWeight: 700, fontSize: 14, color: '#f1f5f9', marginBottom: 6,
-                    padding: '5px 9px', background: 'rgba(255,255,255,0.03)',
-                    borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)',
-                  }}>
-                    {pickName || <span style={{ color: '#64748b', fontWeight: 400 }}>No pick</span>}
-                  </div>
-
-                  {/* Projection */}
-                  {projection && pickName && !hasResult && (
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6,
-                      padding: '4px 8px', background: 'rgba(6,182,212,0.06)',
-                      borderRadius: 5, border: '1px solid rgba(6,182,212,0.12)',
-                    }}>
-                      <span style={{
-                        fontSize: 8, fontWeight: 800, letterSpacing: 1, color: '#06b6d4',
-                        textTransform: 'uppercase',
-                      }}>
-                        PROJ
-                      </span>
-                      <span style={{
-                        fontSize: 11, fontWeight: 700, fontFamily: 'monospace',
-                        color: PROJ_COLORS[projection.result],
-                      }}>
-                        {projection.result === 'winner' ? 'Winner (25pts)' :
-                          projection.result === 'finalist' ? 'Top 3 (10pts)' :
-                            projection.result === 'top10' ? 'Top 10 (5pts)' : 'Outside Top 10'}
-                      </span>
-                      {projection.odds && (
-                        <span style={{ fontSize: 10, color: '#f59e0b', fontWeight: 700, marginLeft: 'auto' }}>
-                          {projection.odds}
-                        </span>
-                      )}
-                    </div>
+            {/* Projected field — who's expected to win */}
+            {fieldData && !hasActualResults && (
+              <div style={{ background: 'rgba(6,182,212,0.04)', border: '1px solid rgba(6,182,212,0.1)', borderRadius: 6, padding: '6px 10px', marginBottom: 10, fontSize: 10, color: '#94a3b8' }}>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  {fieldData.winner && (
+                    <span><span style={{ color: '#22c55e', fontWeight: 700 }}>Proj Winner:</span> {fieldData.winner}</span>
                   )}
-
-                  {/* Odds display when available */}
-                  {projection?.impliedProb && pickName && !hasResult && (
-                    <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6 }}>
-                      Implied probability: {projection.impliedProb}%
-                    </div>
+                  {fieldData.top3.length > 1 && (
+                    <span><span style={{ color: '#f59e0b', fontWeight: 700 }}>Top 3:</span> {fieldData.top3.slice(1, 3).join(', ')}</span>
                   )}
-
-                  {/* Result dropdown */}
-                  <select
-                    value={resultVal}
-                    onChange={e => updateResult(p, res, e.target.value as AwardResult)}
-                    style={{
-                      background: '#1e293b', border: '1px solid rgba(255,255,255,0.09)',
-                      borderRadius: 6, color: '#f1f5f9', padding: '5px 9px', fontSize: 13,
-                      outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'inherit',
-                    }}
-                  >
-                    {resultOpts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
-                  </select>
                 </div>
-              )
-            })}
-          </div>
-        </Card>
-      ))}
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {PLAYERS.map(p => {
+                const pickName = d[p][field as keyof typeof d.Scott] as string
+                const resultVal = d[p][res as keyof typeof d.Scott] as string
+                const ptVal = PTS[resultVal] || 0
+                const hasResult = resultVal !== 'none'
+                const projection: AwardProjection | undefined = proj[p]?.[field]
+
+                return (
+                  <div key={p} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 7, padding: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>{p}</div>
+                      <div style={{ fontWeight: 900, fontSize: 18, fontFamily: 'monospace', color: ptVal > 0 ? '#06b6d4' : hasResult ? '#ef4444' : '#64748b' }}>
+                        {hasResult ? `${ptVal}pt` : projection ? `~${projection.points}pt` : '\u2014'}
+                      </div>
+                    </div>
+
+                    {/* Player pick */}
+                    <div style={{
+                      fontWeight: 700, fontSize: 14, color: '#f1f5f9', marginBottom: 6,
+                      padding: '5px 9px', background: 'rgba(255,255,255,0.03)',
+                      borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)',
+                    }}>
+                      {pickName || <span style={{ color: '#64748b', fontWeight: 400 }}>No pick</span>}
+                    </div>
+
+                    {/* Projection */}
+                    {projection && pickName && !hasResult && (
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6,
+                        padding: '4px 8px', borderRadius: 5,
+                        background: `${PROJ_COLORS[projection.result]}10`,
+                        border: `1px solid ${PROJ_COLORS[projection.result]}30`,
+                      }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: PROJ_COLORS[projection.result] }}>
+                          {PROJ_LABELS[projection.result]}
+                        </span>
+                        {projection.odds && (
+                          <span style={{ fontSize: 10, color: '#f59e0b', fontWeight: 700, marginLeft: 'auto' }}>
+                            {projection.odds}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Note */}
+                    {projection?.note && pickName && !hasResult && (
+                      <div style={{ fontSize: 9, color: '#64748b', marginBottom: 6 }}>
+                        {projection.note}
+                        {projection.impliedProb ? ` (${projection.impliedProb}%)` : ''}
+                      </div>
+                    )}
+
+                    {/* Result dropdown */}
+                    <select
+                      value={resultVal}
+                      onChange={e => updateResult(p, res, e.target.value as AwardResult)}
+                      style={{
+                        background: '#1e293b', border: '1px solid rgba(255,255,255,0.09)',
+                        borderRadius: 6, color: '#f1f5f9', padding: '5px 9px', fontSize: 13,
+                        outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'inherit',
+                      }}
+                    >
+                      {resultOpts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+                    </select>
+                  </div>
+                )
+              })}
+            </div>
+          </Card>
+        )
+      })}
     </>
   )
 }
