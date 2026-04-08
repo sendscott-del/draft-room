@@ -1,6 +1,7 @@
 import type { AppData } from '../types'
 import { GMETA, PLAYERS } from '../data/constants'
 import { allScores, getTotals, fmt } from '../lib/scoring'
+import { projectPlayerTotal } from '../lib/cyProjection'
 import Card from './ui/Card'
 
 interface LeaderboardProps {
@@ -105,30 +106,38 @@ export default function Leaderboard({ data }: LeaderboardProps) {
               </span>
               {gl && <span style={{ fontSize: 11, color: meta.c, fontWeight: 700 }}>{'\u25B2'} {gl}</span>}
             </div>
-            {PLAYERS.map(p => (
-              <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-                <span style={{ width: 40, fontSize: 12, color: '#94a3b8' }}>{p}</span>
-                <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
-                  <div
+            {PLAYERS.map(p => {
+              const cyProj = key === 'cy' ? projectPlayerTotal(data.cy, p as 'Scott' | 'Ty') : 0
+              return (
+                <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                  <span style={{ width: 40, fontSize: 12, color: '#94a3b8' }}>{p}</span>
+                  <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        height: '100%',
+                        borderRadius: 3,
+                        transition: 'width 0.6s',
+                        width: `${Math.round((gs[p] / max) * 100)}%`,
+                        background: meta.c,
+                      }}
+                    />
+                  </div>
+                  <span
                     style={{
-                      height: '100%',
-                      borderRadius: 3,
-                      transition: 'width 0.6s',
-                      width: `${Math.round((gs[p] / max) * 100)}%`,
-                      background: meta.c,
+                      width: 40, fontSize: 13, fontWeight: 800, fontFamily: 'monospace',
+                      textAlign: 'right', color: gs[p] > 0 ? meta.c : '#64748b',
                     }}
-                  />
+                  >
+                    {fmt(gs[p])}
+                  </span>
+                  {key === 'cy' && cyProj > 0 && gs[p] === 0 && (
+                    <span style={{ fontSize: 9, color: '#3b82f6', fontFamily: 'monospace', fontWeight: 700, minWidth: 45 }}>
+                      ~{cyProj}
+                    </span>
+                  )}
                 </div>
-                <span
-                  style={{
-                    width: 40, fontSize: 13, fontWeight: 800, fontFamily: 'monospace',
-                    textAlign: 'right', color: gs[p] > 0 ? meta.c : '#64748b',
-                  }}
-                >
-                  {fmt(gs[p])}
-                </span>
-              </div>
-            ))}
+              )
+            })}
           </Card>
         )
       })}
