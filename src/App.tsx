@@ -51,12 +51,17 @@ export default function App() {
       .then(d => {
         if (d && d.fa) {
           setData(deepMerge(DEFAULT_DATA, d))
+        } else {
+          // No saved data — save defaults to Supabase
+          saveData(DEFAULT_DATA).catch(() => {})
         }
         setSyncStatus('saved')
         isInitialLoad.current = false
       })
       .catch(() => {
-        setSyncStatus('error')
+        // First time or error — save defaults
+        saveData(DEFAULT_DATA).catch(() => {})
+        setSyncStatus('saved')
         isInitialLoad.current = false
       })
   }, [])
