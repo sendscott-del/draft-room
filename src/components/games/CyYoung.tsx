@@ -16,9 +16,9 @@ export default function CyYoung({ data, setData }: Props) {
   const [tab, setTab] = useState<Player>('Scott')
   const locked = isLocked('cy')
   const d = data.cy
-  const sc = sCY(d)
+  const actualSc = sCY(d)
 
-  // Build projections for both leagues
+  // Build projections
   const projections = useMemo(() => {
     const allAL = [...d.Scott.filter(p => p.lg === 'AL'), ...d.Ty.filter(p => p.lg === 'AL')]
     const allNL = [...d.Scott.filter(p => p.lg === 'NL'), ...d.Ty.filter(p => p.lg === 'NL')]
@@ -31,6 +31,13 @@ export default function CyYoung({ data, setData }: Props) {
     Scott: projectPlayerTotal(d, 'Scott'),
     Ty: projectPlayerTotal(d, 'Ty'),
   }), [d])
+
+  // Use projected totals when actual votes are 0
+  const displaySc = {
+    Scott: actualSc.Scott > 0 ? actualSc.Scott : projTotals.Scott,
+    Ty: actualSc.Ty > 0 ? actualSc.Ty : projTotals.Ty,
+  }
+  const isProjected = actualSc.Scott === 0 && actualSc.Ty === 0
 
   const updateVotes = (i: number, val: string) => {
     setData(prev => {
@@ -47,28 +54,6 @@ export default function CyYoung({ data, setData }: Props) {
       {locked && <LockBanner message={'\u{1F512} Draft complete \u2014 Cy Young picks are locked.'} />}
       <Pills items={['10 pitchers each', '1 must have 0 prior CY votes', 'Points = official CY votes']} />
 
-      {/* Projection banner */}
-      <div style={{
-        background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)',
-        borderRadius: 8, padding: '10px 14px', marginBottom: 14,
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      }}>
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>
-          <span style={{ fontSize: 9, letterSpacing: 1, textTransform: 'uppercase', color: '#3b82f6', fontWeight: 700 }}>
-            Forecast
-          </span>
-          <span style={{ marginLeft: 6 }}>Based on stats + odds</span>
-        </div>
-        <div style={{ display: 'flex', gap: 16, fontFamily: 'monospace', fontSize: 13, fontWeight: 700 }}>
-          <span style={{ color: projTotals.Scott >= projTotals.Ty ? '#fbbf24' : '#94a3b8' }}>
-            Scott ~{projTotals.Scott}
-          </span>
-          <span style={{ color: projTotals.Ty >= projTotals.Scott ? '#fbbf24' : '#94a3b8' }}>
-            Ty ~{projTotals.Ty}
-          </span>
-        </div>
-      </div>
-
       <div style={{ display: 'flex', gap: 3, marginBottom: 12 }}>
         {(['Scott', 'Ty'] as Player[]).map(p => (
           <button
@@ -82,7 +67,8 @@ export default function CyYoung({ data, setData }: Props) {
               fontSize: 13, fontWeight: 700, transition: 'all 0.15s', fontFamily: 'inherit',
             }}
           >
-            {p} — {sc[p]}pts {sc[p] === 0 && projTotals[p] > 0 ? `(~${projTotals[p]} proj)` : ''}
+            {p} — {isProjected ? `~${displaySc[p]}` : displaySc[p]}pts
+            {isProjected && <span style={{ fontSize: 9, color: '#64748b', marginLeft: 4 }}>proj</span>}
           </button>
         ))}
       </div>
@@ -95,11 +81,12 @@ export default function CyYoung({ data, setData }: Props) {
           {d[tab].map((pick, i) => {
             if (pick.lg !== lg) return null
             const votes = Number(pick.votes) || 0
-            const hasVotes = pick.votes !== 0 && String(pick.votes) !== '0'
-            const bc = hasVotes && votes > 0 ? 'rgba(59,130,246,0.4)' : 'rgba(255,255,255,0.09)'
+            const proj = projections.get(pick.pitcher)
+            const displayPts = votes > 0 ? votes : (proj?.projectedVotes ?? 0)
+            const usingProj = votes === 0 && displayPts > 0
+            const bc = votes > 0 ? 'rgba(59,130,246,0.4)' : usingProj ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.09)'
             const stats = pick.stats
             const liveOdds = pick.liveOdds
-            const proj = projections.get(pick.pitcher)
 
             return (
               <Card key={i} borderColor={bc}>
@@ -112,9 +99,7 @@ export default function CyYoung({ data, setData }: Props) {
                     <div style={{ fontSize: 11, color: '#64748b', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                       <span>Draft: {pick.odds}</span>
                       {liveOdds && (
-                        <span style={{ color: '#f59e0b', fontWeight: 700 }}>
-                          Live: {liveOdds}
-                        </span>
+                        <span style={{ color: '#f59e0b', fontWeight: 700 }}>Live: {liveOdds}</span>
                       )}
                       {pick.rookie ? <span style={{ color: '#a855f7' }}>{'\u2605'} never-voted</span> : null}
                     </div>
@@ -128,20 +113,6 @@ export default function CyYoung({ data, setData }: Props) {
                         <span>{stats.ip} IP</span>
                       </div>
                     )}
-                    {/* Projection line */}
-                    {proj && proj.projectedVotes > 0 && (
-                      <div style={{ fontSize: 10, color: '#3b82f6', marginTop: 3, display: 'flex', gap: 6, alignItems: 'center' }}>
-                        <span style={{ background: 'rgba(59,130,246,0.12)', borderRadius: 3, padding: '1px 5px', fontWeight: 700, letterSpacing: 0.5 }}>
-                          PROJ
-                        </span>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>
-                          ~{proj.projectedVotes} votes
-                        </span>
-                        <span style={{ color: '#64748b', fontSize: 9 }}>
-                          ({proj.method})
-                        </span>
-                      </div>
-                    )}
                   </div>
                   <input
                     value={pick.votes}
@@ -153,8 +124,8 @@ export default function CyYoung({ data, setData }: Props) {
                       outline: 'none', width: 70, textAlign: 'right', boxSizing: 'border-box', fontFamily: 'inherit',
                     }}
                   />
-                  <span style={{ fontWeight: 900, fontSize: 16, fontFamily: 'monospace', flexShrink: 0, minWidth: 40, textAlign: 'right', color: votes > 0 ? '#3b82f6' : '#64748b' }}>
-                    {votes > 0 ? `${votes}pt` : '\u2014'}
+                  <span style={{ fontWeight: 900, fontSize: 16, fontFamily: 'monospace', flexShrink: 0, minWidth: 46, textAlign: 'right', color: votes > 0 ? '#3b82f6' : usingProj ? '#64748b' : '#64748b' }}>
+                    {usingProj ? `~${displayPts}` : votes > 0 ? `${votes}pt` : '\u2014'}
                   </span>
                 </div>
               </Card>
