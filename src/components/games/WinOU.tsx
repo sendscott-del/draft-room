@@ -31,9 +31,10 @@ export default function WinOU({ data, setData }: Props) {
     let hasProjections = false
     OUL.forEach(t => {
       const s = slot[t.a]
-      if (!s?.pick || !s.projected) return
+      if (!s?.pick || !(s as any).projected) return
       hasProjections = true
-      if ((s.pick === 'over' && s.projected > t.l) || (s.pick === 'under' && s.projected < t.l)) {
+      const proj = (s as any).projected as number
+      if ((s.pick === 'over' && proj > t.l) || (s.pick === 'under' && proj < t.l)) {
         projCorrect++
       }
     })
@@ -47,15 +48,6 @@ export default function WinOU({ data, setData }: Props) {
       ou[tab] = { ...ou[tab] }
       const cur = ou[tab][team].pick
       ou[tab][team] = { ...ou[tab][team], pick: cur === pick ? '' : pick }
-      return { ...prev, ou }
-    })
-  }
-
-  const updateActual = (team: string, val: string) => {
-    setData(prev => {
-      const ou = { ...prev.ou }
-      ou[tab] = { ...ou[tab] }
-      ou[tab][team] = { ...ou[tab][team], actual: val }
       return { ...prev, ou }
     })
   }
@@ -106,6 +98,20 @@ export default function WinOU({ data, setData }: Props) {
         {correct}/30 correct — {correct * 3}pts
       </div>
 
+      {/* Column headers */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: '50px 1fr 112px 50px 50px 50px 22px',
+        gap: 4, padding: '4px 10px', marginBottom: 2,
+      }}>
+        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Team</span>
+        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}></span>
+        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Pick</span>
+        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Proj</span>
+        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Wins</span>
+        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Pace</span>
+        <span></span>
+      </div>
+
       <div>
         {OUL.map(t => {
           const s = slot[t.a] || { pick: '', actual: '' }
@@ -118,6 +124,17 @@ export default function WinOU({ data, setData }: Props) {
           const projOk = s.pick && proj != null && ((s.pick === 'over' && proj > t.l) || (s.pick === 'under' && proj < t.l))
           const projBad = s.pick && proj != null && !projOk
 
+          // Calculate 162-game pace from current wins
+          const currentWins = a || 0
+          // Get current losses from standings (wins are in actual, approximate games played)
+          // Use wins to estimate pace: if 5 wins in ~10 games, pace = 5/10 * 162
+          // We don't have losses, so estimate games played from the season date
+          const seasonStart = new Date('2026-03-26')
+          const now = new Date()
+          const daysIntoSeason = Math.max(1, Math.floor((now.getTime() - seasonStart.getTime()) / 86400000))
+          const gamesEstimate = Math.min(162, Math.round(daysIntoSeason * 162 / 183)) // ~183 day season
+          const pace = gamesEstimate > 0 ? Math.round((currentWins / gamesEstimate) * 162) : 0
+
           const bg = ok ? 'rgba(34,197,94,0.07)' : bad ? 'rgba(239,68,68,0.07)' : 'rgba(255,255,255,0.04)'
           const bc = ok ? 'rgba(34,197,94,0.25)' : bad ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.09)'
           const overActive = s.pick === 'over'
@@ -127,7 +144,7 @@ export default function WinOU({ data, setData }: Props) {
             <div
               key={t.a}
               style={{
-                display: 'grid', gridTemplateColumns: '50px 1fr 112px 50px 50px 22px',
+                display: 'grid', gridTemplateColumns: '50px 1fr 112px 50px 50px 50px 22px',
                 gap: 4, alignItems: 'center', padding: '6px 10px', borderRadius: 7,
                 border: `1px solid ${bc}`, marginBottom: 4, background: bg,
               }}
@@ -162,29 +179,38 @@ export default function WinOU({ data, setData }: Props) {
               </div>
               {/* Projected wins */}
               <div style={{ textAlign: 'center' }}>
-                {proj != null && (
+                {proj != null ? (
                   <span style={{
-                    fontSize: 10, fontFamily: 'monospace', fontWeight: 700,
+                    fontSize: 11, fontFamily: 'monospace', fontWeight: 700,
                     color: projOk ? '#22c55e' : projBad ? '#ef4444' : '#94a3b8',
-                    background: projOk ? 'rgba(34,197,94,0.1)' : projBad ? 'rgba(239,68,68,0.1)' : 'transparent',
-                    borderRadius: 3, padding: '1px 4px',
                   }}>
-                    ~{proj}
+                    {Math.round(proj)}
                   </span>
+                ) : (
+                  <span style={{ fontSize: 11, color: '#64748b' }}>—</span>
                 )}
               </div>
-              {/* Actual wins */}
-              <input
-                value={s.actual}
-                placeholder="W"
-                onChange={e => updateActual(t.a, e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.09)',
-                  borderRadius: 6, color: '#f1f5f9', padding: '4px 6px', fontSize: 12,
-                  outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'inherit',
-                }}
-              />
-              <span style={{ fontSize: 12, fontWeight: 700, color: ok ? '#22c55e' : bad ? '#ef4444' : '#64748b' }}>
+              {/* Current wins */}
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ fontSize: 11, fontFamily: 'monospace', fontWeight: 700, color: '#f1f5f9' }}>
+                  {currentWins || '—'}
+                </span>
+              </div>
+              {/* 162-game pace */}
+              <div style={{ textAlign: 'center' }}>
+                {currentWins > 0 ? (
+                  <span style={{
+                    fontSize: 10, fontFamily: 'monospace', fontWeight: 700,
+                    color: s.pick === 'over' && pace > t.l ? '#22c55e' : s.pick === 'under' && pace < t.l ? '#22c55e' : '#ef4444',
+                  }}>
+                    {pace}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 11, color: '#64748b' }}>—</span>
+                )}
+              </div>
+              {/* Result */}
+              <span style={{ fontSize: 12, fontWeight: 700, textAlign: 'center', color: ok ? '#22c55e' : bad ? '#ef4444' : '#64748b' }}>
                 {ok ? '\u2705' : bad ? '\u274C' : ''}
               </span>
             </div>
