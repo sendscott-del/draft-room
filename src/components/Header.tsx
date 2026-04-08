@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { AppData } from '../types'
 import type { CountdownState } from '../lib/locks'
 import { allScores, getTotals } from '../lib/scoring'
+import { projectPlayerTotal } from '../lib/cyProjection'
+import { PLAYERS, OUL } from '../data/constants'
 import SyncDot from './ui/SyncDot'
 import Countdown from './ui/Countdown'
 
@@ -12,11 +14,50 @@ interface HeaderProps {
   onStatsUpdated?: () => void
 }
 
+// Projected O/U score using FanGraphs projected wins
+function projectedOUScore(ou: AppData['ou']): { Scott: number; Ty: number } {
+  const s = { Scott: 0, Ty: 0 }
+  PLAYERS.forEach(p => {
+    OUL.forEach(t => {
+      const sl = ou[p]?.[t.a]
+      if (!sl?.pick) return
+      const proj = (sl as any).projected as number | undefined
+      if (proj == null) return
+      if ((sl.pick === 'over' && proj > t.l) || (sl.pick === 'under' && proj < t.l)) s[p] += 3
+    })
+  })
+  return s
+}
+
 export default function Header({ data, syncStatus, countdown, onStatsUpdated }: HeaderProps) {
   const [updating, setUpdating] = useState(false)
   const [updateMsg, setUpdateMsg] = useState('')
   const sc = allScores(data)
-  const tot = getTotals(sc)
+
+  // Build projected scores same as Leaderboard
+  const cyProj = useMemo(() => ({
+    Scott: projectPlayerTotal(data.cy, 'Scott'),
+    Ty: projectPlayerTotal(data.cy, 'Ty'),
+  }), [data.cy])
+
+  const ouProj = useMemo(() => projectedOUScore(data.ou), [data.ou])
+
+  const displayScores = useMemo(() => {
+    const d = { ...sc }
+    let hasProjection = false
+    if (sc.cy.Scott === 0 && sc.cy.Ty === 0 && (cyProj.Scott > 0 || cyProj.Ty > 0)) {
+      d.cy = cyProj
+      hasProjection = true
+    }
+    if (sc.ou.Scott === 0 && sc.ou.Ty === 0 && (ouProj.Scott > 0 || ouProj.Ty > 0)) {
+      d.ou = ouProj
+      hasProjection = true
+    }
+    return { scores: d, hasProjection }
+  }, [sc, cyProj, ouProj])
+
+  const tot = getTotals(displayScores.scores)
+  const hasProj = displayScores.hasProjection
   const leader = tot.Scott > tot.Ty ? 'Scott' : tot.Ty > tot.Scott ? 'Ty' : null
   const sCol = leader === 'Scott' ? '#fbbf24' : '#f1f5f9'
   const tCol = leader === 'Ty' ? '#fbbf24' : '#f1f5f9'
@@ -87,7 +128,7 @@ export default function Header({ data, syncStatus, countdown, onStatsUpdated }: 
                 opacity: updating ? 0.5 : 1,
               }}
             >
-              {updating ? '⏳' : '🔄'} {updating ? 'UPDATING...' : 'UPDATE STATS'}
+              {updating ? '\u23F3' : '\uD83D\uDD04'} {updating ? 'UPDATING...' : 'UPDATE STATS'}
             </button>
           </div>
           {updateMsg && (
@@ -100,13 +141,13 @@ export default function Header({ data, syncStatus, countdown, onStatsUpdated }: 
         <div style={{ display: 'flex', gap: 20 }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 900, fontFamily: 'monospace', lineHeight: 1, color: sCol }}>
-              {tot.Scott}
+              {hasProj ? '~' : ''}{tot.Scott}
             </div>
             <div style={{ fontSize: 9, letterSpacing: 2, color: '#64748b' }}>SCOTT</div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 28, fontWeight: 900, fontFamily: 'monospace', lineHeight: 1, color: tCol }}>
-              {tot.Ty}
+              {hasProj ? '~' : ''}{tot.Ty}
             </div>
             <div style={{ fontSize: 9, letterSpacing: 2, color: '#64748b' }}>TY</div>
           </div>

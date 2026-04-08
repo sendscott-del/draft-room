@@ -33,18 +33,36 @@ export default function Awards({ data, setData }: Props) {
   const locked = isLocked('aw')
   const d = data.aw
 
-  const updateField = (player: string, field: string, val: string) => {
+  const updateResult = (player: string, res: string, val: string) => {
     setData(prev => {
       const aw = { ...prev.aw }
-      aw[player as 'Scott' | 'Ty'] = { ...aw[player as 'Scott' | 'Ty'], [field]: val }
+      aw[player as 'Scott' | 'Ty'] = { ...aw[player as 'Scott' | 'Ty'], [res]: val }
       return { ...prev, aw }
     })
   }
+
+  // Calculate totals
+  const totals = { Scott: 0, Ty: 0 }
+  PLAYERS.forEach(p => {
+    CATEGORIES.forEach(([, , res]) => {
+      totals[p] += PTS[d[p][res as keyof typeof d.Scott] as string] || 0
+    })
+  })
 
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started \u2014 Award picks are locked.'} />}
       <Pills items={['Winner 25pts', 'Top 3 finalist 10pts', 'Top 10 5pts', 'MVP \u00B7 RoY \u00B7 Cy Young \u00B7 Manager of Year']} />
+
+      {/* Score header */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+        {PLAYERS.map(p => (
+          <div key={p} style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 8 }}>
+            <div style={{ fontWeight: 800, fontSize: 14 }}>{p}</div>
+            <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#06b6d4' }}>{totals[p]}pts</div>
+          </div>
+        ))}
+      </div>
 
       {CATEGORIES.map(([label, field, res]) => (
         <Card key={field} style={{ borderLeft: '3px solid #06b6d4' }}>
@@ -53,6 +71,7 @@ export default function Awards({ data, setData }: Props) {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {PLAYERS.map(p => {
+              const pickName = d[p][field as keyof typeof d.Scott] as string
               const ptVal = PTS[d[p][res as keyof typeof d.Scott] as string] || 0
               const hasResult = d[p][res as keyof typeof d.Scott] !== 'none'
               return (
@@ -63,27 +82,22 @@ export default function Awards({ data, setData }: Props) {
                       {hasResult ? `${ptVal}pt` : '\u2014'}
                     </div>
                   </div>
-                  <input
-                    value={d[p][field as keyof typeof d.Scott] as string}
-                    placeholder={`${p}'s pick`}
-                    disabled={locked}
-                    onChange={e => updateField(p, field, e.target.value)}
-                    style={{
-                      background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.09)',
-                      borderRadius: 6, color: '#f1f5f9', padding: '5px 9px', fontSize: 13,
-                      outline: 'none', width: '100%', boxSizing: 'border-box', marginBottom: 6, fontFamily: 'inherit',
-                      ...(locked ? { background: 'rgba(255,255,255,0.03)', color: '#64748b', cursor: 'not-allowed' } : {}),
-                    }}
-                  />
+                  {/* Player pick name (read-only) */}
+                  <div style={{
+                    fontWeight: 700, fontSize: 14, color: '#f1f5f9', marginBottom: 6,
+                    padding: '5px 9px', background: 'rgba(255,255,255,0.03)',
+                    borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)',
+                  }}>
+                    {pickName || <span style={{ color: '#64748b', fontWeight: 400 }}>No pick</span>}
+                  </div>
+                  {/* Result dropdown (editable for end-of-season entry) */}
                   <select
                     value={d[p][res as keyof typeof d.Scott] as string}
-                    disabled={locked}
-                    onChange={e => updateField(p, res, e.target.value as AwardResult)}
+                    onChange={e => updateResult(p, res, e.target.value as AwardResult)}
                     style={{
                       background: '#1e293b', border: '1px solid rgba(255,255,255,0.09)',
                       borderRadius: 6, color: '#f1f5f9', padding: '5px 9px', fontSize: 13,
                       outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'inherit',
-                      ...(locked ? { background: '#0f172a', color: '#64748b', cursor: 'not-allowed' } : {}),
                     }}
                   >
                     {resultOpts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}

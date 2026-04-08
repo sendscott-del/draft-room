@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import type { AppData, Player } from '../../types'
+import type { AppData } from '../../types'
 import { sTD } from '../../lib/scoring'
 import Card from '../ui/Card'
 import { Pills } from '../ui/Pill'
@@ -11,10 +10,8 @@ interface Props {
 }
 
 export default function TradeDeadline({ data, setData }: Props) {
-  const [tab, setTab] = useState<Player>('Scott')
   const d = data.td
   const sc = sTD(d)
-  const myPicks = d.filter(p => p.owner === tab)
 
   const updateField = (idx: number, field: string, value: string | boolean) => {
     setData(prev => {
@@ -24,30 +21,26 @@ export default function TradeDeadline({ data, setData }: Props) {
     })
   }
 
+  // Color per owner
+  const ownerColor = (owner: string) => owner === 'Scott' ? '#22c55e' : '#3b82f6'
+
   return (
     <>
       <Pills items={['32-pick snake', 'Correct team +10', 'Was traded +5', '2027 ASG or prior award +5']} />
 
-      <div style={{ display: 'flex', gap: 3, marginBottom: 12 }}>
-        {(['Scott', 'Ty'] as Player[]).map(p => (
-          <button
-            key={p}
-            onClick={() => setTab(p)}
-            style={{
-              flex: 1, padding: '8px 0', border: 'none', cursor: 'pointer',
-              background: tab === p ? 'rgba(255,255,255,0.06)' : 'transparent',
-              borderBottom: `2px solid ${tab === p ? '#f59e0b' : 'transparent'}`,
-              color: tab === p ? '#f59e0b' : '#64748b',
-              fontSize: 13, fontWeight: 700, transition: 'all 0.15s', fontFamily: 'inherit',
-            }}
-          >
-            {p} — {sc[p]}pts
-          </button>
-        ))}
+      {/* Score header */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+        <div style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8 }}>
+          <div style={{ fontWeight: 800, fontSize: 14 }}>Scott</div>
+          <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#f59e0b' }}>{sc.Scott}pts</div>
+        </div>
+        <div style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8 }}>
+          <div style={{ fontWeight: 800, fontSize: 14 }}>Ty</div>
+          <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#f59e0b' }}>{sc.Ty}pts</div>
+        </div>
       </div>
 
-      {myPicks.map(pick => {
-        const idx = d.indexOf(pick)
+      {d.map((pick, idx) => {
         let pts = 0
         const bd: string[] = []
         if (pick.player) {
@@ -57,12 +50,16 @@ export default function TradeDeadline({ data, setData }: Props) {
         }
         const hasData = !!(pick.player && (pick.team || pick.traded || pick.asg || pick.award))
         const bc = hasData ? (pts > 0 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.3)') : 'rgba(255,255,255,0.09)'
+        const oc = ownerColor(pick.owner)
 
         return (
           <Card key={pick.round} borderColor={bc} style={{ padding: '10px 12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7 }}>
               <span style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', borderRadius: 4, padding: '2px 7px', fontSize: 10, fontWeight: 800, flexShrink: 0 }}>
                 R{pick.round}
+              </span>
+              <span style={{ fontSize: 10, fontWeight: 800, color: oc, background: `${oc}15`, borderRadius: 4, padding: '2px 6px', flexShrink: 0 }}>
+                {pick.owner}
               </span>
               <input
                 value={pick.player}

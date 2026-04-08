@@ -9,9 +9,9 @@ export const GMETA: Record<string, { l: string; i: string; c: string; status: 'f
   cy: { l: "Cy Young",       i: "\u26BE",    c: "#3b82f6", status: "interim" },
   pu: { l: "Position Unit",  i: "\u{1F3DF}", c: "#a855f7", status: "interim" },
   hr: { l: "HR Team",        i: "\u{1F4A5}", c: "#ef4444", status: "interim" },
-  td: { l: "Trade Deadline", i: "\u{1F504}", c: "#f59e0b", status: "interim" },
   aw: { l: "MVP & RoY",      i: "\u{1F3C6}", c: "#06b6d4", status: "interim" },
   ou: { l: "Win O/U",        i: "\u{1F4CA}", c: "#ec4899", status: "interim" },
+  td: { l: "Trade Deadline", i: "\u{1F504}", c: "#f59e0b", status: "interim" },
 }
 
 export const NAV = [
@@ -24,7 +24,7 @@ export const NAV = [
   { id: "ou", l: "\u{1F4CA} O/U" },
   { id: "td", l: "\u{1F504} Trade Deadline" },
   { id: "ru", l: "\u{1F4D6} Rules" },
-]
+] // Order: FA, CY, PU, HR, AW, OU, TD
 
 export const OUL = [
   { a: "ARI", n: "Diamondbacks", l: 79.5 },
@@ -64,9 +64,9 @@ export const GAME_STATUS: Record<string, 'final' | 'interim'> = {
   cy: 'interim',
   pu: 'interim',
   hr: 'interim',
-  td: 'interim',
   aw: 'interim',
   ou: 'interim',
+  td: 'interim',
 }
 
 export const COLORS = {

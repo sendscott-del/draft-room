@@ -4,29 +4,20 @@ import { sHR } from '../../lib/scoring'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
-import { TEAMS, POS } from '../../data/constants'
+import { POS } from '../../data/constants'
 
 interface Props {
   data: AppData
   setData: (fn: (d: AppData) => AppData) => void
 }
 
-export default function HRTeam({ data, setData }: Props) {
+export default function HRTeam({ data }: Props) {
   const locked = isLocked('hr')
   const d = data.hr
   const sc = sHR(d)
 
   const scottTeams = new Set(Object.values(d.Scott).map(s => s.t).filter(Boolean))
   const tyTeams = new Set(Object.values(d.Ty).map(s => s.t).filter(Boolean))
-
-  const updateField = (player: Player, pos: string, field: string, val: string) => {
-    setData(prev => {
-      const hr = { ...prev.hr }
-      hr[player] = { ...hr[player] }
-      hr[player][pos] = { ...hr[player][pos], [field]: field === 'hr' ? (Number(val) || 0) : val }
-      return { ...prev, hr }
-    })
-  }
 
   return (
     <>
@@ -52,38 +43,13 @@ export default function HRTeam({ data, setData }: Props) {
 
                 return (
                   <Card key={pos} borderColor={bc} style={{ padding: '8px 10px', marginBottom: 6 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: 11, fontWeight: 800, color: '#ef4444' }}>{pos}</span>
                       <span style={{ fontSize: 12, color: '#94a3b8', flex: 1, textAlign: 'center' }}>{slot.p}</span>
+                      <span style={{ fontSize: 10, color: '#64748b', marginRight: 6 }}>{slot.t}</span>
                       <span style={{ fontWeight: 900, fontSize: 15, fontFamily: 'monospace', color: hrs > 0 ? '#ef4444' : conflict ? '#ef4444' : '#64748b', minWidth: 36, textAlign: 'right' }}>
                         {hrs > 0 ? `${hrs}HR` : conflict ? '\u26A0' : '\u2014'}
                       </span>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
-                      <select
-                        value={slot.t || ''}
-                        disabled={locked}
-                        onChange={e => updateField(player, pos, 't', e.target.value)}
-                        style={{
-                          background: '#1e293b', border: '1px solid rgba(255,255,255,0.09)',
-                          borderRadius: 6, color: '#f1f5f9', padding: '5px 9px', fontSize: 13,
-                          outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'inherit',
-                          ...(locked ? { background: '#0f172a', color: '#64748b', cursor: 'not-allowed' } : {}),
-                        }}
-                      >
-                        <option value="">Team...</option>
-                        {TEAMS.map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
-                      <input
-                        value={slot.hr}
-                        placeholder="HRs"
-                        onChange={e => updateField(player, pos, 'hr', e.target.value)}
-                        style={{
-                          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.09)',
-                          borderRadius: 6, color: '#f1f5f9', padding: '5px 9px', fontSize: 13,
-                          outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'inherit',
-                        }}
-                      />
                     </div>
                   </Card>
                 )
