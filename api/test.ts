@@ -1,11 +1,13 @@
-export default function handler(req: any, res: any) {
-  res.status(200).json({
+export const config = { runtime: 'edge' }
+
+export default function handler(req: Request) {
+  return new Response(JSON.stringify({
     ok: true,
     env: {
       hasSupaUrl: !!process.env.SUPABASE_URL,
       hasSupaKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-      hasViteUrl: !!process.env.VITE_SUPABASE_URL,
-      hasViteKey: !!process.env.VITE_SUPABASE_ANON_KEY,
     }
+  }), {
+    headers: { 'Content-Type': 'application/json' }
   })
 }
