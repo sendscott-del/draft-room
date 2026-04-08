@@ -112,12 +112,19 @@ const PU_TEAM_MAP: Record<string, string> = {
 }
 
 // Position → unit mapping
-function posToUnit(pos: string): 'INF+C' | 'OF' | 'SP' | 'RP' | null {
+function posToUnit(pos: string): 'INF+C' | 'OF' | null {
+  if (!pos) return null
+  // Handle multi-position like "DH/OF", "1B/3B/DH"
+  const parts = pos.split('/')
   const infC = ['C', '1B', '2B', '3B', 'SS']
-  const of = ['LF', 'CF', 'RF']
-  if (infC.includes(pos)) return 'INF+C'
-  if (of.includes(pos)) return 'OF'
-  if (pos === 'DH') return 'INF+C' // Count DH with infield
+  const of = ['LF', 'CF', 'RF', 'OF']
+
+  // Check if any part is OF
+  if (parts.some(p => of.includes(p.trim()))) return 'OF'
+  // Check if any part is infield/catcher
+  if (parts.some(p => infC.includes(p.trim()))) return 'INF+C'
+  // DH without OF — count as INF+C
+  if (parts.some(p => p.trim() === 'DH')) return 'INF+C'
   return null
 }
 
@@ -314,21 +321,44 @@ export default async function handler(req: Request) {
     // 3. Update Position Unit WAR
     const unitWARData = await fetchUnitWAR()
     let puUpdated = 0
+    const puMissing: string[] = []
     if (unitWARData.length > 0) {
+      // Collect all team abbrs from FanGraphs for debugging
+      const fgTeams = new Set(unitWARData.map(u => u.team))
+
       for (const player of ['Scott', 'Ty']) {
         if (!appData.pu?.[player]) continue
         for (let i = 0; i < appData.pu[player].length; i++) {
           const pick = appData.pu[player][i]
           const teamAbbr = PU_TEAM_MAP[pick.team]
-          if (!teamAbbr) continue
-          const match = unitWARData.find(u => u.team === teamAbbr && u.unit === pick.unit)
+          if (!teamAbbr) { puMissing.push(`${pick.team}: no abbr mapping`); continue }
+
+          // Try exact match and common alternatives
+          const alts = [teamAbbr]
+          if (teamAbbr === 'CHW') alts.push('CWS', 'CHW')
+          if (teamAbbr === 'CWS') alts.push('CHW')
+          if (teamAbbr === 'SDP') alts.push('SD', 'SDP')
+          if (teamAbbr === 'SFG') alts.push('SF', 'SFG')
+          if (teamAbbr === 'TBR') alts.push('TB', 'TBR')
+          if (teamAbbr === 'KCR') alts.push('KC', 'KCR')
+          if (teamAbbr === 'WSN') alts.push('WSH', 'WSN')
+
+          let match = null
+          for (const alt of alts) {
+            match = unitWARData.find(u => u.team === alt && u.unit === pick.unit)
+            if (match) break
+          }
+
           if (match) {
             appData.pu[player][i] = { ...pick, war: match.war }
             puUpdated++
+          } else {
+            puMissing.push(`${pick.team}(${teamAbbr}) ${pick.unit}`)
           }
         }
       }
       updates.push(`PU WAR: ${puUpdated}/24 units`)
+      if (puMissing.length > 0) updates.push(`PU missing: ${puMissing.join(', ')}`)
     } else {
       updates.push('PU WAR: no data from FanGraphs')
     }
