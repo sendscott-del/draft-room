@@ -17,21 +17,31 @@ import WinOU from './components/games/WinOU'
 import Rules from './components/games/Rules'
 
 // Deep merge: overlay saved data onto defaults so new fields always get defaults
+// Also preserves extra keys from saved data (like 'projected', 'stats', 'liveOdds')
 function deepMerge<T>(defaults: T, saved: Partial<T>): T {
   if (!saved) return defaults
   if (typeof defaults !== 'object' || defaults === null) return (saved ?? defaults) as T
   if (Array.isArray(defaults)) return (saved as T) ?? defaults
 
   const result = { ...defaults } as Record<string, unknown>
-  for (const key of Object.keys(defaults as Record<string, unknown>)) {
-    if (key in (saved as Record<string, unknown>)) {
-      const dVal = (defaults as Record<string, unknown>)[key]
-      const sVal = (saved as Record<string, unknown>)[key]
+  const savedObj = saved as Record<string, unknown>
+
+  // Merge keys from defaults
+  for (const key of Object.keys(result)) {
+    if (key in savedObj) {
+      const dVal = result[key]
+      const sVal = savedObj[key]
       if (typeof dVal === 'object' && dVal !== null && !Array.isArray(dVal) && typeof sVal === 'object' && sVal !== null && !Array.isArray(sVal)) {
         result[key] = deepMerge(dVal, sVal)
       } else {
         result[key] = sVal
       }
+    }
+  }
+  // Also copy extra keys from saved that aren't in defaults (e.g. projected, stats, liveOdds)
+  for (const key of Object.keys(savedObj)) {
+    if (!(key in result)) {
+      result[key] = savedObj[key]
     }
   }
   return result as T
