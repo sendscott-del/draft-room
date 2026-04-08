@@ -98,6 +98,88 @@ async function fetchPitcherStats(pitcherName: string): Promise<PitcherStats | nu
   }
 }
 
+// ── Position Unit WAR (FanGraphs) ────────────────────────────
+// Map team names used in picks to FanGraphs team abbreviations
+const PU_TEAM_MAP: Record<string, string> = {
+  'Mets': 'NYM', 'Dodgers': 'LAD', 'Tigers': 'DET', 'Phillies': 'PHI',
+  'Giants': 'SFG', 'Athletics': 'OAK', 'Rangers': 'TEX', 'Guardians': 'CLE',
+  'Cubs': 'CHC', 'Diamondbacks': 'ARI', 'Pirates': 'PIT', 'White Sox': 'CHW',
+  'Orioles': 'BAL', 'Yankees': 'NYY', 'Red Sox': 'BOS', 'Padres': 'SDP',
+  'Blue Jays': 'TOR', 'Braves': 'ATL', 'Mariners': 'SEA', 'Brewers': 'MIL',
+  'Royals': 'KCR', 'Marlins': 'MIA', 'Reds': 'CIN', 'Rays': 'TBR',
+  'Astros': 'HOU', 'Cardinals': 'STL', 'Twins': 'MIN', 'Nationals': 'WSN',
+  'Angels': 'LAA', 'Rockies': 'COL',
+}
+
+// Position → unit mapping
+function posToUnit(pos: string): 'INF+C' | 'OF' | 'SP' | 'RP' | null {
+  const infC = ['C', '1B', '2B', '3B', 'SS']
+  const of = ['LF', 'CF', 'RF']
+  if (infC.includes(pos)) return 'INF+C'
+  if (of.includes(pos)) return 'OF'
+  if (pos === 'DH') return 'INF+C' // Count DH with infield
+  return null
+}
+
+interface UnitWAR {
+  team: string
+  unit: string
+  war: number
+}
+
+async function fetchUnitWAR(): Promise<UnitWAR[]> {
+  const unitWars: Record<string, Record<string, number>> = {} // team -> unit -> war
+
+  try {
+    // Fetch batting WAR (all qualified + unqualified)
+    const batRes = await fetch(
+      `https://www.fangraphs.com/api/leaders/major-league/data?pos=all&stats=bat&lg=all&qual=0&season=${SEASON}&month=0&team=0&pageitems=2000&pagenum=1&ind=0&rost=0&players=0&type=8&postseason=&sortdir=default&sortstat=WAR`
+    )
+    if (batRes.ok) {
+      const batData = await batRes.json()
+      for (const p of batData.data || batData || []) {
+        const teamAbbr = p.TeamNameAbb || p.Team || ''
+        const pos = p.position || p.positionDB || ''
+        const war = Number(p.WAR) || 0
+        const unit = posToUnit(pos)
+        if (!teamAbbr || !unit) continue
+        if (!unitWars[teamAbbr]) unitWars[teamAbbr] = {}
+        unitWars[teamAbbr][unit] = (unitWars[teamAbbr][unit] || 0) + war
+      }
+    }
+
+    // Fetch pitching WAR
+    const pitRes = await fetch(
+      `https://www.fangraphs.com/api/leaders/major-league/data?pos=all&stats=pit&lg=all&qual=0&season=${SEASON}&month=0&team=0&pageitems=2000&pagenum=1&ind=0&rost=0&players=0&type=8&postseason=&sortdir=default&sortstat=WAR`
+    )
+    if (pitRes.ok) {
+      const pitData = await pitRes.json()
+      for (const p of pitData.data || pitData || []) {
+        const teamAbbr = p.TeamNameAbb || p.Team || ''
+        const war = Number(p.WAR) || 0
+        // Determine SP vs RP: GS (games started) > half of G (games) = SP
+        const gs = Number(p.GS) || 0
+        const g = Number(p.G) || 1
+        const unit = gs / g >= 0.5 ? 'SP' : 'RP'
+        if (!teamAbbr) continue
+        if (!unitWars[teamAbbr]) unitWars[teamAbbr] = {}
+        unitWars[teamAbbr][unit] = (unitWars[teamAbbr][unit] || 0) + war
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch unit WAR:', e)
+  }
+
+  // Flatten to array
+  const result: UnitWAR[] = []
+  for (const [team, units] of Object.entries(unitWars)) {
+    for (const [unit, war] of Object.entries(units)) {
+      result.push({ team, unit, war: Math.round(war * 10) / 10 })
+    }
+  }
+  return result
+}
+
 // ── CY Young Odds (The Odds API) ────────────────────────────
 async function fetchCYOdds(): Promise<Record<string, string>> {
   const oddsMap: Record<string, string> = {}
@@ -229,7 +311,29 @@ export default async function handler(req: Request) {
     }
     updates.push(`HR: ${hrUpdated}/18 players`)
 
-    // 3. Update CY pitcher stats
+    // 3. Update Position Unit WAR
+    const unitWARData = await fetchUnitWAR()
+    let puUpdated = 0
+    if (unitWARData.length > 0) {
+      for (const player of ['Scott', 'Ty']) {
+        if (!appData.pu?.[player]) continue
+        for (let i = 0; i < appData.pu[player].length; i++) {
+          const pick = appData.pu[player][i]
+          const teamAbbr = PU_TEAM_MAP[pick.team]
+          if (!teamAbbr) continue
+          const match = unitWARData.find(u => u.team === teamAbbr && u.unit === pick.unit)
+          if (match) {
+            appData.pu[player][i] = { ...pick, war: match.war }
+            puUpdated++
+          }
+        }
+      }
+      updates.push(`PU WAR: ${puUpdated}/24 units`)
+    } else {
+      updates.push('PU WAR: no data from FanGraphs')
+    }
+
+    // 4. Update CY pitcher stats (ERA, W-L, K, IP)
     let cyUpdated = 0
     for (const player of ['Scott', 'Ty']) {
       if (!appData.cy?.[player]) continue
@@ -245,7 +349,7 @@ export default async function handler(req: Request) {
     }
     updates.push(`CY stats: ${cyUpdated}/20 pitchers`)
 
-    // 4. Update CY odds (if API key configured)
+    // 5. Update CY odds (if API key configured)
     const cyOdds = await fetchCYOdds()
     let oddsUpdated = 0
     if (Object.keys(cyOdds).length > 0) {
@@ -266,7 +370,7 @@ export default async function handler(req: Request) {
       updates.push('CY odds: no API key or no data')
     }
 
-    // 5. Save
+    // 6. Save
     const { error: saveError } = await supabase
       .from('draft_room')
       .update({ data: appData, updated_at: new Date().toISOString() })
