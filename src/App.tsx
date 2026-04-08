@@ -115,7 +115,12 @@ export default function App() {
 
   return (
     <>
-      <Header data={data} syncStatus={syncStatus} countdown={countdown} />
+      <Header data={data} syncStatus={syncStatus} countdown={countdown} onStatsUpdated={() => {
+        // Reload data from Supabase after stats update
+        loadData().then(d => {
+          if (d && d.fa) setData(deepMerge(DEFAULT_DATA, d))
+        })
+      }} />
       <Nav activePage={activePage} onPageChange={setActivePage} />
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '18px 12px 60px' }}>
         {renderPage()}
