@@ -17,6 +17,8 @@ const PLAYER_SEARCH_NAMES: Record<string, string> = {
   'Vladdy Jr': 'Vladimir Guerrero Jr',
   'Bobby Witt Jr': 'Bobby Witt Jr',
   'Junior Caminero': 'Junior Caminero',
+  'Cristopher Sanchez': 'Cristopher Sanchez',
+  'Christopher Sanchez': 'Cristopher Sanchez',
 }
 
 // ── Standings ────────────────────────────────────────────────

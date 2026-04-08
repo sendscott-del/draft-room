@@ -62,7 +62,7 @@ export const DEFAULT_DATA: AppData = {
       { round: 5,  pitcher: "Hunter Brown",          lg: "AL", odds: "+1100", rookie: false, votes: 0 },
       { round: 6,  pitcher: "Logan Webb",            lg: "NL", odds: "+1200", rookie: false, votes: 0 },
       { round: 8,  pitcher: "Bryan Woo",             lg: "AL", odds: "+1300", rookie: true,  votes: 0 },
-      { round: 10, pitcher: "Christopher Sanchez",   lg: "NL", odds: "+900",  rookie: false, votes: 0 },
+      { round: 10, pitcher: "Cristopher Sanchez",    lg: "NL", odds: "+900",  rookie: false, votes: 0 },
       { round: 12, pitcher: "Chris Sale",            lg: "NL", odds: "+1300", rookie: false, votes: 0 },
       { round: 14, pitcher: "Shohei Ohtani",         lg: "NL", odds: "+1500", rookie: false, votes: 0 },
       { round: 16, pitcher: "MacKenzie Gore",        lg: "NL", odds: "+1900", rookie: false, votes: 0 },
