@@ -58,6 +58,7 @@ export interface AwardPicks {
 export interface OUPick {
   pick: 'over' | 'under' | ''
   actual: string
+  projected?: number
 }
 
 export type Player = 'Scott' | 'Ty'

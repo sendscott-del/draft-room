@@ -100,6 +100,41 @@ async function fetchPitcherStats(pitcherName: string): Promise<PitcherStats | nu
   }
 }
 
+// ── Projected Wins (FanGraphs) ───────────────────────────────
+// FanGraphs team abbreviations → our abbreviations
+const FG_TEAM_MAP: Record<string, string> = {
+  NYY: 'NYY', NYM: 'NYM', LAD: 'LAD', LAA: 'LAA', CHC: 'CHC',
+  CHW: 'CWS', CWS: 'CWS', SFG: 'SFG', SF: 'SFG', SDP: 'SDP',
+  SD: 'SDP', TBR: 'TBR', TB: 'TBR', KCR: 'KCR', KC: 'KCR',
+  WSN: 'WSN', WSH: 'WSN', ARI: 'ARI', ATL: 'ATL', BAL: 'BAL',
+  BOS: 'BOS', CIN: 'CIN', CLE: 'CLE', COL: 'COL', DET: 'DET',
+  HOU: 'HOU', MIA: 'MIA', MIL: 'MIL', MIN: 'MIN', OAK: 'OAK',
+  PHI: 'PHI', PIT: 'PIT', SEA: 'SEA', STL: 'STL', TEX: 'TEX',
+  TOR: 'TOR',
+}
+
+async function fetchProjectedWins(): Promise<Record<string, number>> {
+  const projWins: Record<string, number> = {}
+  try {
+    const res = await fetch(
+      `https://www.fangraphs.com/api/playoff-odds/odds?season=${SEASON}`
+    )
+    if (res.ok) {
+      const data = await res.json()
+      for (const team of data) {
+        const abbr = FG_TEAM_MAP[team.abbName] || team.abbName
+        const expW = team.endData?.ExpW
+        if (abbr && expW != null) {
+          projWins[abbr] = Math.round(expW * 10) / 10
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch projected wins:', e)
+  }
+  return projWins
+}
+
 // ── Position Unit WAR (FanGraphs) ────────────────────────────
 // Map team names used in picks to FanGraphs team abbreviations
 const PU_TEAM_MAP: Record<string, string> = {
@@ -402,7 +437,25 @@ export default async function handler(req: Request) {
       updates.push('CY odds: no API key or no data')
     }
 
-    // 6. Save
+    // 6. Update projected wins for O/U
+    const projWins = await fetchProjectedWins()
+    let projUpdated = 0
+    if (Object.keys(projWins).length > 0) {
+      for (const player of ['Scott', 'Ty']) {
+        if (!appData.ou?.[player]) continue
+        for (const [abbr, proj] of Object.entries(projWins)) {
+          if (appData.ou[player][abbr]) {
+            appData.ou[player][abbr].projected = proj
+            projUpdated++
+          }
+        }
+      }
+      updates.push(`Projected wins: ${projUpdated / 2} teams`)
+    } else {
+      updates.push('Projected wins: no data')
+    }
+
+    // 7. Save
     const { error: saveError } = await supabase
       .from('draft_room')
       .update({ data: appData, updated_at: new Date().toISOString() })

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { AppData, Player } from '../../types'
 import { isLocked } from '../../lib/locks'
 import { sOU } from '../../lib/scoring'
@@ -25,6 +25,21 @@ export default function WinOU({ data, setData }: Props) {
     return (s.pick === 'over' && a > t.l) || (s.pick === 'under' && a < t.l)
   }).length
 
+  // Projected correct count based on FanGraphs projected wins
+  const projStats = useMemo(() => {
+    let projCorrect = 0
+    let hasProjections = false
+    OUL.forEach(t => {
+      const s = slot[t.a]
+      if (!s?.pick || !s.projected) return
+      hasProjections = true
+      if ((s.pick === 'over' && s.projected > t.l) || (s.pick === 'under' && s.projected < t.l)) {
+        projCorrect++
+      }
+    })
+    return { projCorrect, hasProjections }
+  }, [slot])
+
   const togglePick = (team: string, pick: 'over' | 'under') => {
     if (locked) return
     setData(prev => {
@@ -49,6 +64,25 @@ export default function WinOU({ data, setData }: Props) {
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started \u2014 O/U picks are locked.'} />}
       <Pills items={['All 30 teams', '3pts per correct', 'Max 90pts']} />
+
+      {/* Projection banner */}
+      {projStats.hasProjections && (
+        <div style={{
+          background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.15)',
+          borderRadius: 8, padding: '8px 12px', marginBottom: 10,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <div style={{ fontSize: 11, color: '#94a3b8' }}>
+            <span style={{ fontSize: 9, letterSpacing: 1, textTransform: 'uppercase', color: '#ec4899', fontWeight: 700 }}>
+              Forecast
+            </span>
+            <span style={{ marginLeft: 6 }}>FanGraphs projected standings</span>
+          </div>
+          <span style={{ fontFamily: 'monospace', fontSize: 13, fontWeight: 700, color: '#ec4899' }}>
+            {projStats.projCorrect}/30 correct — ~{projStats.projCorrect * 3}pts
+          </span>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 3, marginBottom: 12 }}>
         {(['Scott', 'Ty'] as Player[]).map(p => (
@@ -76,8 +110,14 @@ export default function WinOU({ data, setData }: Props) {
         {OUL.map(t => {
           const s = slot[t.a] || { pick: '', actual: '' }
           const a = Number(s.actual)
+          const proj = (s as any).projected as number | undefined
           const ok = s.pick && s.actual && ((s.pick === 'over' && a > t.l) || (s.pick === 'under' && a < t.l))
           const bad = s.pick && s.actual && !ok && a !== t.l
+
+          // Projection result
+          const projOk = s.pick && proj != null && ((s.pick === 'over' && proj > t.l) || (s.pick === 'under' && proj < t.l))
+          const projBad = s.pick && proj != null && !projOk
+
           const bg = ok ? 'rgba(34,197,94,0.07)' : bad ? 'rgba(239,68,68,0.07)' : 'rgba(255,255,255,0.04)'
           const bc = ok ? 'rgba(34,197,94,0.25)' : bad ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.09)'
           const overActive = s.pick === 'over'
@@ -87,8 +127,8 @@ export default function WinOU({ data, setData }: Props) {
             <div
               key={t.a}
               style={{
-                display: 'grid', gridTemplateColumns: '50px 1fr 112px 62px 22px',
-                gap: 5, alignItems: 'center', padding: '6px 10px', borderRadius: 7,
+                display: 'grid', gridTemplateColumns: '50px 1fr 112px 50px 50px 22px',
+                gap: 4, alignItems: 'center', padding: '6px 10px', borderRadius: 7,
                 border: `1px solid ${bc}`, marginBottom: 4, background: bg,
               }}
             >
@@ -120,6 +160,20 @@ export default function WinOU({ data, setData }: Props) {
                   {'\u25BC'}{t.l}
                 </button>
               </div>
+              {/* Projected wins */}
+              <div style={{ textAlign: 'center' }}>
+                {proj != null && (
+                  <span style={{
+                    fontSize: 10, fontFamily: 'monospace', fontWeight: 700,
+                    color: projOk ? '#22c55e' : projBad ? '#ef4444' : '#94a3b8',
+                    background: projOk ? 'rgba(34,197,94,0.1)' : projBad ? 'rgba(239,68,68,0.1)' : 'transparent',
+                    borderRadius: 3, padding: '1px 4px',
+                  }}>
+                    ~{proj}
+                  </span>
+                )}
+              </div>
+              {/* Actual wins */}
               <input
                 value={s.actual}
                 placeholder="W"
