@@ -145,8 +145,6 @@ export function projectCYVotes(
 
   // Blend proportional distribution with curve-based distribution
   blended.forEach((b, rank) => {
-    // Proportional share
-    const propShare = b.score / totalScore
     // Curve share (if ranked)
     const curveShare = rank < curveWeights.length ? curveWeights[rank] : 0.002
 
