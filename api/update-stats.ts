@@ -111,18 +111,23 @@ export default async function handler(req: Request) {
 
     // 2. Update HR counts
     let hrUpdated = 0
+    const hrDetails: string[] = []
     for (const player of ['Scott', 'Ty']) {
-      if (!appData.hr?.[player]) continue
-      for (const [, slot] of Object.entries(appData.hr[player] as Record<string, any>)) {
+      if (!appData.hr?.[player]) { hrDetails.push(`${player}: no hr data`); continue }
+      for (const [pos, slot] of Object.entries(appData.hr[player] as Record<string, any>)) {
         if (!slot.p) continue
         const hr = await fetchPlayerHR(slot.p)
         if (hr !== null) {
           slot.hr = hr
           hrUpdated++
+          hrDetails.push(`${slot.p}: ${hr} HR`)
+        } else {
+          hrDetails.push(`${slot.p}: NOT FOUND`)
         }
       }
     }
-    if (hrUpdated > 0) updates.push(`HR: ${hrUpdated} players`)
+    updates.push(`HR: ${hrUpdated}/18 players updated`)
+    if (hrDetails.length > 0) updates.push(`HR details: ${hrDetails.join(', ')}`)
 
     // 3. Save
     const { error: saveError } = await supabase
