@@ -1,9 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
-)
+const SUPA_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || ''
+const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
+const supabase = createClient(SUPA_URL, SUPA_KEY)
 
 const SEASON = 2026
 
@@ -142,6 +141,16 @@ export default async function handler(req: any, res: any) {
   const startTime = Date.now()
   const updates: string[] = []
 
+  // Debug: check env vars
+  if (!SUPA_URL || !SUPA_KEY) {
+    return res.status(500).json({
+      error: 'Missing env vars',
+      hasUrl: !!SUPA_URL,
+      hasKey: !!SUPA_KEY,
+      urlPrefix: SUPA_URL.substring(0, 20),
+    })
+  }
+
   try {
     // Load current data
     const { data: row, error: loadError } = await supabase
@@ -151,7 +160,7 @@ export default async function handler(req: any, res: any) {
       .single()
 
     if (loadError || !row?.data) {
-      return res.status(500).json({ error: 'Failed to load data', details: loadError?.message })
+      return res.status(500).json({ error: 'Failed to load data', details: loadError?.message, hasRow: !!row })
     }
 
     const appData = row.data as any
