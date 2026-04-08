@@ -15,8 +15,10 @@ export interface CYPick {
   pitcher: string
   lg: 'AL' | 'NL'
   odds: string
+  liveOdds?: string
   rookie: boolean
   votes: number
+  stats?: { era: string; w: number; l: number; k: number; ip: string }
 }
 
 export interface PUPick {

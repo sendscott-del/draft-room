@@ -60,6 +60,9 @@ export default function CyYoung({ data, setData }: Props) {
             const votes = Number(pick.votes) || 0
             const hasVotes = pick.votes !== 0 && String(pick.votes) !== '0'
             const bc = hasVotes && votes > 0 ? 'rgba(59,130,246,0.4)' : 'rgba(255,255,255,0.09)'
+            const stats = pick.stats
+            const liveOdds = pick.liveOdds
+
             return (
               <Card key={i} borderColor={bc}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -68,9 +71,25 @@ export default function CyYoung({ data, setData }: Props) {
                   </span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 14 }}>{pick.pitcher}</div>
-                    <div style={{ fontSize: 11, color: '#64748b' }}>
-                      {pick.odds}{pick.rookie ? ' \u2605 never-voted pick' : ''}
+                    <div style={{ fontSize: 11, color: '#64748b', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span>Draft: {pick.odds}</span>
+                      {liveOdds && (
+                        <span style={{ color: '#f59e0b', fontWeight: 700 }}>
+                          Live: {liveOdds}
+                        </span>
+                      )}
+                      {pick.rookie ? <span style={{ color: '#a855f7' }}>{'\u2605'} never-voted</span> : null}
                     </div>
+                    {stats && (
+                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 3, display: 'flex', gap: 8, fontFamily: 'monospace' }}>
+                        <span style={{ color: parseFloat(stats.era) <= 3.00 ? '#22c55e' : parseFloat(stats.era) <= 4.00 ? '#f59e0b' : '#94a3b8' }}>
+                          {stats.era} ERA
+                        </span>
+                        <span>{stats.w}-{stats.l}</span>
+                        <span>{stats.k} K</span>
+                        <span>{stats.ip} IP</span>
+                      </div>
+                    )}
                   </div>
                   <input
                     value={pick.votes}

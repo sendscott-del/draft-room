@@ -19,6 +19,7 @@ const PLAYER_SEARCH_NAMES: Record<string, string> = {
   'Junior Caminero': 'Junior Caminero',
 }
 
+// ── Standings ────────────────────────────────────────────────
 async function fetchStandings(): Promise<Record<string, number>> {
   const wins: Record<string, number> = {}
   try {
@@ -38,39 +39,149 @@ async function fetchStandings(): Promise<Record<string, number>> {
   return wins
 }
 
-async function fetchPlayerHR(playerName: string): Promise<number | null> {
+// ── MLB Player Search Helper ─────────────────────────────────
+async function searchPlayer(name: string): Promise<number | null> {
   try {
-    const searchName = PLAYER_SEARCH_NAMES[playerName] || playerName
-    const searchRes = await fetch(
+    const searchName = PLAYER_SEARCH_NAMES[name] || name
+    const res = await fetch(
       `https://statsapi.mlb.com/api/v1/people/search?names=${encodeURIComponent(searchName)}&sportIds=1&active=true`
     )
-    const searchData = await searchRes.json()
-    const person = searchData.people?.[0]
-    if (!person) return null
+    const data = await res.json()
+    return data.people?.[0]?.id ?? null
+  } catch {
+    return null
+  }
+}
 
-    const statsRes = await fetch(
-      `https://statsapi.mlb.com/api/v1/people/${person.id}/stats?stats=season&season=${SEASON}&group=hitting`
+// ── HR Counts ────────────────────────────────────────────────
+async function fetchPlayerHR(playerName: string): Promise<number | null> {
+  try {
+    const id = await searchPlayer(playerName)
+    if (!id) return null
+    const res = await fetch(
+      `https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=season&season=${SEASON}&group=hitting`
     )
-    const statsData = await statsRes.json()
-    const splits = statsData.stats?.[0]?.splits
+    const data = await res.json()
+    const splits = data.stats?.[0]?.splits
     if (!splits || splits.length === 0) return 0
-
     return splits[0].stat?.homeRuns ?? 0
   } catch {
     return null
   }
 }
 
+// ── Pitcher Stats ────────────────────────────────────────────
+interface PitcherStats {
+  era: string; w: number; l: number; k: number; ip: string
+}
+
+async function fetchPitcherStats(pitcherName: string): Promise<PitcherStats | null> {
+  try {
+    const id = await searchPlayer(pitcherName)
+    if (!id) return null
+    const res = await fetch(
+      `https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=season&season=${SEASON}&group=pitching`
+    )
+    const data = await res.json()
+    const splits = data.stats?.[0]?.splits
+    if (!splits || splits.length === 0) return { era: '-.--', w: 0, l: 0, k: 0, ip: '0.0' }
+    const s = splits[0].stat
+    return {
+      era: s?.era ?? '-.--',
+      w: s?.wins ?? 0,
+      l: s?.losses ?? 0,
+      k: s?.strikeOuts ?? 0,
+      ip: s?.inningsPitched ?? '0.0',
+    }
+  } catch {
+    return null
+  }
+}
+
+// ── CY Young Odds (The Odds API) ────────────────────────────
+async function fetchCYOdds(): Promise<Record<string, string>> {
+  const oddsMap: Record<string, string> = {}
+  const apiKey = process.env.ODDS_API_KEY
+  if (!apiKey) return oddsMap
+
+  try {
+    // First get the sport key for MLB CY Young
+    const sportsRes = await fetch(`https://api.the-odds-api.com/v4/sports?apiKey=${apiKey}`)
+    const sports = await sportsRes.json()
+    // Look for MLB award outrights
+    const cyKey = sports.find((s: any) =>
+      s.key?.includes('baseball_mlb') && s.key?.includes('cy_young') && s.has_outrights
+    )?.key
+
+    if (!cyKey) {
+      // Try the general baseball outrights endpoint
+      const altKeys = sports
+        .filter((s: any) => s.key?.includes('baseball_mlb') && s.has_outrights)
+        .map((s: any) => s.key)
+
+      for (const key of altKeys) {
+        const oddsRes = await fetch(
+          `https://api.the-odds-api.com/v4/sports/${key}/odds?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american`
+        )
+        if (oddsRes.ok) {
+          const oddsData = await oddsRes.json()
+          // Check if this is CY Young market
+          for (const event of oddsData) {
+            if (event.sport_title?.toLowerCase().includes('cy young')) {
+              for (const bookmaker of event.bookmakers || []) {
+                for (const market of bookmaker.markets || []) {
+                  for (const outcome of market.outcomes || []) {
+                    const name = outcome.name
+                    const price = outcome.price
+                    if (name && price != null) {
+                      const prefix = price >= 0 ? '+' : ''
+                      oddsMap[name] = `${prefix}${price}`
+                    }
+                  }
+                }
+                break // Just use first bookmaker
+              }
+            }
+          }
+        }
+      }
+      return oddsMap
+    }
+
+    const oddsRes = await fetch(
+      `https://api.the-odds-api.com/v4/sports/${cyKey}/odds?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american`
+    )
+    if (oddsRes.ok) {
+      const oddsData = await oddsRes.json()
+      for (const event of oddsData) {
+        for (const bookmaker of event.bookmakers || []) {
+          for (const market of bookmaker.markets || []) {
+            for (const outcome of market.outcomes || []) {
+              if (outcome.name && outcome.price != null) {
+                const prefix = outcome.price >= 0 ? '+' : ''
+                oddsMap[outcome.name] = `${prefix}${outcome.price}`
+              }
+            }
+          }
+          break // Just use first bookmaker
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch CY odds:', e)
+  }
+  return oddsMap
+}
+
+// ── Main Handler ─────────────────────────────────────────────
 export default async function handler(req: Request) {
   const SUPA_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || ''
   const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
 
   if (!SUPA_URL || !SUPA_KEY) {
-    return new Response(JSON.stringify({
-      error: 'Missing env vars',
-      hasUrl: !!SUPA_URL,
-      hasKey: !!SUPA_KEY,
-    }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ error: 'Missing env vars' }), {
+      status: 500, headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   const supabase = createClient(SUPA_URL, SUPA_KEY)
@@ -78,7 +189,6 @@ export default async function handler(req: Request) {
   const updates: string[] = []
 
   try {
-    // Load current data
     const { data: row, error: loadError } = await supabase
       .from('draft_room')
       .select('data')
@@ -87,17 +197,15 @@ export default async function handler(req: Request) {
 
     if (loadError || !row?.data) {
       return new Response(JSON.stringify({
-        error: 'Failed to load data',
-        details: loadError?.message,
+        error: 'Failed to load data', details: loadError?.message,
       }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 
     const appData = row.data as any
 
-    // 1. Update standings (win totals for O/U)
+    // 1. Update standings
     const standings = await fetchStandings()
-    const standingsCount = Object.keys(standings).length
-    if (standingsCount > 0) {
+    if (Object.keys(standings).length > 0) {
       for (const player of ['Scott', 'Ty']) {
         if (!appData.ou?.[player]) continue
         for (const [abbr, wins] of Object.entries(standings)) {
@@ -106,30 +214,59 @@ export default async function handler(req: Request) {
           }
         }
       }
-      updates.push(`Standings: ${standingsCount} teams`)
+      updates.push(`Standings: ${Object.keys(standings).length} teams`)
     }
 
     // 2. Update HR counts
     let hrUpdated = 0
-    const hrDetails: string[] = []
     for (const player of ['Scott', 'Ty']) {
-      if (!appData.hr?.[player]) { hrDetails.push(`${player}: no hr data`); continue }
-      for (const [pos, slot] of Object.entries(appData.hr[player] as Record<string, any>)) {
+      if (!appData.hr?.[player]) continue
+      for (const [, slot] of Object.entries(appData.hr[player] as Record<string, any>)) {
         if (!slot.p) continue
         const hr = await fetchPlayerHR(slot.p)
-        if (hr !== null) {
-          slot.hr = hr
-          hrUpdated++
-          hrDetails.push(`${slot.p}: ${hr} HR`)
-        } else {
-          hrDetails.push(`${slot.p}: NOT FOUND`)
+        if (hr !== null) { slot.hr = hr; hrUpdated++ }
+      }
+    }
+    updates.push(`HR: ${hrUpdated}/18 players`)
+
+    // 3. Update CY pitcher stats
+    let cyUpdated = 0
+    for (const player of ['Scott', 'Ty']) {
+      if (!appData.cy?.[player]) continue
+      for (let i = 0; i < appData.cy[player].length; i++) {
+        const pick = appData.cy[player][i]
+        if (!pick.pitcher) continue
+        const stats = await fetchPitcherStats(pick.pitcher)
+        if (stats) {
+          appData.cy[player][i] = { ...pick, stats }
+          cyUpdated++
         }
       }
     }
-    updates.push(`HR: ${hrUpdated}/18 players updated`)
-    if (hrDetails.length > 0) updates.push(`HR details: ${hrDetails.join(', ')}`)
+    updates.push(`CY stats: ${cyUpdated}/20 pitchers`)
 
-    // 3. Save
+    // 4. Update CY odds (if API key configured)
+    const cyOdds = await fetchCYOdds()
+    let oddsUpdated = 0
+    if (Object.keys(cyOdds).length > 0) {
+      for (const player of ['Scott', 'Ty']) {
+        if (!appData.cy?.[player]) continue
+        for (let i = 0; i < appData.cy[player].length; i++) {
+          const pick = appData.cy[player][i]
+          // Try exact match and common name variations
+          const matchedOdds = cyOdds[pick.pitcher]
+          if (matchedOdds) {
+            appData.cy[player][i] = { ...pick, liveOdds: matchedOdds }
+            oddsUpdated++
+          }
+        }
+      }
+      updates.push(`CY odds: ${oddsUpdated} matched`)
+    } else {
+      updates.push('CY odds: no API key or no data')
+    }
+
+    // 5. Save
     const { error: saveError } = await supabase
       .from('draft_room')
       .update({ data: appData, updated_at: new Date().toISOString() })
@@ -137,22 +274,17 @@ export default async function handler(req: Request) {
 
     if (saveError) {
       return new Response(JSON.stringify({
-        error: 'Failed to save',
-        details: saveError.message,
+        error: 'Failed to save', details: saveError.message,
       }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 
-    const elapsed = Date.now() - startTime
     return new Response(JSON.stringify({
-      success: true,
-      updates,
-      elapsed: `${elapsed}ms`,
+      success: true, updates, elapsed: `${Date.now() - startTime}ms`,
       timestamp: new Date().toISOString(),
     }), { headers: { 'Content-Type': 'application/json' } })
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message, stack: e.stack }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500, headers: { 'Content-Type': 'application/json' },
     })
   }
 }
