@@ -6,6 +6,7 @@ import { projectAwards, type AwardProjection } from '../../lib/awardsProjection'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
+import InfoPopup from '../ui/InfoPopup'
 
 interface Props {
   data: AppData
@@ -70,7 +71,24 @@ export default function Awards({ data, setData }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started \u2014 Award picks are locked.'} />}
-      <Pills items={['Winner 25pts', 'Top 3 finalist 10pts', 'Top 10 5pts', 'MVP \u00B7 RoY \u00B7 Cy Young \u00B7 Manager of Year']} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+        <Pills items={['Winner 25pts', 'Top 3 finalist 10pts', 'Top 10 5pts', 'MVP \u00B7 RoY \u00B7 Cy Young \u00B7 Manager of Year']} />
+        {isProjected && (
+          <InfoPopup title="Awards Projection">
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>How it works:</strong> Projected award finishes are estimated from current betting odds sourced from major sportsbooks via The Odds API.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Odds → Probability:</strong> American odds are converted to implied probability. For example, +200 = 33% chance, +500 = 17% chance, +1000 = 9% chance.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Probability → Projected Finish:</strong></p>
+            <ul style={{ marginBottom: 10, paddingLeft: 18 }}>
+              <li>{'>'} 40% implied → <strong style={{ color: '#22c55e' }}>Winner</strong> (25 pts)</li>
+              <li>15–40% implied → <strong style={{ color: '#f59e0b' }}>Top 3 Finalist</strong> (10 pts)</li>
+              <li>5–15% implied → <strong style={{ color: '#3b82f6' }}>Top 10</strong> (5 pts)</li>
+              <li>{'<'} 5% implied → None (0 pts)</li>
+            </ul>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Award categories:</strong> AL/NL MVP, AL/NL Rookie of the Year, AL/NL Cy Young, AL/NL Manager of the Year (8 awards total).</p>
+            <p><strong style={{ color: '#f1f5f9' }}>When no odds are available</strong> (e.g. Manager of the Year early in the season), a default projection of Top 10 (5 pts) is used as a placeholder.</p>
+          </InfoPopup>
+        )}
+      </div>
 
       {/* Score header */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>

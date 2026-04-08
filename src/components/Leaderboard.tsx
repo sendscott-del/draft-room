@@ -6,6 +6,7 @@ import { projectPlayerTotal } from '../lib/cyProjection'
 import { projectAwards } from '../lib/awardsProjection'
 import { OUL } from '../data/constants'
 import Card from './ui/Card'
+import InfoPopup from './ui/InfoPopup'
 
 interface LeaderboardProps {
   data: AppData
@@ -100,8 +101,17 @@ export default function Leaderboard({ data }: LeaderboardProps) {
       </div>
 
       {hasAnyProjection && (
-        <div style={{ textAlign: 'center', fontSize: 9, color: '#64748b', marginTop: -12, marginBottom: 12, letterSpacing: 1 }}>
-          ~ includes forecasted CY votes and projected wins
+        <div style={{ textAlign: 'center', fontSize: 9, color: '#64748b', marginTop: -12, marginBottom: 12, letterSpacing: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <span>~ includes forecasted CY votes, award results, and projected wins</span>
+          <InfoPopup title="Forecast Methodology">
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Totals marked with ~</strong> include projected points for games that don't have final results yet. Once actual results are entered, projections are replaced with real scores.</p>
+            <p style={{ marginBottom: 14 }}><strong style={{ color: '#3b82f6' }}>PROJ</strong> badges on individual games indicate which scores are projected vs actual.</p>
+            <p style={{ marginBottom: 8 }}><strong style={{ color: '#f1f5f9' }}>Three projection models are used:</strong></p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#3b82f6' }}>Cy Young Votes:</strong> Blends betting odds (implied win probability) with current pitching stats (ERA, K/9, W-L, IP). Votes are distributed across the field using a historical curve calibrated from 2025 BBWAA results. The model shifts from odds-heavy early season to stats-heavy late season.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#06b6d4' }}>Award Results (MVP, ROY, CY, MGR):</strong> Converts current betting odds to implied probability, then maps to projected finish — {'>'} 40% = Winner (25pts), 15-40% = Top 3 (10pts), 5-15% = Top 10 (5pts), {'<'} 5% = None.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#ec4899' }}>Win Over/Under:</strong> Uses FanGraphs' projected standings model, which combines current record, schedule strength, and player projections to estimate final win totals. 3 points per correct over/under pick.</p>
+            <p><strong style={{ color: '#f1f5f9' }}>Data sources:</strong> MLB Stats API (standings, HR, pitcher stats), FanGraphs (WAR, projected wins), The Odds API (betting odds for awards).</p>
+          </InfoPopup>
         </div>
       )}
 

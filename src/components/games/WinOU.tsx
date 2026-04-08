@@ -5,6 +5,7 @@ import { sOU } from '../../lib/scoring'
 import { OUL } from '../../data/constants'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
+import InfoPopup from '../ui/InfoPopup'
 
 interface Props {
   data: AppData
@@ -41,7 +42,19 @@ export default function WinOU({ data }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started \u2014 O/U picks are locked.'} />}
-      <Pills items={['All 30 teams', '3pts per correct', 'Max 90pts']} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+        <Pills items={['All 30 teams', '3pts per correct', 'Max 90pts']} />
+        {hasAnyProjections && (
+          <InfoPopup title="Win O/U Projection">
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>How it works:</strong> Projected final win totals come from FanGraphs' continuously updated projected standings model.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>FanGraphs model</strong> combines current record, remaining schedule strength, roster depth charts, and ZiPS/Steamer player projections to estimate each team's final win total.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Proj column:</strong> The projected final win total. Green means the projection agrees with your over/under pick. Red means it disagrees.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Wins column:</strong> Current actual wins from the MLB standings, updated daily.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Pace column:</strong> 162-game pace extrapolated from current win rate. This is a simple linear projection — it doesn't account for schedule difficulty or roster changes.</p>
+            <p><strong style={{ color: '#f1f5f9' }}>Scoring:</strong> 3 points per correct over/under pick based on final season wins vs the preseason line. Maximum 90 points (30 teams × 3 pts).</p>
+          </InfoPopup>
+        )}
+      </div>
 
       {/* Score header */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>

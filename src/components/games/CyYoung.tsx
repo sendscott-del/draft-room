@@ -6,6 +6,7 @@ import { projectCYVotes, projectPlayerTotal } from '../../lib/cyProjection'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
+import InfoPopup from '../ui/InfoPopup'
 
 interface Props {
   data: AppData
@@ -41,7 +42,20 @@ export default function CyYoung({ data }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Draft complete \u2014 Cy Young picks are locked.'} />}
-      <Pills items={['10 pitchers each', '1 must have 0 prior CY votes', 'Points = official CY votes']} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+        <Pills items={['10 pitchers each', '1 must have 0 prior CY votes', 'Points = official CY votes']} />
+        {isProjected && (
+          <InfoPopup title="Cy Young Vote Projection">
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>How it works:</strong> Projected votes are estimated using a blend of betting odds and current pitching stats.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Betting odds</strong> are converted to implied win probability. A pitcher at +300 odds has a ~25% implied chance of winning.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Pitching stats</strong> (ERA, W-L, K, IP) are scored on a 0-100 scale weighted 45% ERA, 25% K/9, 15% W-L, 15% IP.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Blending:</strong> Early season the model weights odds more heavily (85/15). As more innings are pitched, stats gain weight up to 60/40 late season.</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Vote distribution</strong> follows the historical BBWAA curve calibrated from 2025 results. The CY Young uses 7-4-3-2-1 scoring with 30 voters (max 210 per pitcher, 510 total pool per league).</p>
+            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>2025 calibration:</strong> AL — Skubal 198, Crochet 132, Brown 80, Fried 61. NL — Skenes 210, Sánchez 120, Yamamoto 72, Webb 47.</p>
+            <p><strong style={{ color: '#f1f5f9' }}>Winner typically gets ~40%</strong> of the vote pool, 2nd ~25%, 3rd ~15%, 4th ~11%, 5th ~7%.</p>
+          </InfoPopup>
+        )}
+      </div>
 
       {/* Score header */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
