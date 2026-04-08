@@ -1,14 +1,4 @@
 import type { AppData } from '../types'
-import { OUL } from './constants'
-
-function makeOU(): AppData['ou'] {
-  const o: AppData['ou'] = { Scott: {}, Ty: {} }
-  OUL.forEach(t => {
-    o.Scott[t.a] = { pick: '', actual: '' }
-    o.Ty[t.a] = { pick: '', actual: '' }
-  })
-  return o
-}
 
 function makeTD(): AppData['td'] {
   const a: AppData['td'] = []
@@ -135,8 +125,33 @@ export const DEFAULT_DATA: AppData = {
   },
   td: makeTD(),
   aw: {
-    Scott: { alMVP: "", nlMVP: "", alROY: "", nlROY: "", alCY: "", nlCY: "", alMGR: "", nlMGR: "", alMVPR: "none", nlMVPR: "none", alROYR: "none", nlROYR: "none", alCYR: "none", nlCYR: "none", alMGRR: "none", nlMGRR: "none" },
-    Ty:    { alMVP: "", nlMVP: "", alROY: "", nlROY: "", alCY: "", nlCY: "", alMGR: "", nlMGR: "", alMVPR: "none", nlMVPR: "none", alROYR: "none", nlROYR: "none", alCYR: "none", nlCYR: "none", alMGRR: "none", nlMGRR: "none" },
+    Scott: { alMVP: "Bobby Witt Jr", nlMVP: "Shohei Ohtani", alROY: "Munetaka Murakami", nlROY: "Konnor Griffin", alCY: "Garrett Crochet", nlCY: "Paul Skenes", alMGR: "Craig Albernaz", nlMGR: "Craig Counsell", alMVPR: "none", nlMVPR: "none", alROYR: "none", nlROYR: "none", alCYR: "none", nlCYR: "none", alMGRR: "none", nlMGRR: "none" },
+    Ty:    { alMVP: "Aaron Judge", nlMVP: "Shohei Ohtani", alROY: "Kevin McGonigle", nlROY: "Sal Stewart", alCY: "Tarik Skubal", nlCY: "Paul Skenes", alMGR: "Dan Wilson", nlMGR: "Don Kelly", alMVPR: "none", nlMVPR: "none", alROYR: "none", nlROYR: "none", alCYR: "none", nlCYR: "none", alMGRR: "none", nlMGRR: "none" },
   },
-  ou: makeOU(),
+  ou: {
+    Scott: {
+      ARI: { pick: "under", actual: "" }, ATL: { pick: "under", actual: "" }, BAL: { pick: "over", actual: "" },
+      BOS: { pick: "over", actual: "" }, CHC: { pick: "over", actual: "" }, CWS: { pick: "over", actual: "" },
+      CIN: { pick: "under", actual: "" }, CLE: { pick: "under", actual: "" }, COL: { pick: "over", actual: "" },
+      DET: { pick: "over", actual: "" }, HOU: { pick: "under", actual: "" }, KCR: { pick: "over", actual: "" },
+      LAA: { pick: "over", actual: "" }, LAD: { pick: "under", actual: "" }, MIA: { pick: "over", actual: "" },
+      MIL: { pick: "under", actual: "" }, MIN: { pick: "under", actual: "" }, NYM: { pick: "over", actual: "" },
+      NYY: { pick: "over", actual: "" }, OAK: { pick: "over", actual: "" }, PHI: { pick: "under", actual: "" },
+      PIT: { pick: "over", actual: "" }, SDP: { pick: "under", actual: "" }, SEA: { pick: "over", actual: "" },
+      SFG: { pick: "over", actual: "" }, STL: { pick: "under", actual: "" }, TBR: { pick: "under", actual: "" },
+      TEX: { pick: "over", actual: "" }, TOR: { pick: "over", actual: "" }, WSN: { pick: "under", actual: "" },
+    },
+    Ty: {
+      ARI: { pick: "under", actual: "" }, ATL: { pick: "under", actual: "" }, BAL: { pick: "under", actual: "" },
+      BOS: { pick: "over", actual: "" }, CHC: { pick: "over", actual: "" }, CWS: { pick: "over", actual: "" },
+      CIN: { pick: "under", actual: "" }, CLE: { pick: "under", actual: "" }, COL: { pick: "over", actual: "" },
+      DET: { pick: "over", actual: "" }, HOU: { pick: "under", actual: "" }, KCR: { pick: "over", actual: "" },
+      LAA: { pick: "under", actual: "" }, LAD: { pick: "under", actual: "" }, MIA: { pick: "over", actual: "" },
+      MIL: { pick: "under", actual: "" }, MIN: { pick: "under", actual: "" }, NYM: { pick: "over", actual: "" },
+      NYY: { pick: "under", actual: "" }, OAK: { pick: "under", actual: "" }, PHI: { pick: "under", actual: "" },
+      PIT: { pick: "over", actual: "" }, SDP: { pick: "under", actual: "" }, SEA: { pick: "over", actual: "" },
+      SFG: { pick: "over", actual: "" }, STL: { pick: "over", actual: "" }, TBR: { pick: "under", actual: "" },
+      TEX: { pick: "over", actual: "" }, TOR: { pick: "under", actual: "" }, WSN: { pick: "under", actual: "" },
+    },
+  },
 }
