@@ -4,7 +4,7 @@ import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { COLORS, TEAMS } from '../../data/constants'
-import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView } from './shared'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView } from './shared'
 
 const PS_COLOR = '#e8b54a'
 
@@ -49,14 +49,16 @@ export default function Postseason({ players, onEditMine }: Props) {
       {locked && <LockBanner message={'\u{1F512} Season has started — postseason picks are locked.'} />}
       <Pills items={['6 division winners', '3 wild cards / league', 'Pennants + World Series']} />
 
-      {playing.map(p => (
-        <PlayerPSSection
-          key={p.profile.id}
-          player={p}
-          editable={p.isCurrentUser && !locked}
-          onEdit={p.isCurrentUser ? onEditMine : undefined}
-        />
-      ))}
+      <PlayerColumns>
+        {playing.map(p => (
+          <PlayerPSSection
+            key={p.profile.id}
+            player={p}
+            editable={p.isCurrentUser && !locked}
+            onEdit={p.isCurrentUser ? onEditMine : undefined}
+          />
+        ))}
+      </PlayerColumns>
 
       <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Postseason" />
     </>
@@ -92,7 +94,7 @@ function PlayerPSSection({
   }
 
   return (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ scrollSnapAlign: 'start' }}>
       <SectionHeader player={player} score={player.score} unit="picks" color={PS_COLOR} editable={editable} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
         {DIVISIONS.map(d => (

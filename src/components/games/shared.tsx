@@ -84,3 +84,24 @@ export function sortPlayersForGame<T extends PlayerView & { score: number }>(row
 }
 
 export type EditMine = (fn: (mine: UserAppData) => UserAppData) => void
+
+/** Horizontal-scrolling grid of player columns. Min 220 px per column so
+ *  text stays legible; on a phone you swipe sideways to see more players. */
+export function PlayerColumns({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridAutoFlow: 'column',
+        gridAutoColumns: 'minmax(220px, 1fr)',
+        gap: 12,
+        overflowX: 'auto',
+        paddingBottom: 8,
+        marginTop: 12,
+        scrollSnapType: 'x proximity',
+      }}
+    >
+      {children}
+    </div>
+  )
+}

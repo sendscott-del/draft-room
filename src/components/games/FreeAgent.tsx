@@ -5,7 +5,7 @@ import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { COLORS } from '../../data/constants'
-import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView, type EditMine } from './shared'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 
 const FA_COLOR = '#5eb774'
 
@@ -29,9 +29,11 @@ export default function FreeAgent({ players }: Props) {
       {locked && <LockBanner message={'\u{1F512} Draft complete — FA picks are locked.'} />}
       <Pills items={['New team +10, Re-sign +5', 'Contract length match +5', 'CY/MVP/RoY/ASG +5', 'After R24 +5']} />
 
-      {playing.map(p => (
-        <PlayerFASection key={p.profile.id} player={p} />
-      ))}
+      <PlayerColumns>
+        {playing.map(p => (
+          <PlayerFASection key={p.profile.id} player={p} />
+        ))}
+      </PlayerColumns>
 
       <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Free Agent" />
     </>
@@ -41,7 +43,7 @@ export default function FreeAgent({ players }: Props) {
 function PlayerFASection({ player }: { player: PlayerView & { score: number } }) {
   const picks: FAPickPersonal[] = (player.picks.fa ?? []) as FAPickPersonal[]
   return (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ scrollSnapAlign: 'start' }}>
       <SectionHeader player={player} score={player.score} unit="pts" color={FA_COLOR} editable={false} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
         {[...picks].sort((a, b) => a.round - b.round).map(pick => (

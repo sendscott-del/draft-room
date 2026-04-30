@@ -6,7 +6,7 @@ import { Pills } from '../ui/Pill'
 import { COLORS } from '../../data/constants'
 import { scoreCY } from '../../lib/scoring-per-user'
 import { projectCYVotes } from '../../lib/cyProjection'
-import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView, type EditMine } from './shared'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 
 const CY_COLOR = '#5b8cc7'
 
@@ -48,9 +48,11 @@ export default function CyYoung({ players }: Props) {
       {locked && <LockBanner message={'\u{1F512} Draft complete — Cy Young picks are locked.'} />}
       <Pills items={['Pitchers across AL + NL', 'Points = official CY votes']} />
 
-      {playing.map(p => (
-        <PlayerCYSection key={p.profile.id} player={p} projAL={projAL} projNL={projNL} />
-      ))}
+      <PlayerColumns>
+        {playing.map(p => (
+          <PlayerCYSection key={p.profile.id} player={p} projAL={projAL} projNL={projNL} />
+        ))}
+      </PlayerColumns>
 
       <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Cy Young" />
     </>
@@ -65,7 +67,7 @@ function PlayerCYSection({ player, projAL, projNL }: {
   const picks = player.picks.cy ?? []
   const score = player.isProj ? `~${player.score}` : `${player.score}`
   return (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ scrollSnapAlign: 'start' }}>
       <SectionHeader player={player} score={score} unit="pts" color={CY_COLOR} editable={false} />
       {(['AL', 'NL'] as const).map(lg => {
         const lgPicks = picks.filter(p => p.lg === lg)

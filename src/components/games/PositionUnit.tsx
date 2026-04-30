@@ -5,7 +5,7 @@ import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { COLORS } from '../../data/constants'
 import { scorePU } from '../../lib/scoring-per-user'
-import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView, type EditMine } from './shared'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 
 const PU_COLOR = '#a37ed1'
 const UNIT_COLORS: Record<string, string> = { 'INF+C': '#5eb774', OF: '#5b8cc7', SP: '#a37ed1', RP: '#f0a531' }
@@ -30,9 +30,11 @@ export default function PositionUnit({ players }: Props) {
       {locked && <LockBanner message={'\u{1F512} Draft complete — Position Unit picks are locked.'} />}
       <Pills items={['INF+C, OF, SP, RP', 'Points = unit WAR']} />
 
-      {playing.map(p => (
-        <PlayerPUSection key={p.profile.id} player={p} />
-      ))}
+      <PlayerColumns>
+        {playing.map(p => (
+          <PlayerPUSection key={p.profile.id} player={p} />
+        ))}
+      </PlayerColumns>
 
       <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Position Unit" />
     </>
@@ -42,7 +44,7 @@ export default function PositionUnit({ players }: Props) {
 function PlayerPUSection({ player }: { player: PlayerView & { score: number } }) {
   const picks: PUPick[] = (player.picks.pu ?? []) as PUPick[]
   return (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ scrollSnapAlign: 'start' }}>
       <SectionHeader player={player} score={player.score.toFixed(1)} unit="WAR" color={PU_COLOR} editable={false} />
       {(['INF+C', 'OF', 'SP', 'RP'] as const).map(unit => {
         const unitPicks = picks.filter(p => p.unit === unit)

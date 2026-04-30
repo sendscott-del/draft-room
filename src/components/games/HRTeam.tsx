@@ -5,7 +5,7 @@ import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { POS, COLORS } from '../../data/constants'
 import { scoreHR } from '../../lib/scoring-per-user'
-import { SectionHeader, DidNotPlay, sortPlayersForGame, inputStyle, type PlayerView, type EditMine } from './shared'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, inputStyle, PlayerColumns, type PlayerView, type EditMine } from './shared'
 
 const HR_COLOR = '#e45b5b'
 
@@ -30,14 +30,16 @@ export default function HRTeam({ players, onEditMine }: Props) {
       {locked && <LockBanner message={'\u{1F512} Draft complete — HR Team picks are locked.'} />}
       <Pills items={['One player per position', 'Points = total HRs']} />
 
-      {playing.map(p => (
-        <PlayerHRSection
-          key={p.profile.id}
-          player={p}
-          editable={p.isCurrentUser && !locked}
-          onEdit={p.isCurrentUser ? onEditMine : undefined}
-        />
-      ))}
+      <PlayerColumns>
+        {playing.map(p => (
+          <PlayerHRSection
+            key={p.profile.id}
+            player={p}
+            editable={p.isCurrentUser && !locked}
+            onEdit={p.isCurrentUser ? onEditMine : undefined}
+          />
+        ))}
+      </PlayerColumns>
 
       <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="HR Team" />
     </>
@@ -62,7 +64,7 @@ function PlayerHRSection({
   }
 
   return (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ scrollSnapAlign: 'start' }}>
       <SectionHeader player={player} score={player.score} unit="HR" color={HR_COLOR} editable={editable} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
         {POS.map(pos => {

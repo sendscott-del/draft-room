@@ -5,7 +5,7 @@ import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { COLORS } from '../../data/constants'
 import { scoreAW } from '../../lib/scoring-per-user'
-import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView, type EditMine } from './shared'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 
 const AW_COLOR = '#39a9bd'
 
@@ -47,14 +47,16 @@ export default function Awards({ players, onEditMine }: Props) {
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started — Award picks are locked.'} />}
       <Pills items={['Winner 25 / Top 3 10 / Top 10 5']} />
-      {playing.map(p => (
-        <PlayerAWSection
-          key={p.profile.id}
-          player={p}
-          editable={p.isCurrentUser && !locked}
-          onEdit={p.isCurrentUser ? onEditMine : undefined}
-        />
-      ))}
+      <PlayerColumns>
+        {playing.map(p => (
+          <PlayerAWSection
+            key={p.profile.id}
+            player={p}
+            editable={p.isCurrentUser && !locked}
+            onEdit={p.isCurrentUser ? onEditMine : undefined}
+          />
+        ))}
+      </PlayerColumns>
       <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Awards" />
     </>
   )
@@ -73,7 +75,7 @@ function PlayerAWSection({ player, editable, onEdit }: {
   }
 
   return (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ scrollSnapAlign: 'start' }}>
       <SectionHeader player={player} score={player.score} unit="pts" color={AW_COLOR} editable={editable} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
         {CATEGORIES.map(([label, pickKey, resultKey]) => {

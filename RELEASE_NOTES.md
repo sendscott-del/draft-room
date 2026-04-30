@@ -1,5 +1,42 @@
 # Draft Room — Release Notes
 
+## v1.2.0 — Multi-player game tabs
+
+**Date:** 2026-04-29
+
+The 1-on-1 comparison model is gone. Every game tab now shows **every
+player who participated**, stacked vertically as cards. The user is
+always at the top with edit controls; everyone else is read-only below.
+
+### What changed
+
+- **Game tabs are multi-player.** FA, CY, PU, HR, TD, Awards, OU, and
+  Postseason all rewritten. Each renders one card per player who played
+  that game, sorted with the user first then by descending score.
+- **Did Not Play footnote.** Hosts who skipped a game (e.g. Chris Rose
+  on the CY episode, Jimmy O'Brien on FA) appear in a "Did not play
+  [Game]" line at the bottom of that game's tab.
+- **No more comparison dropdown.** The CompareBar is removed. The header
+  banner now compares the user against the current top-scoring opponent
+  on the leaderboard.
+- **Hardcoded "Scott"/"Ty" labels are gone everywhere.** Each player's
+  display name shows above their card.
+- **Bundle is smaller** (~434 KB vs ~454 KB) thanks to deleting
+  ~1000 lines of legacy two-player code.
+
+### Stats updater speedups
+
+- Odds API loop parallelized + filtered to only the markets we project
+  (MVP/RoY/CY/Manager). Was scanning every MLB outright market sequentially.
+
+### Friends feature: deferred
+
+Adding friends to a custom comparison list will come in a follow-up — for
+now everyone shares the same view (all hosts + Scott + Ty + future user
+signups).
+
+---
+
 ## v1.1.0 — Labels + scoring unified
 
 **Date:** 2026-04-29

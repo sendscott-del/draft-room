@@ -3,7 +3,7 @@ import { scoreTD } from '../../lib/scoring-per-user'
 import Card from '../ui/Card'
 import { Pills } from '../ui/Pill'
 import { COLORS, TEAMS } from '../../data/constants'
-import { SectionHeader, DidNotPlay, sortPlayersForGame, inputStyle, type PlayerView, type EditMine } from './shared'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, inputStyle, PlayerColumns, type PlayerView, type EditMine } from './shared'
 
 const TD_COLOR = '#f0a531'
 
@@ -24,14 +24,16 @@ export default function TradeDeadline({ players, onEditMine }: Props) {
   return (
     <>
       <Pills items={['Mid-season picks', 'Correct team +10', 'Was traded +5']} />
-      {playing.map(p => (
-        <PlayerTDSection
-          key={p.profile.id}
-          player={p}
-          editable={p.isCurrentUser}
-          onEdit={p.isCurrentUser ? onEditMine : undefined}
-        />
-      ))}
+      <PlayerColumns>
+        {playing.map(p => (
+          <PlayerTDSection
+            key={p.profile.id}
+            player={p}
+            editable={p.isCurrentUser}
+            onEdit={p.isCurrentUser ? onEditMine : undefined}
+          />
+        ))}
+      </PlayerColumns>
       <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Trade Deadline" />
     </>
   )
@@ -54,7 +56,7 @@ function PlayerTDSection({ player, editable, onEdit }: {
   }
 
   return (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ scrollSnapAlign: 'start' }}>
       <SectionHeader player={player} score={player.score} unit="pts" color={TD_COLOR} editable={editable} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
         {[...picks].sort((a, b) => a.round - b.round).map((pick, i) => (

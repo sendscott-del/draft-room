@@ -3,7 +3,7 @@ import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { COLORS, OUL } from '../../data/constants'
 import { scoreOU } from '../../lib/scoring-per-user'
-import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView, type EditMine } from './shared'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 
 const OU_COLOR = '#d4669d'
 
@@ -27,14 +27,16 @@ export default function WinOU({ players, onEditMine }: Props) {
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started — O/U picks are locked.'} />}
       <Pills items={['All 30 teams', '3 pts per correct']} />
-      {playing.map(p => (
-        <PlayerOUSection
-          key={p.profile.id}
-          player={p}
-          editable={p.isCurrentUser && !locked}
-          onEdit={p.isCurrentUser ? onEditMine : undefined}
-        />
-      ))}
+      <PlayerColumns>
+        {playing.map(p => (
+          <PlayerOUSection
+            key={p.profile.id}
+            player={p}
+            editable={p.isCurrentUser && !locked}
+            onEdit={p.isCurrentUser ? onEditMine : undefined}
+          />
+        ))}
+      </PlayerColumns>
       <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Win O/U" />
     </>
   )
@@ -56,9 +58,9 @@ function PlayerOUSection({ player, editable, onEdit }: {
   }
 
   return (
-    <div style={{ marginTop: 12 }}>
+    <div style={{ scrollSnapAlign: 'start' }}>
       <SectionHeader player={player} score={player.score} unit="pts" color={OU_COLOR} editable={editable} />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
         {OUL.map(t => {
           const slot = ou[t.a] ?? { pick: '', actual: '' }
           const isOver = slot.pick === 'over'
