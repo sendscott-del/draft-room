@@ -197,15 +197,24 @@ async function fetchAllAwardOdds(): Promise<AllAwardOdds> {
   try {
     const sportsRes = await fetch(`https://api.the-odds-api.com/v4/sports?apiKey=${apiKey}`)
     const sports = await sportsRes.json()
-    const mlbKeys = sports
-      .filter((s: { key?: string; has_outrights?: boolean }) => s.key?.includes('baseball_mlb') && s.has_outrights)
+
+    // Filter to ONLY the awards we care about — others (e.g. World Series
+    // winner, division winner, win totals) duplicate work we're not using.
+    const wanted = ['mvp', 'rookie', 'cy young', 'manager']
+    const mlbKeys: string[] = sports
+      .filter((s: { key?: string; has_outrights?: boolean; title?: string }) =>
+        s.key?.includes('baseball_mlb') &&
+        s.has_outrights &&
+        wanted.some(w => (s.title ?? s.key ?? '').toLowerCase().includes(w))
+      )
       .map((s: { key: string }) => s.key)
 
-    for (const key of mlbKeys) {
+    // Fetch every market in parallel.
+    await Promise.all(mlbKeys.map(async (key: string) => {
       const oddsRes = await fetch(
         `https://api.the-odds-api.com/v4/sports/${key}/odds?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american`
       )
-      if (!oddsRes.ok) continue
+      if (!oddsRes.ok) return
       const oddsData = await oddsRes.json()
       for (const event of oddsData) {
         const title = (event.sport_title || '').toLowerCase()
@@ -233,7 +242,7 @@ async function fetchAllAwardOdds(): Promise<AllAwardOdds> {
           }
         }
       }
-    }
+    }))
   } catch (e) { console.error('award odds:', e) }
   return result
 }
