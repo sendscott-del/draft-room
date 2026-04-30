@@ -1,74 +1,31 @@
-import { useState, useMemo } from 'react'
-import type { AppData } from '../types'
+import { useState } from 'react'
 import type { CountdownState } from '../lib/locks'
-import { allScores, getTotals } from '../lib/scoring'
-import { projectPlayerTotal } from '../lib/cyProjection'
-import { projectAwards } from '../lib/awardsProjection'
-import { PLAYERS, OUL } from '../data/constants'
 import SyncDot from './ui/SyncDot'
 import Countdown from './ui/Countdown'
 
 interface HeaderProps {
-  data: AppData
   syncStatus: 'loading' | 'saved' | 'saving' | 'error'
   countdown: CountdownState
   onStatsUpdated?: () => void
-  /** Labels shown above the two scores. Defaults to legacy "SCOTT"/"TY". */
+  /** Labels shown above the two scores. */
   leftLabel?: string
   rightLabel?: string
+  /** Pre-computed totals from the same scoring source as the Standings page. */
+  leftTotal: number
+  rightTotal: number
+  hasProjection: boolean
 }
 
-// Projected O/U score using FanGraphs projected wins
-function projectedOUScore(ou: AppData['ou']): { Scott: number; Ty: number } {
-  const s = { Scott: 0, Ty: 0 }
-  PLAYERS.forEach(p => {
-    OUL.forEach(t => {
-      const sl = ou[p]?.[t.a]
-      if (!sl?.pick) return
-      const proj = (sl as any).projected as number | undefined
-      if (proj == null) return
-      if ((sl.pick === 'over' && proj > t.l) || (sl.pick === 'under' && proj < t.l)) s[p] += 3
-    })
-  })
-  return s
-}
-
-export default function Header({ data, syncStatus, countdown, onStatsUpdated, leftLabel = 'SCOTT', rightLabel = 'TY' }: HeaderProps) {
+export default function Header({
+  syncStatus, countdown, onStatsUpdated,
+  leftLabel = 'SCOTT', rightLabel = 'TY',
+  leftTotal, rightTotal, hasProjection,
+}: HeaderProps) {
   const [updating, setUpdating] = useState(false)
   const [updateMsg, setUpdateMsg] = useState('')
-  const sc = allScores(data)
 
-  // Build projected scores same as Leaderboard
-  const cyProj = useMemo(() => ({
-    Scott: projectPlayerTotal(data.cy, 'Scott'),
-    Ty: projectPlayerTotal(data.cy, 'Ty'),
-  }), [data.cy])
-
-  const ouProj = useMemo(() => projectedOUScore(data.ou), [data.ou])
-
-  const awardsOdds = (data as any).awardsOdds || {}
-  const awProj = useMemo(() => projectAwards(data.aw, awardsOdds), [data.aw, awardsOdds])
-
-  const displayScores = useMemo(() => {
-    const d = { ...sc }
-    let hasProjection = false
-    if (sc.cy.Scott === 0 && sc.cy.Ty === 0 && (cyProj.Scott > 0 || cyProj.Ty > 0)) {
-      d.cy = cyProj
-      hasProjection = true
-    }
-    if (sc.ou.Scott === 0 && sc.ou.Ty === 0 && (ouProj.Scott > 0 || ouProj.Ty > 0)) {
-      d.ou = ouProj
-      hasProjection = true
-    }
-    if (sc.aw.Scott === 0 && sc.aw.Ty === 0 && (awProj.totals.Scott > 0 || awProj.totals.Ty > 0)) {
-      d.aw = awProj.totals
-      hasProjection = true
-    }
-    return { scores: d, hasProjection }
-  }, [sc, cyProj, ouProj, awProj])
-
-  const tot = getTotals(displayScores.scores)
-  const hasProj = displayScores.hasProjection
+  const tot = { Scott: leftTotal, Ty: rightTotal }
+  const hasProj = hasProjection
   const leader = tot.Scott > tot.Ty ? 'Scott' : tot.Ty > tot.Scott ? 'Ty' : null
   const sCol = leader === 'Scott' ? '#fbbf24' : '#f1f5f9'
   const tCol = leader === 'Ty' ? '#fbbf24' : '#f1f5f9'

@@ -383,15 +383,34 @@ export default async function handler(_req: Request) {
       fetchAllAwardOdds(),
     ])
 
-    // HR + CY lookups must be sequential (each calls /people/search first).
+    // HR + CY lookups in parallel. MLB Stats API handles concurrency fine and
+    // sequential calls were tipping the function past the 300s timeout.
+    async function pMap<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R>): Promise<R[]> {
+      const ret: R[] = new Array(items.length)
+      let i = 0
+      const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+        while (true) {
+          const idx = i++
+          if (idx >= items.length) break
+          ret[idx] = await fn(items[idx])
+        }
+      })
+      await Promise.all(workers)
+      return ret
+    }
+
+    const hrNamesArr = Array.from(hrNames)
+    const cyNamesArr = Array.from(cyNames)
+    const [hrResults, cyResults] = await Promise.all([
+      pMap(hrNamesArr, 12, async name => [name, await fetchPlayerHR(name)] as const),
+      pMap(cyNamesArr, 12, async name => [name, await fetchPitcherStats(name)] as const),
+    ])
     const hrCounts: Record<string, number> = {}
-    for (const name of hrNames) {
-      const v = await fetchPlayerHR(name)
+    for (const [name, v] of hrResults) {
       if (v != null) hrCounts[name] = v
     }
     const cyStats: Record<string, PitcherStats> = {}
-    for (const name of cyNames) {
-      const v = await fetchPitcherStats(name)
+    for (const [name, v] of cyResults) {
       if (v) cyStats[name] = v
     }
 

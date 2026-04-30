@@ -1,6 +1,7 @@
 import type { AppData } from '../../types'
 import { isLocked } from '../../lib/locks'
 import { sFA, scoreOnePick, parseActual } from '../../lib/scoring'
+import { useLabels } from '../../lib/labels-context'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function FreeAgent({ data }: Props) {
+  const labels = useLabels()
   const locked = isLocked('fa')
   const d = data.fa
   const sc = sFA(d)
@@ -35,11 +37,11 @@ export default function FreeAgent({ data }: Props) {
       {/* Score header */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
         <div style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 8 }}>
-          <div style={{ fontWeight: 800, fontSize: 14 }}>Scott</div>
+          <div style={{ fontWeight: 800, fontSize: 14 }}>{labels.Scott}</div>
           <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#22c55e' }}>{sc.Scott}pts</div>
         </div>
         <div style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 8 }}>
-          <div style={{ fontWeight: 800, fontSize: 14 }}>Ty</div>
+          <div style={{ fontWeight: 800, fontSize: 14 }}>{labels.Ty}</div>
           <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#3b82f6' }}>{sc.Ty}pts</div>
         </div>
       </div>
@@ -58,7 +60,7 @@ export default function FreeAgent({ data }: Props) {
                 R{pick.round}
               </span>
               <span style={{ fontSize: 10, fontWeight: 800, color: oc, background: `${oc}15`, borderRadius: 4, padding: '2px 6px', flexShrink: 0 }}>
-                {pick.owner}
+                {labels[pick.owner]}
               </span>
               <div style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>
                 {pick.player || <span style={{ color: '#64748b' }}>---</span>}

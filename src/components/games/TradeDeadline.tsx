@@ -1,5 +1,6 @@
 import type { AppData } from '../../types'
 import { sTD } from '../../lib/scoring'
+import { useLabels } from '../../lib/labels-context'
 import Card from '../ui/Card'
 import { Pills } from '../ui/Pill'
 import { TEAMS } from '../../data/constants'
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function TradeDeadline({ data, setData }: Props) {
+  const labels = useLabels()
   const d = data.td
   const sc = sTD(d)
 
@@ -31,11 +33,11 @@ export default function TradeDeadline({ data, setData }: Props) {
       {/* Score header */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
         <div style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8 }}>
-          <div style={{ fontWeight: 800, fontSize: 14 }}>Scott</div>
+          <div style={{ fontWeight: 800, fontSize: 14 }}>{labels.Scott}</div>
           <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#f59e0b' }}>{sc.Scott}pts</div>
         </div>
         <div style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8 }}>
-          <div style={{ fontWeight: 800, fontSize: 14 }}>Ty</div>
+          <div style={{ fontWeight: 800, fontSize: 14 }}>{labels.Ty}</div>
           <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#f59e0b' }}>{sc.Ty}pts</div>
         </div>
       </div>
@@ -59,7 +61,7 @@ export default function TradeDeadline({ data, setData }: Props) {
                 R{pick.round}
               </span>
               <span style={{ fontSize: 10, fontWeight: 800, color: oc, background: `${oc}15`, borderRadius: 4, padding: '2px 6px', flexShrink: 0 }}>
-                {pick.owner}
+                {labels[pick.owner]}
               </span>
               <input
                 value={pick.player}

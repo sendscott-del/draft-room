@@ -3,6 +3,7 @@ import type { AppData, AwardResult } from '../../types'
 import { isLocked } from '../../lib/locks'
 import { PLAYERS } from '../../data/constants'
 import { projectAwards, type AwardProjection } from '../../lib/awardsProjection'
+import { useLabels } from '../../lib/labels-context'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
@@ -47,6 +48,7 @@ const PROJ_LABELS: Record<string, string> = {
 }
 
 export default function Awards({ data, setData }: Props) {
+  const labels = useLabels()
   const locked = isLocked('aw')
   const d = data.aw
 
@@ -91,7 +93,7 @@ export default function Awards({ data, setData }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
         {PLAYERS.map(p => (
           <div key={p} style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 8 }}>
-            <div style={{ fontWeight: 800, fontSize: 14 }}>{p}</div>
+            <div style={{ fontWeight: 800, fontSize: 14 }}>{labels[p]}</div>
             <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#06b6d4' }}>
               {isProjected ? `~${displayTotals[p]}` : displayTotals[p]}pts
             </div>
@@ -134,7 +136,7 @@ export default function Awards({ data, setData }: Props) {
                 return (
                   <div key={p} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 7, padding: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>{p}</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>{labels[p]}</div>
                       <div style={{ fontWeight: 900, fontSize: 18, fontFamily: 'monospace', color: ptVal > 0 ? '#06b6d4' : hasResult ? '#ef4444' : '#64748b' }}>
                         {hasResult ? `${ptVal}pt` : projection ? `~${projection.points}pt` : '\u2014'}
                       </div>

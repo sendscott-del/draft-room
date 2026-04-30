@@ -3,6 +3,7 @@ import type { AppData, UserAppData, PlayerProfile } from '../types'
 import { useAuth } from '../lib/auth-context'
 import { loadAllPicks, saveMyPicks, getCurrentSeason, listSeasons } from '../lib/supabase'
 import { synthesizeLegacy, extractMine, EMPTY_USER_PICKS } from '../lib/data-adapter'
+import { computeScoredRows } from '../lib/leaderboard-scoring'
 import { getCountdownState, type CountdownState } from '../lib/locks'
 import { COLORS } from '../data/constants'
 
@@ -20,6 +21,7 @@ import WinOU from './games/WinOU'
 import Postseason from './games/Postseason'
 import Rules from './games/Rules'
 import CommentsFeed from './CommentsFeed'
+import { LabelsProvider } from '../lib/labels-context'
 import type { PSPicks, GameConfig } from '../types'
 
 type SyncStatus = 'loading' | 'saved' | 'saving' | 'error'
@@ -150,6 +152,19 @@ export default function LiveAppView() {
     [myPicks, comparePicks]
   )
 
+  // Single source of truth for both Header and Standings totals. Compute from
+  // the FRESH user picks (myPicks) instead of stale rows so the Header
+  // reflects in-progress edits. Comparison uses rows since they're not edited.
+  const scoredRows = useMemo(() => {
+    const liveRows = rows.map(r =>
+      r.profile.id === profile?.id ? { profile: r.profile, picks: myPicks } : r
+    )
+    return computeScoredRows(liveRows)
+  }, [rows, myPicks, profile?.id])
+
+  const myScored = scoredRows.find(r => r.profile.id === profile?.id)
+  const compareScored = compareId ? scoredRows.find(r => r.profile.id === compareId) : null
+
   // setData callback for child components: extract & persist only my portion.
   const handleSetData = useCallback((fn: (d: AppData) => AppData) => {
     setMyPicks(prev => {
@@ -253,11 +268,13 @@ export default function LiveAppView() {
         onSelectSeason={s => setSelectedSeason(s)}
       />
       <Header
-        data={synthesized}
         syncStatus={syncStatus}
         countdown={countdown}
         leftLabel={myProfile.display_name}
         rightLabel={compareProfile?.display_name ?? '—'}
+        leftTotal={myScored?.total ?? 0}
+        rightTotal={compareScored?.total ?? 0}
+        hasProjection={(myScored?.hasProj ?? false) || (compareScored?.hasProj ?? false)}
         onStatsUpdated={async () => {
           // Re-fetch every player's picks after the stats job runs.
           try {
@@ -276,9 +293,11 @@ export default function LiveAppView() {
         onChange={setCompareId}
       />
       <Nav activePage={activePage} onPageChange={setActivePage} />
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '18px 12px 60px' }}>
-        {renderPage()}
-      </div>
+      <LabelsProvider left={myProfile.display_name} right={compareProfile?.display_name ?? '—'}>
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '18px 12px 60px' }}>
+          {renderPage()}
+        </div>
+      </LabelsProvider>
     </>
   )
 }

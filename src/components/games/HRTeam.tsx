@@ -1,6 +1,7 @@
 import type { AppData, Player } from '../../types'
 import { isLocked } from '../../lib/locks'
 import { sHR } from '../../lib/scoring'
+import { useLabels } from '../../lib/labels-context'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function HRTeam({ data }: Props) {
+  const labels = useLabels()
   const locked = isLocked('hr')
   const d = data.hr
   const sc = sHR(d)
@@ -30,7 +32,7 @@ export default function HRTeam({ data }: Props) {
           return (
             <div key={player}>
               <div style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, marginBottom: 9 }}>
-                <div style={{ fontWeight: 800, fontSize: 14 }}>{player}</div>
+                <div style={{ fontWeight: 800, fontSize: 14 }}>{labels[player]}</div>
                 <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#ef4444' }}>{sc[player]} HR</div>
               </div>
               {POS.map(pos => {

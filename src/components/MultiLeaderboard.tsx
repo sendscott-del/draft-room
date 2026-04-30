@@ -1,16 +1,9 @@
 import { useMemo } from 'react'
-import type { PlayerProfile, UserAppData, AwardPicks } from '../types'
-import { scoreAll, totalScore, type UserGameScores } from '../lib/scoring-per-user'
-import { projectCYVotes } from '../lib/cyProjection'
-import { projectAwards } from '../lib/awardsProjection'
-import { GMETA, OUL } from '../data/constants'
+import type { PlayerProfile, UserAppData } from '../types'
+import type { UserGameScores } from '../lib/scoring-per-user'
+import { computeScoredRows } from '../lib/leaderboard-scoring'
+import { GMETA } from '../data/constants'
 import { COLORS } from '../data/constants'
-
-const EMPTY_AWARDS: AwardPicks = {
-  alMVP: '', nlMVP: '', alROY: '', nlROY: '', alCY: '', nlCY: '', alMGR: '', nlMGR: '',
-  alMVPR: 'none', nlMVPR: 'none', alROYR: 'none', nlROYR: 'none',
-  alCYR: 'none', nlCYR: 'none', alMGRR: 'none', nlMGRR: 'none',
-}
 
 type Row = { profile: PlayerProfile; picks: UserAppData | null }
 
@@ -28,70 +21,7 @@ interface Props {
 // played — empty games are hidden, so it's visible at a glance who played
 // what.
 export default function MultiLeaderboard({ rows, myProfileId, compareId, onSelectCompare }: Props) {
-  const scored = useMemo(() => {
-    const playable = rows.filter(r => r.picks)
-
-    // --- Field-wide projections (computed once across all rows) ---------------
-    // CY votes are distributed across the field by relative odds + stats. We
-    // project for each league using the union of every player's picks, then
-    // each player gets credit for their own picks' projected vote totals.
-    const allCYAL = playable.flatMap(r => (r.picks!.cy ?? []).filter(p => p.lg === 'AL'))
-    const allCYNL = playable.flatMap(r => (r.picks!.cy ?? []).filter(p => p.lg === 'NL'))
-    const cyAL = projectCYVotes(allCYAL)
-    const cyNL = projectCYVotes(allCYNL)
-
-    // Awards betting odds are global — replicated to each player's picks blob
-    // by the stats updater (`data.awardsOdds`). Pull from any blob that has it.
-    const awardsOdds: Record<string, Record<string, string>> =
-      (playable.find(r => (r.picks as unknown as { awardsOdds?: unknown }).awardsOdds)
-        ?.picks as unknown as { awardsOdds?: Record<string, Record<string, string>> })
-        ?.awardsOdds ?? {}
-
-    return playable
-      .map(r => {
-        const picks = r.picks!
-        const actual = scoreAll(picks)
-
-        // Projected CY votes for this user
-        const projCY = (picks.cy ?? []).reduce((sum, p) => {
-          const map = p.lg === 'AL' ? cyAL : cyNL
-          return sum + (map.get(p.pitcher)?.projectedVotes ?? 0)
-        }, 0)
-
-        // Projected OU score using stored `projected` win totals
-        const projOU = OUL.reduce((sum, t) => {
-          const sl = picks.ou?.[t.a] as { pick?: string; projected?: number } | undefined
-          if (!sl?.pick || sl.projected == null) return sum
-          if ((sl.pick === 'over' && sl.projected > t.l) || (sl.pick === 'under' && sl.projected < t.l)) {
-            return sum + 3
-          }
-          return sum
-        }, 0)
-
-        // Projected awards via the existing two-player projection helper
-        let projAW = 0
-        if (picks.aw && Object.keys(awardsOdds).length > 0) {
-          const proj = projectAwards({ Scott: picks.aw, Ty: EMPTY_AWARDS }, awardsOdds)
-          projAW = proj.totals.Scott
-        }
-
-        // Display: replace per-game zeros with projections where available
-        const display: UserGameScores & { projected?: Partial<Record<keyof UserGameScores, true>> } = { ...actual }
-        const projected: Partial<Record<keyof UserGameScores, true>> = {}
-        if (actual.cy === 0 && projCY > 0) { display.cy = projCY; projected.cy = true }
-        if (actual.ou === 0 && projOU > 0) { display.ou = projOU; projected.ou = true }
-        if (actual.aw === 0 && projAW > 0) { display.aw = projAW; projected.aw = true }
-
-        return {
-          profile: r.profile,
-          scores: display,
-          total: totalScore(display),
-          hasProj: Object.keys(projected).length > 0,
-          projected,
-        }
-      })
-      .sort((a, b) => b.total - a.total)
-  }, [rows])
+  const scored = useMemo(() => computeScoredRows(rows), [rows])
 
   const leaderTotal = scored[0]?.total ?? 0
 

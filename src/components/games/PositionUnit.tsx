@@ -1,6 +1,7 @@
 import type { AppData, Player } from '../../types'
 import { isLocked } from '../../lib/locks'
 import { sPU, fmt } from '../../lib/scoring'
+import { useLabels } from '../../lib/labels-context'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
@@ -13,6 +14,7 @@ interface Props {
 const uColors: Record<string, string> = { 'INF+C': '#22c55e', OF: '#3b82f6', SP: '#a855f7', RP: '#f59e0b' }
 
 export default function PositionUnit({ data }: Props) {
+  const labels = useLabels()
   const locked = isLocked('pu')
   const d = data.pu
   const totWAR = sPU(d)
@@ -26,7 +28,7 @@ export default function PositionUnit({ data }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
         {(['Scott', 'Ty'] as Player[]).map(p => (
           <div key={p} style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 8 }}>
-            <div style={{ fontWeight: 800, fontSize: 14 }}>{p}</div>
+            <div style={{ fontWeight: 800, fontSize: 14 }}>{labels[p]}</div>
             <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#a855f7' }}>{fmt(totWAR[p])} WAR</div>
           </div>
         ))}
@@ -42,7 +44,7 @@ export default function PositionUnit({ data }: Props) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {(['Scott', 'Ty'] as Player[]).map(player => (
                 <div key={player}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: 1, marginBottom: 6, textAlign: 'center' }}>{player}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: 1, marginBottom: 6, textAlign: 'center' }}>{labels[player]}</div>
                   {d[player].filter(pick => pick.unit === ut).map((pick, i) => {
                     const war = Number(pick.war) || 0
                     const hasWar = pick.war !== 0 && String(pick.war) !== '0'

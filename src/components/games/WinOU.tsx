@@ -3,6 +3,7 @@ import type { AppData, Player } from '../../types'
 import { isLocked } from '../../lib/locks'
 import { sOU } from '../../lib/scoring'
 import { OUL } from '../../data/constants'
+import { useLabels } from '../../lib/labels-context'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import InfoPopup from '../ui/InfoPopup'
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function WinOU({ data }: Props) {
+  const labels = useLabels()
   const locked = isLocked('ou')
   const d = data.ou
   const sc = sOU(d)
@@ -60,7 +62,7 @@ export default function WinOU({ data }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
         {(['Scott', 'Ty'] as Player[]).map(p => (
           <div key={p} style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.2)', borderRadius: 8 }}>
-            <div style={{ fontWeight: 800, fontSize: 14 }}>{p}</div>
+            <div style={{ fontWeight: 800, fontSize: 14 }}>{labels[p]}</div>
             <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#ec4899' }}>{sc[p]}pts</div>
             {projStats[p].hasProjections && (
               <div style={{ fontSize: 9, color: '#64748b' }}>
@@ -89,8 +91,8 @@ export default function WinOU({ data }: Props) {
       }}>
         <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Team</span>
         <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}></span>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Scott</span>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Ty</span>
+        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>{labels.Scott}</span>
+        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>{labels.Ty}</span>
         <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Proj</span>
         <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Wins</span>
         <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Pace</span>
