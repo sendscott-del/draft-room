@@ -60,12 +60,24 @@ interface PitcherStats { era: string; w: number; l: number; k: number; ip: strin
 interface UnitWAR { team: string; unit: string; war: number }
 interface AllAwardOdds { cy: Record<string, string>; awards: Record<string, Record<string, string>> }
 
+// Hard timeout per fetch so a single hung upstream can't drag the whole
+// function past Vercel's 300s ceiling.
+async function timedFetch(url: string, timeoutMs = 8000): Promise<Response> {
+  const controller = new AbortController()
+  const t = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(url, { signal: controller.signal })
+  } finally {
+    clearTimeout(t)
+  }
+}
+
 // ---- External fetchers (one-shot, shared across all players) ---------------
 
 async function fetchStandings(): Promise<Record<string, number>> {
   const wins: Record<string, number> = {}
   try {
-    const res = await fetch(
+    const res = await timedFetch(
       `https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=${SEASON}&standingsTypes=regularSeason`
     )
     const data = await res.json()
@@ -82,7 +94,7 @@ async function fetchStandings(): Promise<Record<string, number>> {
 async function searchPlayer(name: string): Promise<number | null> {
   try {
     const searchName = PLAYER_SEARCH_NAMES[name] || name
-    const res = await fetch(
+    const res = await timedFetch(
       `https://statsapi.mlb.com/api/v1/people/search?names=${encodeURIComponent(searchName)}&sportIds=1&active=true`
     )
     const data = await res.json()
@@ -94,7 +106,7 @@ async function fetchPlayerHR(name: string): Promise<number | null> {
   try {
     const id = await searchPlayer(name)
     if (!id) return null
-    const res = await fetch(
+    const res = await timedFetch(
       `https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=season&season=${SEASON}&group=hitting`
     )
     const data = await res.json()
@@ -108,7 +120,7 @@ async function fetchPitcherStats(name: string): Promise<PitcherStats | null> {
   try {
     const id = await searchPlayer(name)
     if (!id) return null
-    const res = await fetch(
+    const res = await timedFetch(
       `https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=season&season=${SEASON}&group=pitching`
     )
     const data = await res.json()
@@ -122,7 +134,7 @@ async function fetchPitcherStats(name: string): Promise<PitcherStats | null> {
 async function fetchProjectedWins(): Promise<Record<string, number>> {
   const out: Record<string, number> = {}
   try {
-    const res = await fetch(`https://www.fangraphs.com/api/playoff-odds/odds?season=${SEASON}`)
+    const res = await timedFetch(`https://www.fangraphs.com/api/playoff-odds/odds?season=${SEASON}`)
     if (res.ok) {
       const data = await res.json()
       for (const team of data) {
@@ -149,8 +161,9 @@ function posToUnit(pos: string): 'INF+C' | 'OF' | null {
 async function fetchUnitWAR(): Promise<UnitWAR[]> {
   const unitWars: Record<string, Record<string, number>> = {}
   try {
-    const batRes = await fetch(
-      `https://www.fangraphs.com/api/leaders/major-league/data?pos=all&stats=bat&lg=all&qual=0&season=${SEASON}&month=0&team=0&pageitems=2000&pagenum=1&ind=0&rost=0&players=0&type=8&postseason=&sortdir=default&sortstat=WAR`
+    const batRes = await timedFetch(
+      `https://www.fangraphs.com/api/leaders/major-league/data?pos=all&stats=bat&lg=all&qual=0&season=${SEASON}&month=0&team=0&pageitems=2000&pagenum=1&ind=0&rost=0&players=0&type=8&postseason=&sortdir=default&sortstat=WAR`,
+      20000,
     )
     if (batRes.ok) {
       const batData = await batRes.json()
@@ -164,8 +177,9 @@ async function fetchUnitWAR(): Promise<UnitWAR[]> {
         unitWars[teamAbbr][unit] = (unitWars[teamAbbr][unit] || 0) + war
       }
     }
-    const pitRes = await fetch(
-      `https://www.fangraphs.com/api/leaders/major-league/data?pos=all&stats=pit&lg=all&qual=0&season=${SEASON}&month=0&team=0&pageitems=2000&pagenum=1&ind=0&rost=0&players=0&type=8&postseason=&sortdir=default&sortstat=WAR`
+    const pitRes = await timedFetch(
+      `https://www.fangraphs.com/api/leaders/major-league/data?pos=all&stats=pit&lg=all&qual=0&season=${SEASON}&month=0&team=0&pageitems=2000&pagenum=1&ind=0&rost=0&players=0&type=8&postseason=&sortdir=default&sortstat=WAR`,
+      20000,
     )
     if (pitRes.ok) {
       const pitData = await pitRes.json()
@@ -195,7 +209,7 @@ async function fetchAllAwardOdds(): Promise<AllAwardOdds> {
   const apiKey = process.env.ODDS_API_KEY
   if (!apiKey) return result
   try {
-    const sportsRes = await fetch(`https://api.the-odds-api.com/v4/sports?apiKey=${apiKey}`)
+    const sportsRes = await timedFetch(`https://api.the-odds-api.com/v4/sports?apiKey=${apiKey}`)
     const sports = await sportsRes.json()
 
     // Filter to ONLY the awards we care about — others (e.g. World Series
@@ -211,7 +225,7 @@ async function fetchAllAwardOdds(): Promise<AllAwardOdds> {
 
     // Fetch every market in parallel.
     await Promise.all(mlbKeys.map(async (key: string) => {
-      const oddsRes = await fetch(
+      const oddsRes = await timedFetch(
         `https://api.the-odds-api.com/v4/sports/${key}/odds?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american`
       )
       if (!oddsRes.ok) return
