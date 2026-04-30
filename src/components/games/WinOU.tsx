@@ -1,202 +1,113 @@
-import { useMemo } from 'react'
-import type { AppData, Player } from '../../types'
 import { isLocked } from '../../lib/locks'
-import { sOU } from '../../lib/scoring'
-import { OUL } from '../../data/constants'
-import { useLabels } from '../../lib/labels-context'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
-import InfoPopup from '../ui/InfoPopup'
+import { COLORS, OUL } from '../../data/constants'
+import { scoreOU } from '../../lib/scoring-per-user'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView, type EditMine } from './shared'
+
+const OU_COLOR = '#d4669d'
 
 interface Props {
-  data: AppData
-  setData: (fn: (d: AppData) => AppData) => void
+  players: PlayerView[]
+  onEditMine: EditMine
 }
 
-export default function WinOU({ data }: Props) {
-  const labels = useLabels()
+const playedOU = (p: PlayerView) =>
+  !!p.picks?.ou && Object.values(p.picks.ou).some(s => !!s?.pick)
+
+export default function WinOU({ players, onEditMine }: Props) {
   const locked = isLocked('ou')
-  const d = data.ou
-  const sc = sOU(d)
-
-  // Projected correct counts
-  const projStats = useMemo(() => {
-    const result: Record<string, { projCorrect: number; hasProjections: boolean }> = {}
-    for (const p of ['Scott', 'Ty'] as Player[]) {
-      let projCorrect = 0
-      let hasProjections = false
-      OUL.forEach(t => {
-        const s = d[p]?.[t.a]
-        if (!s?.pick || !(s as any).projected) return
-        hasProjections = true
-        const proj = (s as any).projected as number
-        if ((s.pick === 'over' && proj > t.l) || (s.pick === 'under' && proj < t.l)) {
-          projCorrect++
-        }
-      })
-      result[p] = { projCorrect, hasProjections }
-    }
-    return result
-  }, [d])
-
-  const hasAnyProjections = projStats.Scott.hasProjections || projStats.Ty.hasProjections
+  const playing = sortPlayersForGame(
+    players.filter(p => playedOU(p) || p.isCurrentUser)
+      .map(p => ({ ...p, score: scoreOU(p.picks.ou ?? {}) }))
+  )
+  const skipped = players.filter(p => !p.isCurrentUser && !playedOU(p))
 
   return (
     <>
-      {locked && <LockBanner message={'\u{1F512} Season has started \u2014 O/U picks are locked.'} />}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-        <Pills items={['All 30 teams', '3pts per correct', 'Max 90pts']} />
-        {hasAnyProjections && (
-          <InfoPopup title="Win O/U Projection">
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>How it works:</strong> Projected final win totals come from FanGraphs' continuously updated projected standings model.</p>
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>FanGraphs model</strong> combines current record, remaining schedule strength, roster depth charts, and ZiPS/Steamer player projections to estimate each team's final win total.</p>
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Proj column:</strong> The projected final win total. Green means the projection agrees with your over/under pick. Red means it disagrees.</p>
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Wins column:</strong> Current actual wins from the MLB standings, updated daily.</p>
-            <p style={{ marginBottom: 10 }}><strong style={{ color: '#f1f5f9' }}>Pace column:</strong> 162-game pace extrapolated from current win rate. This is a simple linear projection — it doesn't account for schedule difficulty or roster changes.</p>
-            <p><strong style={{ color: '#f1f5f9' }}>Scoring:</strong> 3 points per correct over/under pick based on final season wins vs the preseason line. Maximum 90 points (30 teams × 3 pts).</p>
-          </InfoPopup>
-        )}
-      </div>
-
-      {/* Score header */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-        {(['Scott', 'Ty'] as Player[]).map(p => (
-          <div key={p} style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.2)', borderRadius: 8 }}>
-            <div style={{ fontWeight: 800, fontSize: 14 }}>{labels[p]}</div>
-            <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#ec4899' }}>{sc[p]}pts</div>
-            {projStats[p].hasProjections && (
-              <div style={{ fontSize: 9, color: '#64748b' }}>
-                Proj: {projStats[p].projCorrect}/30 correct (~{projStats[p].projCorrect * 3}pts)
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Projection banner */}
-      {hasAnyProjections && (
-        <div style={{
-          background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.15)',
-          borderRadius: 8, padding: '6px 12px', marginBottom: 10,
-          fontSize: 9, color: '#94a3b8', textAlign: 'center', letterSpacing: 1,
-        }}>
-          FanGraphs projected standings included
-        </div>
-      )}
-
-      {/* Column headers */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: '44px 1fr 80px 80px 44px 44px 44px',
-        gap: 4, padding: '4px 10px', marginBottom: 2,
-      }}>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Team</span>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}></span>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>{labels.Scott}</span>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>{labels.Ty}</span>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Proj</span>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Wins</span>
-        <span style={{ fontSize: 8, letterSpacing: 1, color: '#64748b', textTransform: 'uppercase', fontWeight: 700, textAlign: 'center' }}>Pace</span>
-      </div>
-
-      <div>
-        {OUL.map(t => {
-          const sSlot = d.Scott?.[t.a] || { pick: '', actual: '' }
-          const tSlot = d.Ty?.[t.a] || { pick: '', actual: '' }
-          const a = Number(sSlot.actual) || 0
-          const proj = (sSlot as any).projected as number | undefined
-
-          // Calculate pace
-          const seasonStart = new Date('2026-03-26')
-          const now = new Date()
-          const daysIntoSeason = Math.max(1, Math.floor((now.getTime() - seasonStart.getTime()) / 86400000))
-          const gamesEstimate = Math.min(162, Math.round(daysIntoSeason * 162 / 183))
-          const pace = gamesEstimate > 0 && a > 0 ? Math.round((a / gamesEstimate) * 162) : 0
-
-          // Row background based on if any actual results exist
-          const hasResult = !!sSlot.actual
-          const bg = hasResult ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)'
-
-          return (
-            <div
-              key={t.a}
-              style={{
-                display: 'grid', gridTemplateColumns: '44px 1fr 80px 80px 44px 44px 44px',
-                gap: 4, alignItems: 'center', padding: '5px 10px', borderRadius: 7,
-                border: '1px solid rgba(255,255,255,0.09)', marginBottom: 3, background: bg,
-              }}
-            >
-              <span style={{ fontWeight: 800, fontSize: 11 }}>{t.a}</span>
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>{t.n} <span style={{ color: '#64748b', fontSize: 10 }}>{t.l}</span></span>
-
-              {/* Scott's pick */}
-              {renderPickCell(sSlot, t, a, proj)}
-
-              {/* Ty's pick */}
-              {renderPickCell(tSlot, t, a, proj)}
-
-              {/* Projected wins */}
-              <div style={{ textAlign: 'center' }}>
-                {proj != null ? (
-                  <span style={{ fontSize: 10, fontFamily: 'monospace', fontWeight: 700, color: '#94a3b8' }}>
-                    {Math.round(proj)}
-                  </span>
-                ) : (
-                  <span style={{ fontSize: 10, color: '#64748b' }}>{'\u2014'}</span>
-                )}
-              </div>
-              {/* Current wins */}
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: 10, fontFamily: 'monospace', fontWeight: 700, color: '#f1f5f9' }}>
-                  {a || '\u2014'}
-                </span>
-              </div>
-              {/* Pace */}
-              <div style={{ textAlign: 'center' }}>
-                {pace > 0 ? (
-                  <span style={{ fontSize: 10, fontFamily: 'monospace', fontWeight: 700, color: '#94a3b8' }}>
-                    {pace}
-                  </span>
-                ) : (
-                  <span style={{ fontSize: 10, color: '#64748b' }}>{'\u2014'}</span>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      {locked && <LockBanner message={'\u{1F512} Season has started — O/U picks are locked.'} />}
+      <Pills items={['All 30 teams', '3 pts per correct']} />
+      {playing.map(p => (
+        <PlayerOUSection
+          key={p.profile.id}
+          player={p}
+          editable={p.isCurrentUser && !locked}
+          onEdit={p.isCurrentUser ? onEditMine : undefined}
+        />
+      ))}
+      <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Win O/U" />
     </>
   )
 }
 
-function renderPickCell(
-  slot: { pick: string; actual: string },
-  t: { l: number },
-  actual: number,
-  proj: number | undefined,
-) {
-  if (!slot.pick) {
-    return <div style={{ textAlign: 'center', fontSize: 10, color: '#64748b' }}>{'\u2014'}</div>
+function PlayerOUSection({ player, editable, onEdit }: {
+  player: PlayerView & { score: number }
+  editable: boolean
+  onEdit?: EditMine
+}) {
+  const ou = player.picks.ou ?? {}
+
+  function setPick(team: string, pick: 'over' | 'under' | '') {
+    if (!onEdit) return
+    onEdit(mine => ({
+      ...mine,
+      ou: { ...(mine.ou ?? {}), [team]: { ...(mine.ou?.[team] ?? { pick: '', actual: '' }), pick } },
+    }))
   }
 
-  const isOver = slot.pick === 'over'
-  const hasActual = !!slot.actual
-  const ok = hasActual && ((isOver && actual > t.l) || (!isOver && actual < t.l))
-  const bad = hasActual && !ok && actual !== t.l
-  const projOk = !hasActual && proj != null && ((isOver && proj > t.l) || (!isOver && proj < t.l))
-  const projBad = !hasActual && proj != null && !projOk
-
-  const bgColor = ok ? '#22c55e' : bad ? '#ef4444' : projOk ? 'rgba(34,197,94,0.3)' : projBad ? 'rgba(239,68,68,0.2)' : isOver ? 'rgba(34,197,94,0.15)' : 'rgba(59,130,246,0.15)'
-  const textColor = ok ? '#fff' : bad ? '#fff' : projOk ? '#22c55e' : projBad ? '#ef4444' : isOver ? '#22c55e' : '#3b82f6'
-
   return (
-    <div style={{ textAlign: 'center' }}>
-      <span style={{
-        display: 'inline-block', padding: '2px 8px', borderRadius: 4,
-        fontSize: 10, fontWeight: 700, background: bgColor, color: textColor,
-      }}>
-        {isOver ? '\u25B2' : '\u25BC'}{t.l}
-        {ok ? ' \u2705' : bad ? ' \u274C' : ''}
-      </span>
+    <div style={{ marginTop: 12 }}>
+      <SectionHeader player={player} score={player.score} unit="pts" color={OU_COLOR} editable={editable} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
+        {OUL.map(t => {
+          const slot = ou[t.a] ?? { pick: '', actual: '' }
+          const isOver = slot.pick === 'over'
+          const isUnder = slot.pick === 'under'
+          return (
+            <div key={t.a} style={{
+              display: 'grid', gridTemplateColumns: '40px 1fr auto', alignItems: 'center', gap: 6,
+              padding: '4px 8px', background: 'rgba(255,255,255,0.03)', borderRadius: 5,
+              border: `1px solid ${COLORS.border}`,
+            }}>
+              <span style={{ fontSize: 10, fontWeight: 800 }}>{t.a}</span>
+              <span style={{ fontSize: 10, color: COLORS.muted2 }}>{t.l}</span>
+              {editable ? (
+                <div style={{ display: 'flex', gap: 2 }}>
+                  <button
+                    type="button"
+                    onClick={() => setPick(t.a, isOver ? '' : 'over')}
+                    style={{
+                      background: isOver ? '#5eb774' : 'rgba(255,255,255,0.06)',
+                      color: isOver ? '#0c1a2c' : COLORS.muted2,
+                      border: 'none', borderRadius: 3, padding: '2px 6px',
+                      fontSize: 9, fontWeight: 800, cursor: 'pointer',
+                    }}
+                  >▲</button>
+                  <button
+                    type="button"
+                    onClick={() => setPick(t.a, isUnder ? '' : 'under')}
+                    style={{
+                      background: isUnder ? '#5b8cc7' : 'rgba(255,255,255,0.06)',
+                      color: isUnder ? '#0c1a2c' : COLORS.muted2,
+                      border: 'none', borderRadius: 3, padding: '2px 6px',
+                      fontSize: 9, fontWeight: 800, cursor: 'pointer',
+                    }}
+                  >▼</button>
+                </div>
+              ) : (
+                <span style={{
+                  fontSize: 10, fontWeight: 800,
+                  color: isOver ? '#5eb774' : isUnder ? '#5b8cc7' : COLORS.muted,
+                  background: isOver ? 'rgba(94,183,116,0.15)' : isUnder ? 'rgba(91,140,199,0.15)' : 'transparent',
+                  borderRadius: 3, padding: '1px 6px',
+                }}>
+                  {isOver ? '▲' : isUnder ? '▼' : '—'}
+                </span>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

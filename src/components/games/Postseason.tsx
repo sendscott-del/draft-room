@@ -1,188 +1,143 @@
 import type { PSPicks } from '../../types'
-import { TEAMS, COLORS } from '../../data/constants'
 import { isLocked } from '../../lib/locks'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
+import { COLORS, TEAMS } from '../../data/constants'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView } from './shared'
+
+const PS_COLOR = '#e8b54a'
 
 interface Props {
-  myPicks: PSPicks
-  comparePicks: PSPicks | undefined
-  compareName: string | null
-  onChange: (next: PSPicks) => void
+  players: PlayerView[]
+  onEditMine: (next: PSPicks) => void
 }
 
-const PS_COLOR = '#fbbf24'
+const playedPS = (p: PlayerView) => {
+  const ps = p.picks?.ps
+  if (!ps) return false
+  return !!ps.ws || !!ps.divisions || !!ps.wildCards || !!ps.pennants
+}
 
 const DIVISIONS: Array<{ key: keyof NonNullable<PSPicks['divisions']>; label: string }> = [
-  { key: 'alEast',    label: 'AL East' },
-  { key: 'alCentral', label: 'AL Central' },
-  { key: 'alWest',    label: 'AL West' },
-  { key: 'nlEast',    label: 'NL East' },
-  { key: 'nlCentral', label: 'NL Central' },
-  { key: 'nlWest',    label: 'NL West' },
+  { key: 'alEast', label: 'AL East' }, { key: 'alCentral', label: 'AL Central' }, { key: 'alWest', label: 'AL West' },
+  { key: 'nlEast', label: 'NL East' }, { key: 'nlCentral', label: 'NL Central' }, { key: 'nlWest', label: 'NL West' },
 ]
 
-export default function Postseason({ myPicks, comparePicks, compareName, onChange }: Props) {
+function psFilledCount(ps: PSPicks | undefined): number {
+  if (!ps) return 0
+  let n = 0
+  if (ps.ws) n++
+  if (ps.pennants?.al) n++
+  if (ps.pennants?.nl) n++
+  for (const d of DIVISIONS) if (ps.divisions?.[d.key]) n++
+  for (const t of ps.wildCards?.al ?? []) if (t) n++
+  for (const t of ps.wildCards?.nl ?? []) if (t) n++
+  return n
+}
+
+export default function Postseason({ players, onEditMine }: Props) {
   const locked = isLocked('ps')
-
-  function setDivision(k: keyof NonNullable<PSPicks['divisions']>, v: string) {
-    onChange({
-      ...myPicks,
-      divisions: { ...(myPicks.divisions ?? {}), [k]: v },
-    })
-  }
-  function setWC(lg: 'al' | 'nl', idx: number, v: string) {
-    const cur = (myPicks.wildCards?.[lg] ?? ['', '', '']).slice()
-    cur[idx] = v
-    onChange({
-      ...myPicks,
-      wildCards: { ...(myPicks.wildCards ?? {}), [lg]: cur },
-    })
-  }
-  function setPennant(lg: 'al' | 'nl', v: string) {
-    onChange({
-      ...myPicks,
-      pennants: { ...(myPicks.pennants ?? {}), [lg]: v },
-    })
-  }
-  function setWS(v: string) {
-    onChange({ ...myPicks, ws: v })
-  }
-
-  const compareLabel = compareName ?? 'Compare'
-  const myDiv = myPicks.divisions ?? {}
-  const cDiv = comparePicks?.divisions ?? {}
+  const playing = sortPlayersForGame(
+    players.filter(p => playedPS(p) || p.isCurrentUser)
+      .map(p => ({ ...p, score: psFilledCount(p.picks.ps) }))
+  )
+  const skipped = players.filter(p => !p.isCurrentUser && !playedPS(p))
 
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started — postseason picks are locked.'} />}
-      <Pills items={['6 division winners', '3 wild cards per league', 'Pennants + World Series']} />
+      <Pills items={['6 division winners', '3 wild cards / league', 'Pennants + World Series']} />
 
-      <SectionHeader label="Division Winners" />
-      {DIVISIONS.map(({ key, label }) => (
-        <PickRow
-          key={key}
-          label={label}
-          mine={myDiv[key]}
-          theirs={cDiv[key]}
-          compareLabel={compareLabel}
-          locked={locked}
-          onMineChange={v => setDivision(key, v)}
+      {playing.map(p => (
+        <PlayerPSSection
+          key={p.profile.id}
+          player={p}
+          editable={p.isCurrentUser && !locked}
+          onEdit={p.isCurrentUser ? onEditMine : undefined}
         />
       ))}
 
-      <SectionHeader label="Wild Cards" />
-      {(['al', 'nl'] as const).map(lg => {
-        const myWC = myPicks.wildCards?.[lg] ?? []
-        const cWC = comparePicks?.wildCards?.[lg] ?? []
-        return (
-          <div key={lg} style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 11, color: COLORS.muted2, fontWeight: 700, letterSpacing: 1, marginBottom: 4 }}>
-              {lg.toUpperCase()} Wild Cards
-            </div>
-            {[0, 1, 2].map(i => (
-              <PickRow
-                key={i}
-                label={`#${i + 1}`}
-                mine={myWC[i]}
-                theirs={cWC[i]}
-                compareLabel={compareLabel}
-                locked={locked}
-                onMineChange={v => setWC(lg, i, v)}
-              />
-            ))}
-          </div>
-        )
-      })}
-
-      <SectionHeader label="League Pennants" />
-      <PickRow
-        label="AL Pennant"
-        mine={myPicks.pennants?.al}
-        theirs={comparePicks?.pennants?.al}
-        compareLabel={compareLabel}
-        locked={locked}
-        onMineChange={v => setPennant('al', v)}
-      />
-      <PickRow
-        label="NL Pennant"
-        mine={myPicks.pennants?.nl}
-        theirs={comparePicks?.pennants?.nl}
-        compareLabel={compareLabel}
-        locked={locked}
-        onMineChange={v => setPennant('nl', v)}
-      />
-
-      <SectionHeader label="World Series" />
-      <PickRow
-        label={'\u{1F3C6} WS Champion'}
-        mine={myPicks.ws}
-        theirs={comparePicks?.ws}
-        compareLabel={compareLabel}
-        locked={locked}
-        onMineChange={setWS}
-        emphasize
-      />
+      <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Postseason" />
     </>
   )
 }
 
-function SectionHeader({ label }: { label: string }) {
+function PlayerPSSection({
+  player, editable, onEdit,
+}: {
+  player: PlayerView & { score: number }
+  editable: boolean
+  onEdit?: (next: PSPicks) => void
+}) {
+  const ps: PSPicks = player.picks.ps ?? {}
+
+  function setDivision(k: keyof NonNullable<PSPicks['divisions']>, v: string) {
+    if (!onEdit) return
+    onEdit({ ...ps, divisions: { ...(ps.divisions ?? {}), [k]: v } })
+  }
+  function setWC(lg: 'al' | 'nl', i: number, v: string) {
+    if (!onEdit) return
+    const cur = (ps.wildCards?.[lg] ?? ['', '', '']).slice()
+    cur[i] = v
+    onEdit({ ...ps, wildCards: { ...(ps.wildCards ?? {}), [lg]: cur } })
+  }
+  function setPennant(lg: 'al' | 'nl', v: string) {
+    if (!onEdit) return
+    onEdit({ ...ps, pennants: { ...(ps.pennants ?? {}), [lg]: v } })
+  }
+  function setWS(v: string) {
+    if (!onEdit) return
+    onEdit({ ...ps, ws: v })
+  }
+
   return (
-    <div style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6, marginTop: 18, paddingBottom: 4, borderBottom: `1px solid ${COLORS.border}` }}>
-      {label}
+    <div style={{ marginTop: 12 }}>
+      <SectionHeader player={player} score={player.score} unit="picks" color={PS_COLOR} editable={editable} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
+        {DIVISIONS.map(d => (
+          <PSRow key={d.key} label={d.label} value={ps.divisions?.[d.key]} editable={editable} onChange={v => setDivision(d.key, v)} />
+        ))}
+        {(['al', 'nl'] as const).map(lg => (
+          [0, 1, 2].map(i => (
+            <PSRow
+              key={`${lg}wc${i}`}
+              label={`${lg.toUpperCase()} WC #${i + 1}`}
+              value={ps.wildCards?.[lg]?.[i]}
+              editable={editable}
+              onChange={v => setWC(lg, i, v)}
+            />
+          ))
+        ))}
+        <PSRow label="AL Pennant" value={ps.pennants?.al} editable={editable} onChange={v => setPennant('al', v)} />
+        <PSRow label="NL Pennant" value={ps.pennants?.nl} editable={editable} onChange={v => setPennant('nl', v)} />
+        <PSRow label="World Series" value={ps.ws} editable={editable} onChange={setWS} emphasize />
+      </div>
     </div>
   )
 }
 
-function PickRow({
-  label, mine, theirs, compareLabel, locked, onMineChange, emphasize,
-}: {
+function PSRow({ label, value, editable, onChange, emphasize }: {
   label: string
-  mine: string | undefined
-  theirs: string | undefined
-  compareLabel: string
-  locked: boolean
-  onMineChange: (v: string) => void
+  value: string | undefined
+  editable: boolean
+  onChange: (v: string) => void
   emphasize?: boolean
 }) {
-  const match = !!mine && !!theirs && mine === theirs
   return (
-    <Card
-      style={{ padding: '8px 12px', marginBottom: 6, ...(emphasize ? { borderLeft: `4px solid ${PS_COLOR}` } : {}) }}
-      borderColor={match ? `${PS_COLOR}66` : undefined}
-    >
-      <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 1fr', alignItems: 'center', gap: 10 }}>
-        <div style={{ fontSize: 12, color: COLORS.muted2, fontWeight: 700 }}>{label}</div>
-        <div>
-          <div style={{ fontSize: 9, color: COLORS.muted, letterSpacing: 1, marginBottom: 2 }}>YOU</div>
-          <select
-            value={mine ?? ''}
-            onChange={e => onMineChange(e.target.value)}
-            disabled={locked}
-            style={{
-              background: '#1e293b', border: `1px solid ${COLORS.border}`,
-              borderRadius: 5, color: COLORS.text, padding: '4px 8px', fontSize: 13,
-              outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'inherit',
-              opacity: locked ? 0.6 : 1,
-            }}
-          >
+    <Card style={{ padding: '6px 10px', ...(emphasize ? { borderLeft: `3px solid ${PS_COLOR}` } : {}) }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 11, color: COLORS.muted2, fontWeight: 700 }}>{label}</span>
+        {editable ? (
+          <select value={value ?? ''} onChange={e => onChange(e.target.value)} style={{ background: '#1e293b', border: `1px solid ${COLORS.border}`, borderRadius: 5, color: COLORS.text, padding: '3px 8px', fontSize: 12, outline: 'none' }}>
             <option value="">—</option>
             {TEAMS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-        </div>
-        <div>
-          <div style={{ fontSize: 9, color: COLORS.muted, letterSpacing: 1, marginBottom: 2 }}>{compareLabel.toUpperCase()}</div>
-          <div style={{
-            background: 'rgba(255,255,255,0.04)', border: `1px solid ${COLORS.border}`,
-            borderRadius: 5, padding: '4px 8px', fontSize: 13,
-            color: theirs ? COLORS.text : COLORS.muted,
-            textAlign: 'center', fontFamily: 'monospace', fontWeight: 700,
-          }}>
-            {theirs || '—'}
-          </div>
-        </div>
+        ) : (
+          <span style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', color: value ? COLORS.text : COLORS.muted, textAlign: 'left' }}>
+            {value || '—'}
+          </span>
+        )}
       </div>
     </Card>
   )

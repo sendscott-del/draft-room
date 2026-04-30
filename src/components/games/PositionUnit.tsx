@@ -1,76 +1,77 @@
-import type { AppData, Player } from '../../types'
+import type { PUPick } from '../../types'
 import { isLocked } from '../../lib/locks'
-import { sPU, fmt } from '../../lib/scoring'
-import { useLabels } from '../../lib/labels-context'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
+import { COLORS } from '../../data/constants'
+import { scorePU } from '../../lib/scoring-per-user'
+import { SectionHeader, DidNotPlay, sortPlayersForGame, type PlayerView, type EditMine } from './shared'
+
+const PU_COLOR = '#a37ed1'
+const UNIT_COLORS: Record<string, string> = { 'INF+C': '#5eb774', OF: '#5b8cc7', SP: '#a37ed1', RP: '#f0a531' }
 
 interface Props {
-  data: AppData
-  setData: (fn: (d: AppData) => AppData) => void
+  players: PlayerView[]
+  onEditMine: EditMine
 }
 
-const uColors: Record<string, string> = { 'INF+C': '#22c55e', OF: '#3b82f6', SP: '#a855f7', RP: '#f59e0b' }
+const playedPU = (p: PlayerView) => (p.picks?.pu ?? []).length > 0
 
-export default function PositionUnit({ data }: Props) {
-  const labels = useLabels()
+export default function PositionUnit({ players }: Props) {
   const locked = isLocked('pu')
-  const d = data.pu
-  const totWAR = sPU(d)
+  const playing = sortPlayersForGame(
+    players.filter(p => playedPU(p) || p.isCurrentUser)
+      .map(p => ({ ...p, score: scorePU(p.picks.pu ?? []) }))
+  )
+  const skipped = players.filter(p => !p.isCurrentUser && !playedPU(p))
 
   return (
     <>
-      {locked && <LockBanner message={'\u{1F512} Draft complete \u2014 Position Unit picks are locked.'} />}
-      <Pills items={['12 teams each', 'INF+C, OF, SP, RP', 'No 2 units same team', 'Points = unit WAR']} />
+      {locked && <LockBanner message={'\u{1F512} Draft complete — Position Unit picks are locked.'} />}
+      <Pills items={['INF+C, OF, SP, RP', 'Points = unit WAR']} />
 
-      {/* Score header */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-        {(['Scott', 'Ty'] as Player[]).map(p => (
-          <div key={p} style={{ textAlign: 'center', padding: '9px 0', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 8 }}>
-            <div style={{ fontWeight: 800, fontSize: 14 }}>{labels[p]}</div>
-            <div style={{ fontSize: 22, fontWeight: 900, fontFamily: 'monospace', color: '#a855f7' }}>{fmt(totWAR[p])} WAR</div>
-          </div>
-        ))}
-      </div>
+      {playing.map(p => (
+        <PlayerPUSection key={p.profile.id} player={p} />
+      ))}
 
-      {(['INF+C', 'OF', 'SP', 'RP'] as const).map(ut => {
-        const uc = uColors[ut]
+      <DidNotPlay names={skipped.map(s => s.profile.display_name)} game="Position Unit" />
+    </>
+  )
+}
+
+function PlayerPUSection({ player }: { player: PlayerView & { score: number } }) {
+  const picks: PUPick[] = (player.picks.pu ?? []) as PUPick[]
+  return (
+    <div style={{ marginTop: 12 }}>
+      <SectionHeader player={player} score={player.score.toFixed(1)} unit="WAR" color={PU_COLOR} editable={false} />
+      {(['INF+C', 'OF', 'SP', 'RP'] as const).map(unit => {
+        const unitPicks = picks.filter(p => p.unit === unit)
+        if (unitPicks.length === 0) return null
+        const uc = UNIT_COLORS[unit]
         return (
-          <div key={ut}>
-            <div style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: '#64748b', marginBottom: 7, marginTop: 16, paddingBottom: 5, borderBottom: '1px solid rgba(255,255,255,0.09)' }}>
-              {ut} Picks
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {(['Scott', 'Ty'] as Player[]).map(player => (
-                <div key={player}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: 1, marginBottom: 6, textAlign: 'center' }}>{labels[player]}</div>
-                  {d[player].length === 0 && (
-                    <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', padding: '8px', fontStyle: 'italic' }}>—</div>
-                  )}
-                  {d[player].filter(pick => pick.unit === ut).map((pick, i) => {
-                    const war = Number(pick.war) || 0
-                    const hasWar = pick.war !== 0 && String(pick.war) !== '0'
-                    return (
-                      <Card key={i} borderColor={hasWar ? uc : 'rgba(255,255,255,0.09)'} style={{ borderLeft: `3px solid ${uc}` }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ background: 'rgba(255,255,255,0.08)', color: uc, borderRadius: 4, padding: '2px 6px', fontSize: 9, fontWeight: 800, flexShrink: 0 }}>
-                            R{pick.r}
-                          </span>
-                          <div style={{ flex: 1, fontWeight: 700, fontSize: 13 }}>{pick.team}</div>
-                          <span style={{ fontWeight: 900, fontSize: 14, fontFamily: 'monospace', flexShrink: 0, textAlign: 'right', color: war > 0 ? uc : '#64748b' }}>
-                            {war > 0 ? `${war.toFixed(1)}` : '\u2014'}
-                          </span>
-                        </div>
-                      </Card>
-                    )
-                  })}
-                </div>
-              ))}
+          <div key={unit} style={{ marginTop: 6 }}>
+            <div style={{ fontSize: 9, letterSpacing: 2, color: uc, fontWeight: 700, marginBottom: 4 }}>{unit}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
+              {unitPicks.map((pick, i) => {
+                const war = Number(pick.war) || 0
+                return (
+                  <Card key={i} style={{ padding: '7px 10px', borderLeft: `3px solid ${uc}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 700, fontSize: 12, flex: 1 }}>{pick.team}</span>
+                      <span style={{ fontWeight: 900, fontSize: 13, fontFamily: 'monospace', color: war > 0 ? uc : COLORS.muted, minWidth: 44, textAlign: 'right' }}>
+                        {war > 0 ? war.toFixed(1) : '—'}
+                      </span>
+                    </div>
+                  </Card>
+                )
+              })}
             </div>
           </div>
         )
       })}
-    </>
+      {picks.length === 0 && (
+        <div style={{ fontSize: 11, color: COLORS.muted, fontStyle: 'italic', padding: '8px 10px' }}>No picks yet</div>
+      )}
+    </div>
   )
 }
