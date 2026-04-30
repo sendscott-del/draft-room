@@ -1,5 +1,28 @@
 # Draft Room — Release Notes
 
+## v1.1.0 — Labels + scoring unified
+
+**Date:** 2026-04-29
+
+Followup pass after the v1.0.0 deploy.
+
+### What changed
+
+- **Labels follow the comparison player.** Every game tab (FA, CY, PU, HR,
+  TD, Awards, OU) used to show literal "Scott" / "Ty" headers. Now they
+  show your display name on the left and the comparison player's name on
+  the right (matching the top banner). Driven by a `LabelsProvider`
+  context wrapping all game routes.
+- **Header banner total now matches the Standings total.** Both views
+  share `computeScoredRows()` from `lib/leaderboard-scoring.ts` — same
+  field-wide CY projection, same award projection, same OU projection.
+  No more "62 vs 84 depending on which page you're on".
+- **Stats updater no longer times out.** Parallelized HR + CY player
+  lookups (12-way concurrency) so 30+ MLB API calls finish well inside
+  the function budget. `maxDuration` raised to 600s for headroom.
+
+---
+
 ## v1.0.0 — Bugs + multi-season support
 
 **Date:** 2026-04-29

@@ -45,6 +45,9 @@ export default function PositionUnit({ data }: Props) {
               {(['Scott', 'Ty'] as Player[]).map(player => (
                 <div key={player}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: 1, marginBottom: 6, textAlign: 'center' }}>{labels[player]}</div>
+                  {d[player].length === 0 && (
+                    <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', padding: '8px', fontStyle: 'italic' }}>—</div>
+                  )}
                   {d[player].filter(pick => pick.unit === ut).map((pick, i) => {
                     const war = Number(pick.war) || 0
                     const hasWar = pick.war !== 0 && String(pick.war) !== '0'

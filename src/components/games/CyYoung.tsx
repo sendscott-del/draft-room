@@ -81,6 +81,11 @@ export default function CyYoung({ data }: Props) {
             {(['Scott', 'Ty'] as Player[]).map(player => (
               <div key={player}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: 1, marginBottom: 6, textAlign: 'center' }}>{labels[player]}</div>
+                {d[player].length === 0 && (
+                  <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', padding: '12px 8px', fontStyle: 'italic' }}>
+                    {labels[player]} didn't draft Cy Young
+                  </div>
+                )}
                 {d[player].filter(pick => pick.lg === lg).map((pick, i) => {
                   const votes = Number(pick.votes) || 0
                   const proj = projections.get(pick.pitcher)
