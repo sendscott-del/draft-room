@@ -4,7 +4,7 @@
     { "source": "/(.*)", "destination": "/" }
   ],
   "functions": {
-    "api/update-stats.ts":     { "maxDuration": 600 },
+    "api/update-stats.ts":     { "maxDuration": 300 },
     "api/youtube-comments.ts": { "maxDuration": 300 }
   },
   "crons": [
