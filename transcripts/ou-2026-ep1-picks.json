@@ -1,0 +1,22 @@
+{
+  "trevorplouffe": {
+    "TOR": {
+      "pick": "under",
+      "actual": ""
+    },
+    "LAD": {
+      "pick": "under",
+      "actual": ""
+    }
+  },
+  "jolly_olive": {
+    "TOR": {
+      "pick": "under",
+      "actual": ""
+    },
+    "LAD": {
+      "pick": "over",
+      "actual": ""
+    }
+  }
+}

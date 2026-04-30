@@ -1,0 +1,46 @@
+{
+  "trevorplouffe": {
+    "COL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "WSN": {
+      "pick": "under",
+      "actual": ""
+    },
+    "CWS": {
+      "pick": "over",
+      "actual": ""
+    },
+    "MIN": {
+      "pick": "over",
+      "actual": ""
+    },
+    "STL": {
+      "pick": "over",
+      "actual": ""
+    }
+  },
+  "jolly_olive": {
+    "COL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "WSN": {
+      "pick": "under",
+      "actual": ""
+    },
+    "CWS": {
+      "pick": "over",
+      "actual": ""
+    },
+    "MIN": {
+      "pick": "under",
+      "actual": ""
+    },
+    "STL": {
+      "pick": "over",
+      "actual": ""
+    }
+  }
+}

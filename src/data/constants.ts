@@ -5,13 +5,14 @@ export const POS = ["C","1B","2B","3B","SS","LF","CF","RF","DH"]
 export const PLAYERS = ["Scott","Ty"] as const
 
 export const GMETA: Record<string, { l: string; i: string; c: string; status: 'final' | 'interim' }> = {
-  fa: { l: "Free Agent",     i: "\u{1F4B0}", c: "#22c55e", status: "final" },
-  cy: { l: "Cy Young",       i: "\u26BE",    c: "#3b82f6", status: "interim" },
-  pu: { l: "Position Unit",  i: "\u{1F3DF}", c: "#a855f7", status: "interim" },
-  hr: { l: "HR Team",        i: "\u{1F4A5}", c: "#ef4444", status: "interim" },
-  aw: { l: "MVP & RoY",      i: "\u{1F3C6}", c: "#06b6d4", status: "interim" },
-  ou: { l: "Win O/U",        i: "\u{1F4CA}", c: "#ec4899", status: "interim" },
-  td: { l: "Trade Deadline", i: "\u{1F504}", c: "#f59e0b", status: "interim" },
+  fa: { l: "Free Agent",     i: "\u{1F4B0}", c: "#5eb774", status: "final" },
+  cy: { l: "Cy Young",       i: "\u26BE",    c: "#5b8cc7", status: "interim" },
+  pu: { l: "Position Unit",  i: "\u{1F3DF}", c: "#a37ed1", status: "interim" },
+  hr: { l: "HR Team",        i: "\u{1F4A5}", c: "#e45b5b", status: "interim" },
+  aw: { l: "MVP & RoY",      i: "\u{1F3C6}", c: "#39a9bd", status: "interim" },
+  ou: { l: "Win O/U",        i: "\u{1F4CA}", c: "#d4669d", status: "interim" },
+  td: { l: "Trade Deadline", i: "\u{1F504}", c: "#f0a531", status: "interim" },
+  ps: { l: "Postseason",     i: "\u{2B50}",  c: "#e8b54a", status: "interim" },
 }
 
 export const NAV = [
@@ -23,8 +24,9 @@ export const NAV = [
   { id: "aw", l: "\u{1F3C6} Awards" },
   { id: "ou", l: "\u{1F4CA} O/U" },
   { id: "td", l: "\u{1F504} Trade Deadline" },
+  { id: "ps", l: "\u2B50 Postseason" },
   { id: "ru", l: "\u{1F4D6} Rules" },
-] // Order: FA, CY, PU, HR, AW, OU, TD
+]
 
 export const OUL = [
   { a: "ARI", n: "Diamondbacks", l: 79.5 },
@@ -67,21 +69,40 @@ export const GAME_STATUS: Record<string, 'final' | 'interim'> = {
   aw: 'interim',
   ou: 'interim',
   td: 'interim',
+  ps: 'interim',
 }
 
+// Talkin' Baseball-inspired palette: deep navy field, cream highlights,
+// warm vintage-baseball gold accent. The merch uses navy + cream + gold +
+// crossed-bats motifs heavily, so the app borrows those.
 export const COLORS = {
-  bg: '#0f172a',
-  cardBg: 'rgba(255,255,255,0.04)',
-  border: 'rgba(255,255,255,0.09)',
-  text: '#f1f5f9',
-  muted: '#64748b',
-  muted2: '#94a3b8',
-  green: '#22c55e',
-  blue: '#3b82f6',
-  purple: '#a855f7',
-  red: '#ef4444',
-  amber: '#f59e0b',
-  cyan: '#06b6d4',
-  pink: '#ec4899',
-  gold: '#fbbf24',
+  bg:         '#0c1a2c', // deep TB navy
+  bg2:        '#08121f', // even darker — for header / cards-on-cards
+  cardBg:     'rgba(255,255,255,0.045)',
+  border:     'rgba(245,233,200,0.12)', // border gets a subtle cream tint
+  text:       '#f5ede0', // cream (vs cool white)
+  textBright: '#ffffff',
+  muted:      '#7a8aa0',
+  muted2:     '#a4b2c6',
+  // Game accent colors — kept recognizable but tonally adjusted toward warm
+  green:  '#5eb774',
+  blue:   '#5b8cc7',
+  purple: '#a37ed1',
+  red:    '#e45b5b',
+  amber:  '#f0a531',
+  cyan:   '#39a9bd',
+  pink:   '#d4669d',
+  gold:   '#e8b54a', // warm TB gold (vs old neon #fbbf24)
 }
+
+// Brand SVG: crossed bats — used in the header and sign-in screen.
+export const CROSSED_BATS_SVG = `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <g stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
+    <path d="M10 54 L48 16" />
+    <path d="M16 10 L54 48" />
+  </g>
+  <g fill="currentColor">
+    <circle cx="48" cy="16" r="4.5" />
+    <circle cx="54" cy="48" r="4.5" />
+  </g>
+</svg>`

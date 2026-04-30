@@ -1,0 +1,46 @@
+{
+  "trevorplouffe": {
+    "KCR": {
+      "pick": "over",
+      "actual": ""
+    },
+    "CIN": {
+      "pick": "over",
+      "actual": ""
+    },
+    "TEX": {
+      "pick": "under",
+      "actual": ""
+    },
+    "ARI": {
+      "pick": "under",
+      "actual": ""
+    },
+    "CLE": {
+      "pick": "over",
+      "actual": ""
+    }
+  },
+  "jolly_olive": {
+    "KCR": {
+      "pick": "over",
+      "actual": ""
+    },
+    "CIN": {
+      "pick": "over",
+      "actual": ""
+    },
+    "TEX": {
+      "pick": "over",
+      "actual": ""
+    },
+    "ARI": {
+      "pick": "under",
+      "actual": ""
+    },
+    "CLE": {
+      "pick": "over",
+      "actual": ""
+    }
+  }
+}

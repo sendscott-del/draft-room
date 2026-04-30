@@ -1,0 +1,80 @@
+{
+  "trevorplouffe": [
+    {
+      "r": 1,
+      "team": "LAD",
+      "unit": "OF",
+      "war": 0
+    },
+    {
+      "r": 2,
+      "team": "KCR",
+      "unit": "INF+C",
+      "war": 0
+    },
+    {
+      "r": 3,
+      "team": "SDP",
+      "unit": "RP",
+      "war": 0
+    },
+    {
+      "r": 4,
+      "team": "TEX",
+      "unit": "SP",
+      "war": 0
+    }
+  ],
+  "jolly_olive": [
+    {
+      "r": 1,
+      "team": "DET",
+      "unit": "SP",
+      "war": 0
+    },
+    {
+      "r": 2,
+      "team": "CHC",
+      "unit": "INF+C",
+      "war": 0
+    },
+    {
+      "r": 3,
+      "team": "MIL",
+      "unit": "RP",
+      "war": 0
+    },
+    {
+      "r": 4,
+      "team": "SDP",
+      "unit": "OF",
+      "war": 0
+    }
+  ],
+  "jomboy_": [
+    {
+      "r": 1,
+      "team": "NYY",
+      "unit": "OF",
+      "war": 0
+    },
+    {
+      "r": 2,
+      "team": "BOS",
+      "unit": "SP",
+      "war": 0
+    },
+    {
+      "r": 3,
+      "team": "BAL",
+      "unit": "INF+C",
+      "war": 0
+    },
+    {
+      "r": 4,
+      "team": "PHI",
+      "unit": "RP",
+      "war": 0
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "trevorplouffe": {
+    "C": {
+      "p": "Cal Raleigh",
+      "t": "SEA",
+      "hr": 0
+    },
+    "1B": {
+      "p": "Bryce Harper",
+      "t": "PHI",
+      "hr": 0
+    },
+    "2B": {
+      "p": "Jose Altuve",
+      "t": "HOU",
+      "hr": 0
+    },
+    "3B": {
+      "p": "Eugenio Suarez",
+      "t": "CIN",
+      "hr": 0
+    },
+    "SS": {
+      "p": "Bobby Witt Jr.",
+      "t": "KCR",
+      "hr": 0
+    },
+    "LF": {
+      "p": "James Wood",
+      "t": "WSN",
+      "hr": 0
+    },
+    "CF": {
+      "p": "Joe Adell",
+      "t": "LAA",
+      "hr": 0
+    },
+    "RF": {
+      "p": "Ronald Acuna Jr.",
+      "t": "ATL",
+      "hr": 0
+    },
+    "DH": {
+      "p": "Shohei Ohtani",
+      "t": "LAD",
+      "hr": 0
+    }
+  },
+  "jolly_olive": {
+    "C": {
+      "p": "Hunter Goodman",
+      "t": "COL",
+      "hr": 0
+    },
+    "1B": {
+      "p": "Nick Kurtz",
+      "t": "OAK",
+      "hr": 0
+    },
+    "2B": {
+      "p": "Ketel Marte",
+      "t": "ARI",
+      "hr": 0
+    },
+    "3B": {
+      "p": "Junior Caminero",
+      "t": "TBR",
+      "hr": 0
+    },
+    "SS": {
+      "p": "Gunnar Henderson",
+      "t": "BAL",
+      "hr": 0
+    },
+    "LF": {
+      "p": "Juan Soto",
+      "t": "NYM",
+      "hr": 0
+    },
+    "CF": {
+      "p": "Byron Buxton",
+      "t": "MIN",
+      "hr": 0
+    },
+    "RF": {
+      "p": "Aaron Judge",
+      "t": "NYY",
+      "hr": 0
+    },
+    "DH": {
+      "p": "Seiya Suzuki",
+      "t": "CHC",
+      "hr": 0
+    }
+  }
+}

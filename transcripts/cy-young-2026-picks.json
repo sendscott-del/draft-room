@@ -1,0 +1,76 @@
+{
+  "trevorplouffe": [
+    {
+      "round": 2,
+      "pitcher": "Tarik Skubal",
+      "lg": "AL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 5,
+      "pitcher": "Logan Webb",
+      "lg": "NL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 8,
+      "pitcher": "Nolan McLean",
+      "lg": "NL",
+      "rookie": true,
+      "votes": 0
+    },
+    {
+      "round": 11,
+      "pitcher": "Max Fried",
+      "lg": "AL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 14,
+      "pitcher": "Joe Ryan",
+      "lg": "AL",
+      "rookie": false,
+      "votes": 0
+    }
+  ],
+  "jolly_olive": [
+    {
+      "round": 3,
+      "pitcher": "Garrett Crochet",
+      "lg": "AL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 4,
+      "pitcher": "Cristopher Sanchez",
+      "lg": "NL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 9,
+      "pitcher": "MacKenzie Gore",
+      "lg": "AL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 10,
+      "pitcher": "Framber Valdez",
+      "lg": "AL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 15,
+      "pitcher": "Spencer Strider",
+      "lg": "NL",
+      "rookie": false,
+      "votes": 0
+    }
+  ]
+}

@@ -4,9 +4,7 @@
     { "source": "/(.*)", "destination": "/" }
   ],
   "crons": [
-    {
-      "path": "/api/update-stats",
-      "schedule": "0 6 * * *"
-    }
+    { "path": "/api/update-stats",     "schedule": "0 6 * * *"  },
+    { "path": "/api/youtube-comments", "schedule": "0 14 * * *" }
   ]
 }

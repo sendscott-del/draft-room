@@ -1,0 +1,248 @@
+{
+  "trevorplouffe": [
+    {
+      "round": 1,
+      "player": "Bo Bichette",
+      "team": "TOR",
+      "years": "8",
+      "newTeam": false,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 2,
+      "player": "JT Realmuto",
+      "team": "PHI",
+      "years": "2",
+      "newTeam": false,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 3,
+      "player": "Edwin Diaz",
+      "team": "TOR",
+      "years": "4",
+      "newTeam": true,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 4,
+      "player": "Framber Valdez",
+      "team": "CHC",
+      "years": "5",
+      "newTeam": true,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 5,
+      "player": "Trent Grisham",
+      "team": "PHI",
+      "years": "3",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 6,
+      "player": "Ranger Suarez",
+      "team": "TOR",
+      "years": "5",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 7,
+      "player": "Harrison Bader",
+      "team": "LAD",
+      "years": "2",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 8,
+      "player": "Michael King",
+      "team": "DET",
+      "years": "3",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    }
+  ],
+  "jolly_olive": [
+    {
+      "round": 1,
+      "player": "Kyle Tucker",
+      "team": "LAD",
+      "years": "9",
+      "newTeam": true,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 2,
+      "player": "Paul Goldschmidt",
+      "team": "ARI",
+      "years": "1",
+      "newTeam": true,
+      "award": true,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 3,
+      "player": "Devin Williams",
+      "team": "CHC",
+      "years": "2",
+      "newTeam": true,
+      "award": true,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 4,
+      "player": "Ryan O'Hearn",
+      "team": "MIL",
+      "years": "2",
+      "newTeam": true,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 5,
+      "player": "Gleyber Torres",
+      "team": "SFG",
+      "years": "2",
+      "newTeam": true,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 6,
+      "player": "Ha-Seong Kim",
+      "team": "NYY",
+      "years": "3",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 7,
+      "player": "Starling Marte",
+      "team": "PIT",
+      "years": "1",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 8,
+      "player": "Tyler Rogers",
+      "team": "SFG",
+      "years": "2",
+      "newTeam": true,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    }
+  ],
+  "chrisrosesports": [
+    {
+      "round": 1,
+      "player": "Pete Alonso",
+      "team": "BOS",
+      "years": "5",
+      "newTeam": true,
+      "award": true,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 2,
+      "player": "Kyle Schwarber",
+      "team": "PHI",
+      "years": "4",
+      "newTeam": false,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 3,
+      "player": "Max Scherzer",
+      "team": "SFG",
+      "years": "1",
+      "newTeam": true,
+      "award": true,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 4,
+      "player": "Robert Suarez",
+      "team": "LAD",
+      "years": "2",
+      "newTeam": true,
+      "award": false,
+      "asg": true,
+      "actual": ""
+    },
+    {
+      "round": 5,
+      "player": "Dylan Cease",
+      "team": "HOU",
+      "years": "5",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 6,
+      "player": "Emilio Pagan",
+      "team": "ATL",
+      "years": "2",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 7,
+      "player": "Munetaka Murakami",
+      "team": "SEA",
+      "years": "5",
+      "newTeam": true,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    },
+    {
+      "round": 8,
+      "player": "Miguel Rojas",
+      "team": "LAD",
+      "years": "1",
+      "newTeam": false,
+      "award": false,
+      "asg": false,
+      "actual": ""
+    }
+  ]
+}

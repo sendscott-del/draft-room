@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vercel
+
+# Generated transcript artifacts — re-pullable via scripts/
+transcripts/*.en.vtt
+transcripts/*.txt
+transcripts/youtube-comments.json

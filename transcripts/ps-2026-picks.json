@@ -1,0 +1,56 @@
+{
+  "trevorplouffe": {
+    "divisions": {
+      "alEast": "NYY",
+      "alCentral": "DET",
+      "alWest": "SEA",
+      "nlEast": "NYM",
+      "nlCentral": "MIL",
+      "nlWest": "LAD"
+    },
+    "wildCards": {
+      "al": [
+        "TOR",
+        "BOS",
+        "HOU"
+      ],
+      "nl": [
+        "PHI",
+        "CHC",
+        "SDP"
+      ]
+    },
+    "pennants": {
+      "al": "DET",
+      "nl": "LAD"
+    },
+    "ws": "LAD"
+  },
+  "jolly_olive": {
+    "divisions": {
+      "alEast": "NYY",
+      "alCentral": "DET",
+      "alWest": "TEX",
+      "nlEast": "PHI",
+      "nlCentral": "MIL",
+      "nlWest": "LAD"
+    },
+    "wildCards": {
+      "al": [
+        "SEA",
+        "BAL",
+        "KCR"
+      ],
+      "nl": [
+        "CHC",
+        "ATL",
+        "SFG"
+      ]
+    },
+    "pennants": {
+      "al": "SEA",
+      "nl": "PHI"
+    },
+    "ws": "SEA"
+  }
+}

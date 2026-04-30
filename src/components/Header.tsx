@@ -13,6 +13,9 @@ interface HeaderProps {
   syncStatus: 'loading' | 'saved' | 'saving' | 'error'
   countdown: CountdownState
   onStatsUpdated?: () => void
+  /** Labels shown above the two scores. Defaults to legacy "SCOTT"/"TY". */
+  leftLabel?: string
+  rightLabel?: string
 }
 
 // Projected O/U score using FanGraphs projected wins
@@ -30,7 +33,7 @@ function projectedOUScore(ou: AppData['ou']): { Scott: number; Ty: number } {
   return s
 }
 
-export default function Header({ data, syncStatus, countdown, onStatsUpdated }: HeaderProps) {
+export default function Header({ data, syncStatus, countdown, onStatsUpdated, leftLabel = 'SCOTT', rightLabel = 'TY' }: HeaderProps) {
   const [updating, setUpdating] = useState(false)
   const [updateMsg, setUpdateMsg] = useState('')
   const sc = allScores(data)
@@ -92,12 +95,13 @@ export default function Header({ data, syncStatus, countdown, onStatsUpdated }: 
   return (
     <div
       style={{
-        background: 'rgba(0,0,0,0.6)',
-        borderBottom: '1px solid rgba(255,255,255,0.09)',
+        background: 'linear-gradient(180deg, #08121f 0%, rgba(8,18,31,0.92) 100%)',
+        borderBottom: '1px solid rgba(232,181,74,0.18)',
         padding: '12px 16px',
         position: 'sticky',
         top: 0,
         zIndex: 100,
+        boxShadow: '0 1px 0 rgba(232,181,74,0.06), 0 8px 24px rgba(0,0,0,0.3)',
       }}
     >
       <div
@@ -112,27 +116,40 @@ export default function Header({ data, syncStatus, countdown, onStatsUpdated }: 
         }}
       >
         <div>
-          <div style={{ fontSize: 9, letterSpacing: 4, color: '#64748b', textTransform: 'uppercase', marginBottom: 1 }}>
+          <div style={{ fontSize: 9, letterSpacing: 4, color: '#e8b54a', textTransform: 'uppercase', marginBottom: 1, fontWeight: 700 }}>
             2026 Season
           </div>
-          <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: -0.5 }}>
-            {'\u26BE'} The Draft Room
+          <div className="brand-display" style={{ fontSize: 22, lineHeight: 1, color: '#f5ede0', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ display: 'inline-block', width: 22, height: 22, color: '#e8b54a' }}>
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
+                <g stroke="currentColor" strokeWidth="6" strokeLinecap="round">
+                  <path d="M10 54 L48 16" />
+                  <path d="M16 10 L54 48" />
+                </g>
+                <circle cx="48" cy="16" r="5" fill="currentColor" />
+                <circle cx="54" cy="48" r="5" fill="currentColor" />
+              </svg>
+            </span>
+            <span>Draft Room</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+          <div style={{ fontSize: 9, color: '#7a8aa0', marginTop: 1, letterSpacing: 1, fontWeight: 600 }}>
+            A Talkin' Baseball companion
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
             <SyncDot status={syncStatus} />
             <button
               onClick={handleUpdateStats}
               disabled={updating}
               style={{
-                background: 'rgba(59,130,246,0.15)',
-                border: '1px solid rgba(59,130,246,0.3)',
+                background: 'rgba(232,181,74,0.12)',
+                border: '1px solid rgba(232,181,74,0.35)',
                 borderRadius: 4,
-                color: '#3b82f6',
+                color: '#e8b54a',
                 fontSize: 9,
-                fontWeight: 700,
-                padding: '2px 6px',
+                fontWeight: 800,
+                padding: '3px 8px',
                 cursor: updating ? 'wait' : 'pointer',
-                letterSpacing: 1,
+                letterSpacing: 1.5,
                 opacity: updating ? 0.5 : 1,
               }}
             >
@@ -140,7 +157,7 @@ export default function Header({ data, syncStatus, countdown, onStatsUpdated }: 
             </button>
           </div>
           {updateMsg && (
-            <div style={{ fontSize: 9, color: updateMsg.startsWith('Error') ? '#ef4444' : '#22c55e', marginTop: 2 }}>
+            <div style={{ fontSize: 9, color: updateMsg.startsWith('Error') ? '#e45b5b' : '#5eb774', marginTop: 2 }}>
               {updateMsg}
             </div>
           )}
@@ -148,16 +165,16 @@ export default function Header({ data, syncStatus, countdown, onStatsUpdated }: 
         <Countdown state={countdown} />
         <div style={{ display: 'flex', gap: 20 }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontWeight: 900, fontFamily: 'monospace', lineHeight: 1, color: sCol }}>
+            <div className="brand-display" style={{ fontSize: 30, lineHeight: 1, color: sCol }}>
               {hasProj ? '~' : ''}{tot.Scott}
             </div>
-            <div style={{ fontSize: 9, letterSpacing: 2, color: '#64748b' }}>SCOTT</div>
+            <div style={{ fontSize: 9, letterSpacing: 2, color: '#a4b2c6', fontWeight: 700, marginTop: 2 }}>{leftLabel.toUpperCase()}</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontWeight: 900, fontFamily: 'monospace', lineHeight: 1, color: tCol }}>
+            <div className="brand-display" style={{ fontSize: 30, lineHeight: 1, color: tCol }}>
               {hasProj ? '~' : ''}{tot.Ty}
             </div>
-            <div style={{ fontSize: 9, letterSpacing: 2, color: '#64748b' }}>TY</div>
+            <div style={{ fontSize: 9, letterSpacing: 2, color: '#a4b2c6', fontWeight: 700, marginTop: 2 }}>{rightLabel.toUpperCase()}</div>
           </div>
         </div>
       </div>

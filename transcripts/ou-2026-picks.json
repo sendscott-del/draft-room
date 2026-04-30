@@ -1,0 +1,158 @@
+{
+  "trevorplouffe": {
+    "TOR": {
+      "pick": "under",
+      "actual": ""
+    },
+    "LAD": {
+      "pick": "under",
+      "actual": ""
+    },
+    "LAA": {
+      "pick": "under",
+      "actual": ""
+    },
+    "MIA": {
+      "pick": "under",
+      "actual": ""
+    },
+    "PIT": {
+      "pick": "over",
+      "actual": ""
+    },
+    "TBR": {
+      "pick": "over",
+      "actual": ""
+    },
+    "OAK": {
+      "pick": "over",
+      "actual": ""
+    },
+    "PHI": {
+      "pick": "over",
+      "actual": ""
+    },
+    "SEA": {
+      "pick": "under",
+      "actual": ""
+    },
+    "COL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "WSN": {
+      "pick": "under",
+      "actual": ""
+    },
+    "CWS": {
+      "pick": "over",
+      "actual": ""
+    },
+    "MIN": {
+      "pick": "over",
+      "actual": ""
+    },
+    "STL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "KCR": {
+      "pick": "over",
+      "actual": ""
+    },
+    "CIN": {
+      "pick": "over",
+      "actual": ""
+    },
+    "TEX": {
+      "pick": "under",
+      "actual": ""
+    },
+    "ARI": {
+      "pick": "under",
+      "actual": ""
+    },
+    "CLE": {
+      "pick": "over",
+      "actual": ""
+    }
+  },
+  "jolly_olive": {
+    "TOR": {
+      "pick": "under",
+      "actual": ""
+    },
+    "LAD": {
+      "pick": "over",
+      "actual": ""
+    },
+    "LAA": {
+      "pick": "under",
+      "actual": ""
+    },
+    "MIA": {
+      "pick": "over",
+      "actual": ""
+    },
+    "PIT": {
+      "pick": "under",
+      "actual": ""
+    },
+    "TBR": {
+      "pick": "over",
+      "actual": ""
+    },
+    "OAK": {
+      "pick": "over",
+      "actual": ""
+    },
+    "PHI": {
+      "pick": "under",
+      "actual": ""
+    },
+    "SEA": {
+      "pick": "over",
+      "actual": ""
+    },
+    "COL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "WSN": {
+      "pick": "under",
+      "actual": ""
+    },
+    "CWS": {
+      "pick": "over",
+      "actual": ""
+    },
+    "MIN": {
+      "pick": "under",
+      "actual": ""
+    },
+    "STL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "KCR": {
+      "pick": "over",
+      "actual": ""
+    },
+    "CIN": {
+      "pick": "over",
+      "actual": ""
+    },
+    "TEX": {
+      "pick": "over",
+      "actual": ""
+    },
+    "ARI": {
+      "pick": "under",
+      "actual": ""
+    },
+    "CLE": {
+      "pick": "over",
+      "actual": ""
+    }
+  }
+}

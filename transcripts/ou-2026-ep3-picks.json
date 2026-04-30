@@ -1,0 +1,22 @@
+{
+  "jolly_olive": {
+    "PHI": {
+      "pick": "under",
+      "actual": ""
+    },
+    "SEA": {
+      "pick": "over",
+      "actual": ""
+    }
+  },
+  "trevorplouffe": {
+    "PHI": {
+      "pick": "over",
+      "actual": ""
+    },
+    "SEA": {
+      "pick": "under",
+      "actual": ""
+    }
+  }
+}

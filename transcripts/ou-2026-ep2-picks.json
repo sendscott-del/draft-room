@@ -1,0 +1,46 @@
+{
+  "trevorplouffe": {
+    "LAA": {
+      "pick": "under",
+      "actual": ""
+    },
+    "MIA": {
+      "pick": "under",
+      "actual": ""
+    },
+    "PIT": {
+      "pick": "over",
+      "actual": ""
+    },
+    "TBR": {
+      "pick": "over",
+      "actual": ""
+    },
+    "OAK": {
+      "pick": "over",
+      "actual": ""
+    }
+  },
+  "jolly_olive": {
+    "LAA": {
+      "pick": "under",
+      "actual": ""
+    },
+    "MIA": {
+      "pick": "over",
+      "actual": ""
+    },
+    "PIT": {
+      "pick": "under",
+      "actual": ""
+    },
+    "TBR": {
+      "pick": "over",
+      "actual": ""
+    },
+    "OAK": {
+      "pick": "over",
+      "actual": ""
+    }
+  }
+}
