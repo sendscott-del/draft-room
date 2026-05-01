@@ -99,6 +99,26 @@
     "NYY": {
       "pick": "under",
       "actual": ""
+    },
+    "SFG": {
+      "pick": "under",
+      "actual": ""
+    },
+    "HOU": {
+      "pick": "under",
+      "actual": ""
+    },
+    "BAL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "SDP": {
+      "pick": "over",
+      "actual": ""
+    },
+    "ATL": {
+      "pick": "over",
+      "actual": ""
     }
   },
   "jolly_olive": {
@@ -200,6 +220,26 @@
     },
     "NYY": {
       "pick": "over",
+      "actual": ""
+    },
+    "SFG": {
+      "pick": "over",
+      "actual": ""
+    },
+    "HOU": {
+      "pick": "under",
+      "actual": ""
+    },
+    "BAL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "SDP": {
+      "pick": "over",
+      "actual": ""
+    },
+    "ATL": {
+      "pick": "under",
       "actual": ""
     }
   }
