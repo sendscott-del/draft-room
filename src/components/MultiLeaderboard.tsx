@@ -70,14 +70,20 @@ export default function MultiLeaderboard({ rows, myProfileId }: Props) {
               <thead>
                 <tr>
                   <th style={{ ...thStyle, textAlign: 'left', position: 'sticky', left: 0, background: COLORS.bg, zIndex: 1, paddingLeft: 4 }}>Player</th>
-                  {GAME_ORDER.map(g => (
-                    <th key={g} style={{ ...thStyle, color: GMETA[g].c }} title={GMETA[g].l}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, lineHeight: 1.1 }}>
-                        <span style={{ fontSize: 13 }}>{GMETA[g].i}</span>
-                        <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.5 }}>{SHORT_LABEL[g]}</span>
-                      </div>
-                    </th>
-                  ))}
+                  {GAME_ORDER.map(g => {
+                    const isExcluded = g === 'aw'
+                    return (
+                      <th key={g} style={{ ...thStyle, color: GMETA[g].c, opacity: isExcluded ? 0.55 : 1 }} title={`${GMETA[g].l}${isExcluded ? ' (not in total — reference only)' : ''}`}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, lineHeight: 1.1 }}>
+                          <span style={{ fontSize: 13 }}>{GMETA[g].i}</span>
+                          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.5 }}>{SHORT_LABEL[g]}</span>
+                          {isExcluded && (
+                            <span style={{ fontSize: 7, fontWeight: 700, letterSpacing: 0.5, color: COLORS.muted, textTransform: 'uppercase' }}>ref</span>
+                          )}
+                        </div>
+                      </th>
+                    )
+                  })}
                   <th style={{ ...thStyle, color: COLORS.gold, paddingRight: 4 }}>Total</th>
                 </tr>
               </thead>
@@ -115,13 +121,14 @@ export default function MultiLeaderboard({ rows, myProfileId }: Props) {
                         const val = r.scores[g] || 0
                         const score = played ? fmtVal(val) : 'NA'
                         const isProj = !!r.projected[g]
+                        const isExcluded = g === 'aw'
                         const color = !played
                           ? COLORS.muted
                           : isProj
                             ? '#5b8cc7'
                             : (val > 0 ? GMETA[g].c : COLORS.muted)
                         return (
-                          <td key={g} style={{ ...tdStyle, color, fontFamily: 'monospace', fontWeight: 700, textAlign: 'center' }}>
+                          <td key={g} style={{ ...tdStyle, color, fontFamily: 'monospace', fontWeight: 700, textAlign: 'center', opacity: isExcluded ? 0.55 : 1, fontStyle: isExcluded ? 'italic' : 'normal' }}>
                             {played && isProj ? '~' : ''}{score}
                           </td>
                         )
@@ -149,7 +156,8 @@ export default function MultiLeaderboard({ rows, myProfileId }: Props) {
       </div>
 
       <div style={{ fontSize: 10, color: COLORS.muted, letterSpacing: 1, textAlign: 'center', padding: '0 12px', lineHeight: 1.6 }}>
-        NA means a player skipped that game. A total only counts when every game has been played.
+        Total = FA + CY + PU + HR + TD + O/U + PS. <span style={{ opacity: 0.7 }}><em>AW</em> is shown for reference only and isn't in the total.</span>
+        <br />NA means a player skipped that game.
         {completeLeaderTotal > 0 && (
           <>
             <br />Top complete total: <span style={{ color: COLORS.gold }}>{fmtVal(completeLeaderTotal)}</span>

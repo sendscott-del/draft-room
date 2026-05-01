@@ -7,7 +7,8 @@ interface HeaderProps {
   syncStatus: 'loading' | 'saved' | 'saving' | 'error'
   countdown: CountdownState
   onStatsUpdated?: () => void
-  /** Labels shown above the two scores. */
+  /** Labels shown above the two scores. Left is always "you"; right is the
+   *  leader (or the 2nd-place player when you are the leader). */
   leftLabel?: string
   rightLabel?: string
   /** Pre-computed totals from the same scoring source as the Standings page. */
@@ -21,6 +22,11 @@ export default function Header({
   leftLabel = 'SCOTT', rightLabel = 'TY',
   leftTotal, rightTotal, hasProjection,
 }: HeaderProps) {
+  // The right-side score is whichever non-you player has the highest total
+  // (the leader when you're not winning; 2nd place when you are).
+  const youAreLeading = leftTotal > rightTotal
+  const youAreTied = leftTotal === rightTotal
+  const rightRole = youAreLeading ? '2ND' : youAreTied ? 'TIED' : 'LEADER'
   const [updating, setUpdating] = useState(false)
   const [updateMsg, setUpdateMsg] = useState('')
 
@@ -126,12 +132,14 @@ export default function Header({
               {hasProj ? '~' : ''}{tot.Scott}
             </div>
             <div style={{ fontSize: 9, letterSpacing: 2, color: '#a4b2c6', fontWeight: 700, marginTop: 2 }}>{leftLabel.toUpperCase()}</div>
+            <div style={{ fontSize: 8, letterSpacing: 1.5, color: '#5eb774', fontWeight: 800, marginTop: 1 }}>YOU</div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div className="brand-display" style={{ fontSize: 30, lineHeight: 1, color: tCol }}>
               {hasProj ? '~' : ''}{tot.Ty}
             </div>
             <div style={{ fontSize: 9, letterSpacing: 2, color: '#a4b2c6', fontWeight: 700, marginTop: 2 }}>{rightLabel.toUpperCase()}</div>
+            <div style={{ fontSize: 8, letterSpacing: 1.5, color: '#e8b54a', fontWeight: 800, marginTop: 1 }}>{rightRole}</div>
           </div>
         </div>
       </div>

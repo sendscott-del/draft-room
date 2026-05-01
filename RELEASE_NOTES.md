@@ -1,5 +1,31 @@
 # Draft Room — Release Notes
 
+## v1.5.1 — Standings clarity + locked OU lines
+
+**Date:** 2026-04-30
+
+### Standings page
+
+- **Total math is now obviously correct.** AW is shown for reference
+  only — its column is dimmed + italicized + flagged with a tiny
+  "REF" tag so it's visually distinct from the columns that roll
+  into the Total. The footnote spells out the formula:
+  *Total = FA + CY + PU + HR + TD + O/U + PS*.
+- **Header banner numbers labeled.** The left score has a green
+  "YOU" tag underneath; the right score has a gold "LEADER" tag
+  (or "2ND" when you're winning, "TIED" if equal). No more guessing
+  what each number is.
+
+### Scoring accuracy
+
+- **Win O/U lines synced to the show's actual DraftKings numbers.**
+  Several teams' lines had drifted from the values the hosts called
+  against (BOS 82.5 → 87.5, SEA 82.5 → 90.5, DET 81.5 → 85.5, CHC
+  81.5 → 88.5, STL 78.5 → 69.5, etc.). Picks are now scored against
+  the line each pick was actually made at.
+
+---
+
 ## v1.5.0 — Polish: scoring, sorting, info, icons
 
 **Date:** 2026-04-30
