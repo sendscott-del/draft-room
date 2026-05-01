@@ -1,6 +1,7 @@
 // Per-user scoring — operates on `UserAppData` (no Scott/Ty nesting).
 import type { UserAppData, FAPickPersonal, AwardResult } from '../types'
 import { OUL } from '../data/constants'
+import { FA_ACTUALS_2026 } from '../data/faActuals'
 import { parseActual } from './scoring'
 
 const AWARD_PTS: Record<AwardResult, number> = {
@@ -41,14 +42,21 @@ export function scoreFA(picks: FAPickPersonal[], actualsMap?: Map<string, string
   return total
 }
 
-/** Build a player-name → actual-signing map from every player's FA picks. */
+/**
+ * Build a player-name → actual-signing map.
+ *
+ * Sources, in priority order:
+ *   1. The static `FA_ACTUALS_2026` table (global signings list — keeps
+ *      every host scoring on the same canonical signing data).
+ *   2. Whatever `actual` strings are filled in on individual picks
+ *      (per-row overrides, used when a signing isn't in the table yet).
+ */
 export function buildActualsMap(allPlayerPicks: Array<{ fa?: FAPickPersonal[] }>): Map<string, string> {
-  const map = new Map<string, string>()
+  const map = new Map<string, string>(Object.entries(FA_ACTUALS_2026))
   for (const u of allPlayerPicks) {
     for (const p of u.fa ?? []) {
       if (!p.player || !p.actual) continue
-      const existing = map.get(p.player)
-      if (!existing) map.set(p.player, p.actual)
+      if (!map.has(p.player)) map.set(p.player, p.actual)
     }
   }
   return map

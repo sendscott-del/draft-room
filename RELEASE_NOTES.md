@@ -1,5 +1,29 @@
 # Draft Room — Release Notes
 
+## v1.5.2 — Global FA actuals so every host scores
+
+**Date:** 2026-04-30
+
+Show hosts (Trevor, Jolly, Chris Rose) were only scoring on FA picks
+that overlapped with Scott or Ty's picks, because the actual-signing
+strings were stored per-pick on Scott/Ty's seeded data and nowhere else.
+
+Now there's a single source of truth: `src/data/faActuals.ts` lists
+every known 2026 free agent signing as `player → "Xyr TEAM"`.
+`buildActualsMap` seeds itself from that table, then layers in any
+per-pick overrides on top. Result: Trevor's Realmuto, Jolly's Tucker,
+Chris Rose's Schwarber etc. all score now.
+
+To add a new signing later, just add a line to `faActuals.ts` — no
+DB migration needed.
+
+A few players some hosts picked still don't have public signing data
+(Trent Grisham, Michael King, Paul Goldschmidt, Gleyber Torres,
+Starling Marte, Max Scherzer, Miguel Rojas). They're left as commented
+placeholders in the file — fill them in when known.
+
+---
+
 ## v1.5.1 — Standings clarity + locked OU lines
 
 **Date:** 2026-04-30
