@@ -22,7 +22,7 @@ const VIDEOS_BY_GAME = {
   hr: ['w3G9bijc3jU'],
   pu: ['cTavWWawRJc'],
   fa: ['EFLh3NL_qv0'],
-  ou: ['L3rIaH6VaHQ', 'Yk28bKL_eWI', 'szx6nlV8uOQ', '51SU5LEgnlE', 'vGmhBX-GOT8'],
+  ou: ['L3rIaH6VaHQ', 'Yk28bKL_eWI', 'szx6nlV8uOQ', '51SU5LEgnlE', 'vGmhBX-GOT8', '1qlPp-hqCZg'],
   ps: ['6l0tWCe1J3Y'],
 }
 

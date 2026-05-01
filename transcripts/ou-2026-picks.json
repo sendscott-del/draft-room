@@ -75,6 +75,18 @@
     "CLE": {
       "pick": "over",
       "actual": ""
+    },
+    "BOS": {
+      "pick": "over",
+      "actual": ""
+    },
+    "MIL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "DET": {
+      "pick": "over",
+      "actual": ""
     }
   },
   "jolly_olive": {
@@ -151,6 +163,18 @@
       "actual": ""
     },
     "CLE": {
+      "pick": "over",
+      "actual": ""
+    },
+    "BOS": {
+      "pick": "over",
+      "actual": ""
+    },
+    "MIL": {
+      "pick": "over",
+      "actual": ""
+    },
+    "DET": {
       "pick": "over",
       "actual": ""
     }
