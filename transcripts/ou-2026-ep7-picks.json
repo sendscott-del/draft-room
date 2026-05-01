@@ -1,0 +1,30 @@
+{
+  "trevorplouffe": {
+    "CHC": {
+      "pick": "over",
+      "actual": ""
+    },
+    "NYM": {
+      "pick": "over",
+      "actual": ""
+    },
+    "NYY": {
+      "pick": "under",
+      "actual": ""
+    }
+  },
+  "jolly_olive": {
+    "CHC": {
+      "pick": "over",
+      "actual": ""
+    },
+    "NYM": {
+      "pick": "under",
+      "actual": ""
+    },
+    "NYY": {
+      "pick": "over",
+      "actual": ""
+    }
+  }
+}
