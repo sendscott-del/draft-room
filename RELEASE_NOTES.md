@@ -1,5 +1,18 @@
 # Draft Room — Release Notes
 
+## v1.3.2 — Awards out of Standings
+
+**Date:** 2026-04-30
+
+- **Awards no longer counts toward Standings.** The AW column has been
+  pulled from the Standings table and Award points are no longer rolled
+  into the season total or the Header banner. The Awards tab itself
+  still shows each player's projection independently.
+- "Complete slate" check now ignores AW — a player can be ranked with a
+  full total even before they enter award winners.
+
+---
+
 ## v1.3.1 — Bugfix follow-up
 
 **Date:** 2026-04-30

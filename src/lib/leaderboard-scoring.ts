@@ -132,17 +132,20 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
         ps: didPlay(picks, 'ps'),
       }
       // Trade Deadline + Postseason happen later in the season — don't gate
-      // the running total on those. We still show "NA" in their cells until
-      // each player has actually picked, but their absence doesn't make a
-      // total "incomplete".
-      const REQUIRED: GameKey[] = ['fa', 'cy', 'pu', 'hr', 'aw', 'ou']
+      // the running total on those. Awards is excluded from the Standings
+      // total entirely (still scored on its own tab) because award outcomes
+      // are too volatile to drive the season-long leaderboard.
+      const REQUIRED: GameKey[] = ['fa', 'cy', 'pu', 'hr', 'ou']
       const totalIsComplete = REQUIRED.every(g => played[g])
+
+      // Standings total excludes AW; the Awards tab still shows it on its own.
+      const standingsScores: UserGameScores = { ...display, aw: 0 }
 
       return {
         profile: r.profile,
         scores: display,
         played,
-        total: totalScore(display),
+        total: totalScore(standingsScores),
         totalIsComplete,
         hasProj: Object.keys(projected).length > 0,
         projected,

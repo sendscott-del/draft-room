@@ -12,15 +12,17 @@ interface Props {
   onSelectCompare: (id: string) => void
 }
 
-const GAME_ORDER: GameKey[] = ['fa', 'cy', 'pu', 'hr', 'td', 'aw', 'ou', 'ps']
+// Awards is intentionally excluded from the Standings table — too volatile
+// to display side-by-side. The Awards tab itself still shows each player's
+// projection.
+const GAME_ORDER: Exclude<GameKey, 'aw'>[] = ['fa', 'cy', 'pu', 'hr', 'td', 'ou', 'ps']
 
-const SHORT_LABEL: Record<GameKey, string> = {
+const SHORT_LABEL: Record<Exclude<GameKey, 'aw'>, string> = {
   fa: 'FA',
   cy: 'CY',
   pu: 'PU',
   hr: 'HR',
   td: 'TD',
-  aw: 'AW',
   ou: 'O/U',
   ps: 'PS',
 }
