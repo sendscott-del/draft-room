@@ -60,9 +60,14 @@ export default function LiveAppView() {
     return () => { cancelled = true }
   }, [])
 
-  // Reload picks whenever the selected season (or profile) changes
+  // Reload picks whenever the selected season (or signed-in user) changes.
+  // Important: depend on `profile?.id` (a primitive) — not `profile` (an
+  // object whose reference changes every time Supabase refreshes the auth
+  // token). Otherwise the picks blob would re-fetch every ~50 min and
+  // overwrite any in-flight local edits.
+  const profileId = profile?.id
   useEffect(() => {
-    if (!profile) return
+    if (!profileId) return
     if (selectedSeason == null) return
     let cancelled = false
     ;(async () => {
@@ -74,7 +79,7 @@ export default function LiveAppView() {
         ])
         if (cancelled) return
         setRows(all)
-        const me = all.find(r => r.profile.id === profile.id)
+        const me = all.find(r => r.profile.id === profileId)
         setMyPicks(me?.picks ?? EMPTY_USER_PICKS)
         setSyncStatus('saved')
         isInitialLoad.current = false
@@ -85,7 +90,7 @@ export default function LiveAppView() {
       }
     })()
     return () => { cancelled = true }
-  }, [profile, selectedSeason])
+  }, [profileId, selectedSeason])
 
   // Auto-save on myPicks change (debounced 800ms). Skipped when viewing a
   // past season (read-only) so historical picks don't get overwritten.

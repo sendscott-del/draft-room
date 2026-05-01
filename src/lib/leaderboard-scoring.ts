@@ -104,9 +104,14 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
         return sum
       }, 0)
 
+      // Awards projection uses live betting odds when available, with a
+      // preseason-favorites fallback when they're not. The previous version
+      // gated the whole projection on having live odds, which meant the
+      // forecast disappeared if the daily stats job hadn't replicated odds
+      // into picks blobs yet.
       let projAW = 0
-      if (picks.aw && Object.keys(awardsOdds).length > 0) {
-        const proj = projectAwards({ Scott: picks.aw, Ty: EMPTY_AWARDS }, awardsOdds)
+      if (picks.aw) {
+        const proj = projectAwards({ Scott: picks.aw, Ty: EMPTY_AWARDS }, awardsOdds ?? {})
         projAW = proj.totals.Scott
       }
 
@@ -126,7 +131,12 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
         ou: didPlay(picks, 'ou'),
         ps: didPlay(picks, 'ps'),
       }
-      const totalIsComplete = Object.values(played).every(v => v)
+      // Trade Deadline + Postseason happen later in the season — don't gate
+      // the running total on those. We still show "NA" in their cells until
+      // each player has actually picked, but their absence doesn't make a
+      // total "incomplete".
+      const REQUIRED: GameKey[] = ['fa', 'cy', 'pu', 'hr', 'aw', 'ou']
+      const totalIsComplete = REQUIRED.every(g => played[g])
 
       return {
         profile: r.profile,

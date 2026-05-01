@@ -52,9 +52,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await loadProfile(s)
       setLoading(false)
     })()
+    // Only re-fetch profile when the *user* changes (sign in / sign out).
+    // TOKEN_REFRESHED + USER_UPDATED fire every ~50 min and were causing
+    // downstream picks to refetch and any in-flight edits to clobber.
     const { data: sub } = onAuthChange(async (s) => {
-      setSession(s)
-      await loadProfile(s)
+      setSession(prev => {
+        const prevId = prev?.user?.id
+        const newId = s?.user?.id
+        if (prevId === newId) return prev // keep ref stable to avoid downstream re-renders
+        loadProfile(s)
+        return s
+      })
     })
     return () => {
       cancelled = true

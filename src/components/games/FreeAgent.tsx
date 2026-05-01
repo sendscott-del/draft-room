@@ -54,19 +54,22 @@ function PlayerFASection({ player, actualsMap }: { player: PlayerView & { score:
         {[...picks].sort((a, b) => a.round - b.round).map(pick => {
           const actual = pick.actual || actualsMap.get(pick.player) || ''
           return (
-            <Card key={pick.round} style={{ padding: '7px 10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <Card key={pick.round} style={{ padding: '7px 10px', minHeight: 56, boxSizing: 'border-box' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
                 <span style={{ background: 'rgba(94,183,116,0.12)', color: FA_COLOR, borderRadius: 4, padding: '2px 6px', fontSize: 10, fontWeight: 800, flexShrink: 0 }}>
                   R{pick.round}
                 </span>
-                <span style={{ fontWeight: 700, fontSize: 13, flex: 1 }}>
+                <span style={{ fontWeight: 700, fontSize: 13, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {pick.player || <span style={{ color: COLORS.muted }}>—</span>}
                 </span>
-                {pick.team && <span style={{ fontSize: 11, color: COLORS.muted2, fontFamily: 'monospace' }}>{pick.team}</span>}
-                {pick.years && <span style={{ fontSize: 11, color: COLORS.muted2 }}>{pick.years}yr</span>}
-                {actual && (
-                  <span style={{ fontSize: 10, color: COLORS.muted, fontFamily: 'monospace' }}>→ {actual}</span>
-                )}
+                {pick.team && <span style={{ fontSize: 11, color: COLORS.muted2, fontFamily: 'monospace', flexShrink: 0 }}>{pick.team}</span>}
+                {pick.years && <span style={{ fontSize: 11, color: COLORS.muted2, flexShrink: 0 }}>{pick.years}yr</span>}
+              </div>
+              <div style={{
+                fontSize: 10, color: COLORS.muted, fontFamily: 'monospace',
+                marginTop: 4, minHeight: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {actual ? `→ ${actual}` : ' '}
               </div>
             </Card>
           )

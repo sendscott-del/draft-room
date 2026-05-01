@@ -1,5 +1,65 @@
 # Draft Room — Release Notes
 
+## v1.3.1 — Bugfix follow-up
+
+**Date:** 2026-04-30
+
+### Stability
+
+- **No more random page reloads.** The auth context was re-fetching the
+  current user's profile every time Supabase rotated its access token
+  (~every 50 minutes), which propagated as a data refetch and could
+  clobber in-flight edits. The auth listener now only refetches profile
+  on actual sign-in / sign-out, and the picks-load effect depends on
+  `profile.id` (a stable primitive) instead of the profile object's
+  reference identity.
+
+### Standings page
+
+- **Total now sums even before Trade Deadline + Postseason.** Those games
+  happen later in the year, so they no longer count against the
+  "complete slate" check that gates a player's running total. NA still
+  appears in their cells until they've actually picked.
+- **Column headers now have short labels** (FA / CY / PU / HR / TD / AW
+  / O/U / PS) under each emoji so they're readable at a glance.
+
+### Free Agent
+
+- **Card row heights are uniform.** Each pick card is forced to a
+  consistent min-height with single-line player names + a fixed slot for
+  the "→ signed" line so cards line up across player columns.
+
+### Cy Young
+
+- **Projection no longer distorts when multiple hosts pick the same
+  pitcher.** The vote-curve algorithm was treating each pick as its own
+  rank slot, so e.g. Skubal being picked by Scott + Trevor pushed him
+  *down* the curve instead of stacking his score. The projection now
+  dedupes by pitcher first (taking the strongest odds + most data-rich
+  stats line across picks) before applying the rank curve.
+- **MacKenzie Gore corrected to NL.** He was mislabeled as AL in Jolly
+  Olive's picks, which was siphoning Gore's projection into the AL pool
+  and skewing AL totals.
+
+### Awards
+
+- **Projected forecast now shows on the Awards tab.** Previously the tab
+  showed only the actual score (which is 0 until results are entered),
+  with no projection. The tab now mirrors Cy Young's behavior — a `~XX`
+  forecast appears whenever the actual is 0 and a projection is
+  available.
+- **Forecast no longer requires live betting odds.** The leaderboard
+  awards projection had a guard that skipped the whole projection if no
+  odds were stored on the picks blob (which happens when the daily stats
+  cron hasn't run recently). The guard is gone — projectAwards has its
+  own preseason-favorites fallback so a forecast always shows.
+
+> **Tip:** If awards / CY projections look stale, click **Update Stats**
+> in the header to pull fresh betting odds + pitcher stats. The cron
+> runs once a day at 06:00 UTC; the button forces an immediate refresh.
+
+---
+
 ## v1.3.0 — Show-format alignment + standings table
 
 **Date:** 2026-04-30

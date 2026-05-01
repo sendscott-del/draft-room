@@ -14,6 +14,17 @@ interface Props {
 
 const GAME_ORDER: GameKey[] = ['fa', 'cy', 'pu', 'hr', 'td', 'aw', 'ou', 'ps']
 
+const SHORT_LABEL: Record<GameKey, string> = {
+  fa: 'FA',
+  cy: 'CY',
+  pu: 'PU',
+  hr: 'HR',
+  td: 'TD',
+  aw: 'AW',
+  ou: 'O/U',
+  ps: 'PS',
+}
+
 function fmtVal(n: number): string {
   return Number.isInteger(n) ? `${n}` : n.toFixed(1)
 }
@@ -55,7 +66,12 @@ export default function MultiLeaderboard({ rows, myProfileId }: Props) {
                 <tr>
                   <th style={{ ...thStyle, textAlign: 'left', position: 'sticky', left: 0, background: COLORS.bg, zIndex: 1, paddingLeft: 4 }}>Player</th>
                   {GAME_ORDER.map(g => (
-                    <th key={g} style={{ ...thStyle, color: GMETA[g].c }} title={GMETA[g].l}>{GMETA[g].i}</th>
+                    <th key={g} style={{ ...thStyle, color: GMETA[g].c }} title={GMETA[g].l}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, lineHeight: 1.1 }}>
+                        <span style={{ fontSize: 13 }}>{GMETA[g].i}</span>
+                        <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.5 }}>{SHORT_LABEL[g]}</span>
+                      </div>
+                    </th>
                   ))}
                   <th style={{ ...thStyle, color: COLORS.gold, paddingRight: 4 }}>Total</th>
                 </tr>

@@ -1,11 +1,19 @@
-import type { AwardPicks, AwardResult } from '../../types'
+import { useMemo } from 'react'
+import type { AwardPicks, AwardResult, UserAppData } from '../../types'
 import { isLocked } from '../../lib/locks'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { COLORS } from '../../data/constants'
 import { scoreAW } from '../../lib/scoring-per-user'
+import { projectAwards } from '../../lib/awardsProjection'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
+
+const EMPTY_AWARDS: AwardPicks = {
+  alMVP: '', nlMVP: '', alROY: '', nlROY: '', alCY: '', nlCY: '', alMGR: '', nlMGR: '',
+  alMVPR: 'none', nlMVPR: 'none', alROYR: 'none', nlROYR: 'none',
+  alCYR: 'none', nlCYR: 'none', alMGRR: 'none', nlMGRR: 'none',
+}
 
 const AW_COLOR = '#39a9bd'
 
@@ -37,9 +45,31 @@ const playedAW = (p: PlayerView) =>
 
 export default function Awards({ players, onEditMine }: Props) {
   const locked = isLocked('aw')
+
+  // Pull live betting odds (replicated to every picks blob by update-stats)
+  // from the first player that has them. Fall back to preseason favorites
+  // inside projectAwards when no odds are available.
+  const awardsOdds = useMemo(() => {
+    for (const p of players) {
+      const odds = (p.picks as UserAppData & { awardsOdds?: Record<string, Record<string, string>> })?.awardsOdds
+      if (odds && Object.keys(odds).length > 0) return odds
+    }
+    return {}
+  }, [players])
+
+  function projectedTotal(aw: AwardPicks | undefined): number {
+    if (!aw) return 0
+    const proj = projectAwards({ Scott: aw, Ty: EMPTY_AWARDS }, awardsOdds)
+    return proj.totals.Scott
+  }
+
   const playing = sortPlayersForGame(
     players.filter(p => playedAW(p) || p.isCurrentUser)
-      .map(p => ({ ...p, score: scoreAW(p.picks.aw) }))
+      .map(p => {
+        const actual = scoreAW(p.picks.aw)
+        const proj = projectedTotal(p.picks.aw)
+        return { ...p, score: actual > 0 ? actual : proj, isProj: actual === 0 && proj > 0 }
+      })
   )
   const skipped = players.filter(p => !p.isCurrentUser && !playedAW(p))
 
@@ -63,7 +93,7 @@ export default function Awards({ players, onEditMine }: Props) {
 }
 
 function PlayerAWSection({ player, editable, onEdit }: {
-  player: PlayerView & { score: number }
+  player: PlayerView & { score: number; isProj: boolean }
   editable: boolean
   onEdit?: EditMine
 }) {
@@ -74,9 +104,10 @@ function PlayerAWSection({ player, editable, onEdit }: {
     onEdit(mine => ({ ...mine, aw: { ...mine.aw, [resultKey]: val } }))
   }
 
+  const scoreLabel = player.isProj ? `~${player.score}` : `${player.score}`
   return (
     <div style={{ scrollSnapAlign: 'start' }}>
-      <SectionHeader player={player} score={player.score} unit="pts" color={AW_COLOR} editable={editable} />
+      <SectionHeader player={player} score={scoreLabel} unit="pts" color={AW_COLOR} editable={editable} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
         {CATEGORIES.map(([label, pickKey, resultKey]) => {
           const pickName = (aw?.[pickKey] as string) ?? ''

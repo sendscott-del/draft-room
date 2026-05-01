@@ -65,6 +65,11 @@ interface ProjectionResult {
 
 /**
  * Project CY Young votes for all pitchers in a league.
+ *
+ * Inputs may contain the same pitcher more than once (each entry is one
+ * player's pick). We dedupe by pitcher first — taking the best available
+ * odds + stats — so the rank curve isn't distorted by N copies of Skubal
+ * crowding the top slots.
  */
 export function projectCYVotes(
   allPicks: CYPick[],
@@ -72,11 +77,31 @@ export function projectCYVotes(
   const results = new Map<string, ProjectionResult>()
   if (allPicks.length === 0) return results
 
+  // Dedupe: one entry per pitcher, taking the strongest odds and the most
+  // informative stats line we've seen across all players who picked them.
+  const dedup = new Map<string, CYPick>()
+  for (const pick of allPicks) {
+    const cur = dedup.get(pick.pitcher)
+    if (!cur) { dedup.set(pick.pitcher, pick); continue }
+    const merged: CYPick = { ...cur }
+    const curOdds = oddsToProb(cur.liveOdds || cur.odds || '')
+    const newOdds = oddsToProb(pick.liveOdds || pick.odds || '')
+    if (!cur.odds && pick.odds) merged.odds = pick.odds
+    if (newOdds > curOdds) {
+      merged.odds = pick.odds || merged.odds
+      merged.liveOdds = pick.liveOdds || merged.liveOdds
+    }
+    const curIp = cur.stats ? parseFloat(cur.stats.ip) || 0 : 0
+    const newIp = pick.stats ? parseFloat(pick.stats.ip) || 0 : 0
+    if (newIp > curIp) merged.stats = pick.stats
+    dedup.set(pick.pitcher, merged)
+  }
+
   const scores: { pitcher: string; oddsScore: number; statsScore: number | null; ip: number }[] = []
 
-  for (const pick of allPicks) {
+  for (const pick of dedup.values()) {
     const oddsStr = pick.liveOdds || pick.odds
-    const oddsProb = oddsToProb(oddsStr)
+    const oddsProb = oddsToProb(oddsStr || '')
     const stats = perfScore(pick.stats)
     const ip = pick.stats ? parseFloat(pick.stats.ip) || 0 : 0
 
