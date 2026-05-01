@@ -4,6 +4,7 @@ import { Pills } from '../ui/Pill'
 import { COLORS, OUL } from '../../data/constants'
 import { scoreOU } from '../../lib/scoring-per-user'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
+import GameInfo from './GameInfo'
 
 const OU_COLOR = '#d4669d'
 
@@ -26,6 +27,7 @@ export default function WinOU({ players, onEditMine }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started — O/U picks are locked.'} />}
+      <GameInfo gameKey="ou" />
       <Pills items={['All 30 teams', '3 pts per correct']} />
       <PlayerColumns>
         {playing.map(p => (

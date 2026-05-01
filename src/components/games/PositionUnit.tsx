@@ -6,6 +6,7 @@ import { Pills } from '../ui/Pill'
 import { COLORS } from '../../data/constants'
 import { scorePU } from '../../lib/scoring-per-user'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
+import GameInfo from './GameInfo'
 
 const PU_COLOR = '#a37ed1'
 const UNIT_COLORS: Record<string, string> = { 'INF+C': '#5eb774', OF: '#5b8cc7', SP: '#a37ed1', RP: '#f0a531' }
@@ -28,6 +29,7 @@ export default function PositionUnit({ players }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Draft complete — Position Unit picks are locked.'} />}
+      <GameInfo gameKey="pu" />
       <Pills items={['INF+C, OF, SP, RP', 'Points = unit WAR']} />
 
       <PlayerColumns>

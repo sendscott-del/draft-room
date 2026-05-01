@@ -76,32 +76,37 @@ export function DidNotPlay({ names, game }: { names: string[]; game: string }) {
 }
 
 export function sortPlayersForGame<T extends PlayerView & { score: number }>(rows: T[]): T[] {
-  return [...rows].sort((a, b) => {
-    if (a.isCurrentUser) return -1
-    if (b.isCurrentUser) return 1
-    return b.score - a.score
-  })
+  // Pure descending score order. The current user is highlighted (YOU
+  // badge + green tint in their section header) but no longer pinned to
+  // the leftmost position — the row order is "who's winning right now."
+  return [...rows].sort((a, b) => b.score - a.score)
 }
 
 export type EditMine = (fn: (mine: UserAppData) => UserAppData) => void
 
-/** Horizontal-scrolling grid of player columns. Min 220 px per column so
- *  text stays legible; on a phone you swipe sideways to see more players. */
+/** Horizontal-scrolling grid of player columns. Min 240 px per column so
+ *  text + scores stay legible on a phone, and `minWidth: 0` on each column
+ *  lets long content (player names, "→ 5yr LAD") truncate cleanly via
+ *  ellipsis instead of overflowing into the next column. */
 export function PlayerColumns({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
         display: 'grid',
         gridAutoFlow: 'column',
-        gridAutoColumns: 'minmax(220px, 1fr)',
-        gap: 12,
+        gridAutoColumns: 'minmax(240px, 1fr)',
+        gap: 14,
         overflowX: 'auto',
         paddingBottom: 8,
         marginTop: 12,
         scrollSnapType: 'x proximity',
       }}
     >
-      {children}
+      {Array.isArray(children)
+        ? children.map((child, i) => (
+            <div key={i} style={{ minWidth: 0, overflow: 'hidden' }}>{child}</div>
+          ))
+        : <div style={{ minWidth: 0, overflow: 'hidden' }}>{children}</div>}
     </div>
   )
 }

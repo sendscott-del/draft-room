@@ -4,6 +4,7 @@ import Card from '../ui/Card'
 import { Pills } from '../ui/Pill'
 import { COLORS, TEAMS } from '../../data/constants'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, inputStyle, PlayerColumns, type PlayerView, type EditMine } from './shared'
+import GameInfo from './GameInfo'
 
 const TD_COLOR = '#f0a531'
 
@@ -23,6 +24,7 @@ export default function TradeDeadline({ players, onEditMine }: Props) {
 
   return (
     <>
+      <GameInfo gameKey="td" />
       <Pills items={['Mid-season picks', 'Correct team +10', 'Was traded +5']} />
       <PlayerColumns>
         {playing.map(p => (

@@ -7,6 +7,7 @@ import { Pills } from '../ui/Pill'
 import { COLORS, TEAMS } from '../../data/constants'
 import { derivePSOutcomes, hasEnoughOdds, scorePSAgainstOutcomes, type PlayoffOddsMap } from '../../lib/psProjection'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView } from './shared'
+import GameInfo from './GameInfo'
 
 const PS_COLOR = '#e8b54a'
 
@@ -52,6 +53,7 @@ export default function Postseason({ players, onEditMine }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started — postseason picks are locked.'} />}
+      <GameInfo gameKey="ps" />
       <Pills items={['Div +5 each', 'WC +3 each (any slot)', 'Pennant +10 each', 'WS +25']} />
 
       <PlayerColumns>

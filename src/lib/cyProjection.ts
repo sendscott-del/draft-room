@@ -194,3 +194,53 @@ export function projectPlayerTotal(
   }
   return total
 }
+
+/**
+ * Convert raw vote counts (or projected votes) into placement points so
+ * Cy Young scoring sits on the same scale as other games. Within each
+ * league, the field is ranked and the top five drafted pitchers earn:
+ *   1st 25 · 2nd 15 · 3rd 10 · 4th–5th 5.
+ *
+ * Falls back to projected votes when no actual votes have been recorded
+ * yet (during the season).
+ */
+const CY_PLACEMENT = [25, 15, 10, 5, 5]
+
+export interface CYPlacementResult {
+  /** pitcher → placement points (0 if outside top 5 in their league) */
+  map: Map<string, number>
+  /** true when the map was built from projected votes (no actuals yet) */
+  isProjection: boolean
+}
+
+export function buildCYPlacementMap(allCY: CYPick[]): CYPlacementResult {
+  const map = new Map<string, number>()
+  if (allCY.length === 0) return { map, isProjection: false }
+
+  const useActual = allCY.some(p => (Number(p.votes) || 0) > 0)
+
+  for (const lg of ['AL', 'NL'] as const) {
+    const lgPicks = allCY.filter(p => p.lg === lg)
+    if (lgPicks.length === 0) continue
+
+    const score = new Map<string, number>()
+    if (useActual) {
+      for (const p of lgPicks) {
+        const v = Number(p.votes) || 0
+        if (v > (score.get(p.pitcher) ?? -1)) score.set(p.pitcher, v)
+      }
+    } else {
+      const proj = projectCYVotes(lgPicks)
+      for (const [pitcher, r] of proj.entries()) score.set(pitcher, r.projectedVotes)
+    }
+
+    const ranked = [...score.entries()].sort((a, b) => b[1] - a[1])
+    for (let i = 0; i < ranked.length; i++) {
+      const [pitcher, v] = ranked[i]
+      if (v <= 0) continue
+      const pts = CY_PLACEMENT[i] ?? 0
+      if (pts > 0) map.set(pitcher, pts)
+    }
+  }
+  return { map, isProjection: !useActual }
+}

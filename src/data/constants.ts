@@ -7,10 +7,14 @@ export const PLAYERS = ["Scott","Ty"] as const
 export const GMETA: Record<string, { l: string; i: string; c: string; status: 'final' | 'interim' }> = {
   fa: { l: "Free Agent",     i: "\u{1F4B0}", c: "#5eb774", status: "final" },
   cy: { l: "Cy Young",       i: "\u26BE",    c: "#5b8cc7", status: "interim" },
-  pu: { l: "Position Unit",  i: "\u{1F3DF}", c: "#a37ed1", status: "interim" },
+  // Position Unit: jersey emoji reads better as "team unit" than the
+  // stadium icon it replaced, which lots of testers read as "stats."
+  pu: { l: "Position Unit",  i: "\u{1F3BD}", c: "#a37ed1", status: "interim" },
   hr: { l: "HR Team",        i: "\u{1F4A5}", c: "#e45b5b", status: "interim" },
   aw: { l: "MVP & RoY",      i: "\u{1F3C6}", c: "#39a9bd", status: "interim" },
-  ou: { l: "Win O/U",        i: "\u{1F4CA}", c: "#d4669d", status: "interim" },
+  // Win O/U: balance scale is a clearer "over vs under" symbol than the
+  // bar-chart icon it replaced.
+  ou: { l: "Win O/U",        i: "\u2696\uFE0F", c: "#d4669d", status: "interim" },
   td: { l: "Trade Deadline", i: "\u{1F504}", c: "#f0a531", status: "interim" },
   ps: { l: "Postseason",     i: "\u{2B50}",  c: "#e8b54a", status: "interim" },
 }
@@ -19,12 +23,12 @@ export const NAV = [
   { id: "lb", l: "\u{1F3C6} Standings" },
   { id: "fa", l: "\u{1F4B0} Free Agent" },
   { id: "cy", l: "\u26BE Cy Young" },
-  { id: "pu", l: "\u{1F3DF} Position Unit" },
+  { id: "pu", l: "\u{1F3BD} Position Unit" },
   { id: "hr", l: "\u{1F4A5} HR Team" },
-  { id: "aw", l: "\u{1F3C6} Awards" },
-  { id: "ou", l: "\u{1F4CA} O/U" },
   { id: "td", l: "\u{1F504} Trade Deadline" },
+  { id: "ou", l: "\u2696\uFE0F O/U" },
   { id: "ps", l: "\u2B50 Postseason" },
+  { id: "aw", l: "\u{1F3C6} Awards" },
   { id: "ru", l: "\u{1F4D6} Rules" },
 ]
 

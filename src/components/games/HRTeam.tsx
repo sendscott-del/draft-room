@@ -6,6 +6,7 @@ import { Pills } from '../ui/Pill'
 import { POS, COLORS } from '../../data/constants'
 import { scoreHR } from '../../lib/scoring-per-user'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, inputStyle, PlayerColumns, type PlayerView, type EditMine } from './shared'
+import GameInfo from './GameInfo'
 
 const HR_COLOR = '#e45b5b'
 
@@ -28,6 +29,7 @@ export default function HRTeam({ players, onEditMine }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Draft complete — HR Team picks are locked.'} />}
+      <GameInfo gameKey="hr" />
       <Pills items={['One player per position', 'Points = total HRs']} />
 
       <PlayerColumns>

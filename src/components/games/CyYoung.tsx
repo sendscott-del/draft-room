@@ -1,12 +1,13 @@
-import type { CYPick } from '../../types'
+import { useMemo } from 'react'
 import { isLocked } from '../../lib/locks'
 import Card from '../ui/Card'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { COLORS } from '../../data/constants'
 import { scoreCY } from '../../lib/scoring-per-user'
-import { projectCYVotes } from '../../lib/cyProjection'
+import { projectCYVotes, buildCYPlacementMap } from '../../lib/cyProjection'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
+import GameInfo from './GameInfo'
 
 const CY_COLOR = '#5b8cc7'
 
@@ -20,25 +21,22 @@ const playedCY = (p: PlayerView) => (p.picks?.cy ?? []).length > 0
 export default function CyYoung({ players }: Props) {
   const locked = isLocked('cy')
 
-  // Field-wide projections (across all players' picks)
+  // Field-wide projections (still useful for display: shows projected
+  // vote count next to each pitcher).
   const allAL = players.flatMap(p => (p.picks?.cy ?? []).filter(x => x.lg === 'AL'))
   const allNL = players.flatMap(p => (p.picks?.cy ?? []).filter(x => x.lg === 'NL'))
   const projAL = projectCYVotes(allAL)
   const projNL = projectCYVotes(allNL)
 
-  function projectedTotal(picks: CYPick[]): number {
-    return picks.reduce((sum, p) => {
-      const map = p.lg === 'AL' ? projAL : projNL
-      return sum + (map.get(p.pitcher)?.projectedVotes ?? 0)
-    }, 0)
-  }
+  // Field-wide placement points (1st 25 / 2nd 15 / 3rd 10 / 4th-5th 5).
+  const allCY = useMemo(() => players.flatMap(p => p.picks?.cy ?? []), [players])
+  const placement = useMemo(() => buildCYPlacementMap(allCY), [allCY])
 
   const playing = sortPlayersForGame(
     players.filter(p => playedCY(p) || p.isCurrentUser)
       .map(p => {
-        const actual = scoreCY(p.picks.cy ?? [])
-        const proj = projectedTotal(p.picks.cy ?? [])
-        return { ...p, score: actual > 0 ? actual : proj, isProj: actual === 0 && proj > 0 }
+        const score = scoreCY(p.picks.cy ?? [], placement.map)
+        return { ...p, score, isProj: placement.isProjection && score > 0 }
       })
   )
   const skipped = players.filter(p => !p.isCurrentUser && !playedCY(p))
@@ -46,11 +44,18 @@ export default function CyYoung({ players }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Draft complete — Cy Young picks are locked.'} />}
-      <Pills items={['Pitchers across AL + NL', 'Points = official CY votes']} />
+      <GameInfo gameKey="cy" />
+      <Pills items={['1st 25 · 2nd 15 · 3rd 10 · 4-5 5 (per league)']} />
 
       <PlayerColumns>
         {playing.map(p => (
-          <PlayerCYSection key={p.profile.id} player={p} projAL={projAL} projNL={projNL} />
+          <PlayerCYSection
+            key={p.profile.id}
+            player={p}
+            projAL={projAL}
+            projNL={projNL}
+            placement={placement.map}
+          />
         ))}
       </PlayerColumns>
 
@@ -59,10 +64,11 @@ export default function CyYoung({ players }: Props) {
   )
 }
 
-function PlayerCYSection({ player, projAL, projNL }: {
+function PlayerCYSection({ player, projAL, projNL, placement }: {
   player: PlayerView & { score: number; isProj: boolean }
   projAL: ReturnType<typeof projectCYVotes>
   projNL: ReturnType<typeof projectCYVotes>
+  placement: Map<string, number>
 }) {
   const picks = player.picks.cy ?? []
   const score = player.isProj ? `~${player.score}` : `${player.score}`
@@ -79,14 +85,15 @@ function PlayerCYSection({ player, projAL, projNL }: {
               {lgPicks.map((pick, i) => {
                 const votes = Number(pick.votes) || 0
                 const proj = (pick.lg === 'AL' ? projAL : projNL).get(pick.pitcher)
-                const display = votes > 0 ? `${votes}pt` : proj ? `~${proj.projectedVotes}` : '—'
+                const placementPts = placement.get(pick.pitcher) ?? 0
+                const voteDisplay = votes > 0 ? `${votes}v` : proj ? `~${proj.projectedVotes}v` : '—'
                 return (
                   <Card key={i} style={{ padding: '7px 10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontWeight: 700, fontSize: 12, flex: 1 }}>{pick.pitcher}</span>
-                      <span style={{ fontSize: 10, color: COLORS.muted }}>{pick.odds || pick.liveOdds || ''}</span>
-                      <span style={{ fontWeight: 900, fontSize: 13, fontFamily: 'monospace', color: votes > 0 ? CY_COLOR : COLORS.muted, minWidth: 44, textAlign: 'right' }}>
-                        {display}
+                      <span style={{ fontWeight: 700, fontSize: 12, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pick.pitcher}</span>
+                      <span style={{ fontSize: 10, color: COLORS.muted, fontFamily: 'monospace' }}>{voteDisplay}</span>
+                      <span style={{ fontWeight: 900, fontSize: 13, fontFamily: 'monospace', color: placementPts > 0 ? CY_COLOR : COLORS.muted, minWidth: 36, textAlign: 'right' }}>
+                        {placementPts > 0 ? `${placementPts}pt` : '—'}
                       </span>
                     </div>
                   </Card>

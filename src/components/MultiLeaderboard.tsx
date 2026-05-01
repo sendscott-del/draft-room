@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { PlayerProfile, UserAppData } from '../types'
 import { computeScoredRows, type GameKey } from '../lib/leaderboard-scoring'
 import { GMETA, COLORS } from '../data/constants'
+import GameInfo from './games/GameInfo'
 
 type Row = { profile: PlayerProfile; picks: UserAppData | null }
 
@@ -12,12 +13,12 @@ interface Props {
   onSelectCompare: (id: string) => void
 }
 
-// Awards is intentionally excluded from the Standings table — too volatile
-// to display side-by-side. The Awards tab itself still shows each player's
-// projection.
-const GAME_ORDER: Exclude<GameKey, 'aw'>[] = ['fa', 'cy', 'pu', 'hr', 'td', 'ou', 'ps']
+// Awards lives at the end of the table and is intentionally NOT included
+// in the running Total — award outcomes are too volatile to gate the
+// season-long leaderboard on. The column is here for reference only.
+const GAME_ORDER: GameKey[] = ['fa', 'cy', 'pu', 'hr', 'td', 'ou', 'ps', 'aw']
 
-const SHORT_LABEL: Record<Exclude<GameKey, 'aw'>, string> = {
+const SHORT_LABEL: Record<GameKey, string> = {
   fa: 'FA',
   cy: 'CY',
   pu: 'PU',
@@ -25,6 +26,7 @@ const SHORT_LABEL: Record<Exclude<GameKey, 'aw'>, string> = {
   td: 'TD',
   ou: 'O/U',
   ps: 'PS',
+  aw: 'AW',
 }
 
 function fmtVal(n: number): string {
@@ -38,6 +40,7 @@ export default function MultiLeaderboard({ rows, myProfileId }: Props) {
 
   return (
     <>
+      <GameInfo gameKey="lb" />
       <div style={{
         background: `linear-gradient(135deg, ${COLORS.cardBg}, rgba(0,0,0,0.2))`,
         border: `1px solid ${COLORS.border}`,

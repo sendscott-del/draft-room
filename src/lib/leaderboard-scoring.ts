@@ -3,7 +3,7 @@
 
 import type { PlayerProfile, UserAppData, AwardPicks } from '../types'
 import { scoreAll, totalScore, buildActualsMap, type UserGameScores } from './scoring-per-user'
-import { projectCYVotes } from './cyProjection'
+import { buildCYPlacementMap } from './cyProjection'
 import { projectAwards } from './awardsProjection'
 import { derivePSOutcomes, hasEnoughOdds, scorePSAgainstOutcomes, type PlayoffOddsMap } from './psProjection'
 import { OUL } from '../data/constants'
@@ -70,11 +70,12 @@ export function didPlay(picks: UserAppData | null | undefined, game: GameKey): b
 export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
   const playable = rows.filter(r => r.picks)
 
-  // Field-wide CY projection across all rows
-  const allCYAL = playable.flatMap(r => (r.picks!.cy ?? []).filter(p => p.lg === 'AL'))
-  const allCYNL = playable.flatMap(r => (r.picks!.cy ?? []).filter(p => p.lg === 'NL'))
-  const cyAL = projectCYVotes(allCYAL)
-  const cyNL = projectCYVotes(allCYNL)
+  // Field-wide CY placement map (1st 25 / 2nd 15 / 3rd 10 / 4th-5th 5
+  // within each league). Built from actual votes when available, falls
+  // back to projections during the season. Keeps CY on the same scale
+  // as the rest of the games.
+  const allCY = playable.flatMap(r => r.picks!.cy ?? [])
+  const cyPlacements = buildCYPlacementMap(allCY)
 
   // Field-wide FA actuals: any player who has `actual` filled in becomes the
   // source of truth for that signing for every host that picked the same player.
@@ -96,12 +97,7 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
   return playable
     .map<ScoredRow>(r => {
       const picks = r.picks!
-      const actual = scoreAll(picks, actualsMap)
-
-      const projCY = (picks.cy ?? []).reduce((sum, p) => {
-        const map = p.lg === 'AL' ? cyAL : cyNL
-        return sum + (map.get(p.pitcher)?.projectedVotes ?? 0)
-      }, 0)
+      const actual = scoreAll(picks, actualsMap, cyPlacements.map)
 
       const projOU = OUL.reduce((sum, t) => {
         const sl = picks.ou?.[t.a] as { pick?: string; projected?: number } | undefined
@@ -130,7 +126,9 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
 
       const display: UserGameScores = { ...actual }
       const projected: Partial<Record<keyof UserGameScores, true>> = {}
-      if (actual.cy === 0 && projCY > 0) { display.cy = projCY; projected.cy = true }
+      // CY placement points may be derived from projected votes when no
+      // actual votes are in yet — flag the score as projected in that case.
+      if (cyPlacements.isProjection && actual.cy > 0) projected.cy = true
       if (actual.ou === 0 && projOU > 0) { display.ou = projOU; projected.ou = true }
       if (actual.aw === 0 && projAW > 0) { display.aw = projAW; projected.aw = true }
       if (projPS > 0) { display.ps = projPS; projected.ps = true }

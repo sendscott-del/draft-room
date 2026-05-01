@@ -54,8 +54,17 @@ export function buildActualsMap(allPlayerPicks: Array<{ fa?: FAPickPersonal[] }>
   return map
 }
 
-export function scoreCY(picks: UserAppData['cy']): number {
-  return picks.reduce((acc, x) => acc + (Number(x.votes) || 0), 0)
+/**
+ * Cy Young points. Uses placement scoring (1st 25 / 2nd 15 / 3rd 10 /
+ * 4th-5th 5 within each league) when a `placementMap` is supplied —
+ * which it is from leaderboard-scoring + the CY tab. The fallback
+ * (raw votes / 10) only fires for legacy callers without the map.
+ */
+export function scoreCY(picks: UserAppData['cy'], placementMap?: Map<string, number>): number {
+  if (placementMap) {
+    return picks.reduce((acc, p) => acc + (placementMap.get(p.pitcher) ?? 0), 0)
+  }
+  return picks.reduce((acc, x) => acc + Math.round((Number(x.votes) || 0) / 10), 0)
 }
 
 export function scorePU(picks: UserAppData['pu']): number {
@@ -111,10 +120,14 @@ export interface UserGameScores {
   ps: number
 }
 
-export function scoreAll(picks: UserAppData, actualsMap?: Map<string, string>): UserGameScores {
+export function scoreAll(
+  picks: UserAppData,
+  actualsMap?: Map<string, string>,
+  cyPlacementMap?: Map<string, number>,
+): UserGameScores {
   return {
     fa: scoreFA(picks.fa ?? [], actualsMap),
-    cy: scoreCY(picks.cy ?? []),
+    cy: scoreCY(picks.cy ?? [], cyPlacementMap),
     pu: scorePU(picks.pu ?? []),
     hr: scoreHR(picks.hr ?? {}),
     td: scoreTD(picks.td ?? []),

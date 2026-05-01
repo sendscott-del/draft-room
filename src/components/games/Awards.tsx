@@ -8,6 +8,7 @@ import { COLORS } from '../../data/constants'
 import { scoreAW } from '../../lib/scoring-per-user'
 import { projectAwards } from '../../lib/awardsProjection'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
+import GameInfo from './GameInfo'
 
 const EMPTY_AWARDS: AwardPicks = {
   alMVP: '', nlMVP: '', alROY: '', nlROY: '', alCY: '', nlCY: '', alMGR: '', nlMGR: '',
@@ -76,6 +77,7 @@ export default function Awards({ players, onEditMine }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Season has started — Award picks are locked.'} />}
+      <GameInfo gameKey="aw" />
       <Pills items={['Winner 25 / Top 3 10 / Top 10 5']} />
       <PlayerColumns>
         {playing.map(p => (

@@ -7,6 +7,7 @@ import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
 import { COLORS } from '../../data/constants'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
+import GameInfo from './GameInfo'
 
 const FA_COLOR = '#5eb774'
 
@@ -32,6 +33,7 @@ export default function FreeAgent({ players }: Props) {
   return (
     <>
       {locked && <LockBanner message={'\u{1F512} Draft complete — FA picks are locked.'} />}
+      <GameInfo gameKey="fa" />
       <Pills items={['New team +10, Re-sign +5', 'Contract length match +5', 'CY/MVP/RoY/ASG +5', 'After R24 +5']} />
 
       <PlayerColumns>

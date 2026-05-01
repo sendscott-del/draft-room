@@ -1,5 +1,53 @@
 # Draft Room — Release Notes
 
+## v1.5.0 — Polish: scoring, sorting, info, icons
+
+**Date:** 2026-04-30
+
+### Standings + tab order
+
+- **Tab order matches the Standings table:** FA → CY → PU → HR → TD →
+  O/U → PS → Awards → Rules. Awards lives at the very end and is back
+  in the Standings as the final column (still excluded from the running
+  Total).
+
+### Cy Young — placement scoring
+
+- **CY now uses placement points** (1st 25 / 2nd 15 / 3rd 10 / 4th-5th
+  5, per league) instead of raw vote counts. Picking Skubal used to
+  drop ~200 points into your total in one swing — totals are now on the
+  same scale as Free Agent + O/U + PS.
+- The `~XX` projected badge still shows during the season; once real
+  votes come in, the same placement logic re-ranks against actuals.
+
+### Sort by score
+
+- **Game tabs now sort player columns purely by score, descending.**
+  The current user is still highlighted (YOU badge + green tint) but
+  is no longer pinned to the leftmost slot. Order updates as scores
+  update.
+
+### Info button on every page
+
+- Each tab (and the Standings page) gets an "About this page" pill
+  with an `i` button that opens scoring + forecast methodology +
+  data sources. CY explains the placement curve; OU / Awards / PS
+  spell out their projection inputs (FanGraphs, MLB Stats API, The
+  Odds API).
+
+### Icons + layout
+
+- **Win O/U** icon changed from 📊 (read like "stats") to ⚖️ (balance
+  scale — clearer "over vs under").
+- **Position Unit** icon changed from 🏟 (stadium) to 🎽 (jersey —
+  reads as a team unit).
+- **Free Agent column overlap fixed.** Min column width bumped to
+  240 px and every player section now has `minWidth: 0` so long
+  player names + signing strings truncate cleanly instead of bleeding
+  across columns.
+
+---
+
 ## v1.4.0 — Postseason projection
 
 **Date:** 2026-04-30
