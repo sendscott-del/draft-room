@@ -1,5 +1,56 @@
 # Draft Room — Release Notes
 
+## v1.4.0 — Postseason projection
+
+**Date:** 2026-04-30
+
+The Postseason game now has a real projected score driven by FanGraphs
+playoff probabilities — instead of just counting how many slots you'd
+filled in.
+
+### How it scores
+
+| Pick | Points |
+|------|--------|
+| Division winner correct | 5 each (max 30) |
+| Wild card correct (any slot) | 3 each (max 18) |
+| AL pennant correct | 10 |
+| NL pennant correct | 10 |
+| World Series champion | 25 |
+
+Maximum 93 points. Wild cards are scored slot-agnostic — if you predicted
+the right three teams in any order, you get full credit.
+
+### Where the projection comes from
+
+The `update-stats` cron now pulls per-team probabilities from FanGraphs
+(`divTitle`, `wcTitle`, `csWin`, `wsWin`) and stores them on every picks
+blob as `playoffOdds`. The client derives the most likely outcomes:
+
+- Division winners → top `divTitle` per division
+- Wild cards → top three `wcTitle` non-division-leaders per league
+- Pennants → top `csWin` per league
+- World Series → top `wsWin` overall
+
+As probabilities converge through the season, the projection converges to
+the actual result.
+
+### Where you'll see it
+
+- **Standings table:** the `PS` column now shows your projected score
+  (with a `~` marker) instead of `✓` / `NA`. Total includes it.
+- **Postseason tab:** each player's section shows `~XX pts`. Each row
+  gets a green `✓` next to picks that match the current projection,
+  greyed dot for picks that miss, and nothing if there's no projection
+  yet.
+
+> **First load tip:** the playoff-odds field only appears on picks blobs
+> after `update-stats` runs once. Click **Update Stats** in the header
+> to populate it on demand; otherwise it lands at the next 06:00 UTC
+> cron run.
+
+---
+
 ## v1.3.2 — Awards out of Standings
 
 **Date:** 2026-04-30

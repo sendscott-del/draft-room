@@ -5,6 +5,7 @@ import type { PlayerProfile, UserAppData, AwardPicks } from '../types'
 import { scoreAll, totalScore, buildActualsMap, type UserGameScores } from './scoring-per-user'
 import { projectCYVotes } from './cyProjection'
 import { projectAwards } from './awardsProjection'
+import { derivePSOutcomes, hasEnoughOdds, scorePSAgainstOutcomes, type PlayoffOddsMap } from './psProjection'
 import { OUL } from '../data/constants'
 
 const EMPTY_AWARDS: AwardPicks = {
@@ -85,6 +86,13 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
       ?.picks as unknown as { awardsOdds?: Record<string, Record<string, string>> })
       ?.awardsOdds ?? {}
 
+  // FG playoff probabilities — same replication pattern.
+  const playoffOdds: PlayoffOddsMap | null =
+    (playable.find(r => (r.picks as unknown as { playoffOdds?: unknown }).playoffOdds)
+      ?.picks as unknown as { playoffOdds?: PlayoffOddsMap })
+      ?.playoffOdds ?? null
+  const psOutcomes = hasEnoughOdds(playoffOdds) ? derivePSOutcomes(playoffOdds!) : null
+
   return playable
     .map<ScoredRow>(r => {
       const picks = r.picks!
@@ -115,11 +123,17 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
         projAW = proj.totals.Scott
       }
 
+      // Postseason — purely projected. We have no "actual" stored on picks
+      // until the season ends, but FG odds converge to 100/0 by then so the
+      // projection becomes effectively the actual.
+      const projPS = psOutcomes ? scorePSAgainstOutcomes(picks.ps, psOutcomes) : 0
+
       const display: UserGameScores = { ...actual }
       const projected: Partial<Record<keyof UserGameScores, true>> = {}
       if (actual.cy === 0 && projCY > 0) { display.cy = projCY; projected.cy = true }
       if (actual.ou === 0 && projOU > 0) { display.ou = projOU; projected.ou = true }
       if (actual.aw === 0 && projAW > 0) { display.aw = projAW; projected.aw = true }
+      if (projPS > 0) { display.ps = projPS; projected.ps = true }
 
       const played: Record<GameKey, boolean> = {
         fa: didPlay(picks, 'fa'),

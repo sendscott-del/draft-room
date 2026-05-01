@@ -109,21 +109,17 @@ export default function MultiLeaderboard({ rows, myProfileId }: Props) {
                       </td>
                       {GAME_ORDER.map(g => {
                         const played = r.played[g]
-                        // PS isn't part of UserGameScores; show "✓" if played to indicate participation.
-                        const score = g === 'ps'
-                          ? (played ? '✓' : 'NA')
-                          : played
-                            ? fmtVal(r.scores[g as keyof typeof r.scores] || 0)
-                            : 'NA'
-                        const isProj = g !== 'ps' && r.projected[g as keyof typeof r.projected]
+                        const val = r.scores[g] || 0
+                        const score = played ? fmtVal(val) : 'NA'
+                        const isProj = !!r.projected[g]
                         const color = !played
                           ? COLORS.muted
                           : isProj
                             ? '#5b8cc7'
-                            : (g === 'ps' ? GMETA[g].c : ((r.scores[g as keyof typeof r.scores] || 0) > 0 ? GMETA[g].c : COLORS.muted))
+                            : (val > 0 ? GMETA[g].c : COLORS.muted)
                         return (
                           <td key={g} style={{ ...tdStyle, color, fontFamily: 'monospace', fontWeight: 700, textAlign: 'center' }}>
-                            {isProj ? '~' : ''}{score}
+                            {played && isProj ? '~' : ''}{score}
                           </td>
                         )
                       })}

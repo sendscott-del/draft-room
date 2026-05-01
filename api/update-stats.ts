@@ -147,6 +147,49 @@ async function fetchProjectedWins(): Promise<Record<string, number>> {
   return out
 }
 
+/**
+ * Per-team playoff probabilities from FanGraphs — used to project the
+ * Postseason game (division winners, wild cards, pennants, World Series).
+ *
+ * Probabilities are 0–1. `league` is 'AL'|'NL'; `division` is 'E'|'C'|'W'.
+ */
+export interface PlayoffOdds {
+  w: number
+  l: number
+  league: 'AL' | 'NL'
+  division: 'E' | 'C' | 'W'
+  divTitle: number
+  wcTitle: number
+  csWin: number
+  wsWin: number
+}
+
+async function fetchPlayoffOdds(): Promise<Record<string, PlayoffOdds>> {
+  const out: Record<string, PlayoffOdds> = {}
+  try {
+    const res = await timedFetch(`https://www.fangraphs.com/api/playoff-odds/odds?season=${SEASON}`)
+    if (!res.ok) return out
+    const data = await res.json()
+    for (const team of data) {
+      const abbr = FG_TEAM_MAP[team.abbName] || team.abbName
+      if (!abbr) continue
+      const lg = team.league === 'AL' ? 'AL' : 'NL'
+      const div = team.division === 'E' || team.division === 'C' || team.division === 'W' ? team.division : 'E'
+      out[abbr] = {
+        w: Number(team.W) || 0,
+        l: Number(team.L) || 0,
+        league: lg,
+        division: div,
+        divTitle: Number(team.endData?.divTitle) || 0,
+        wcTitle: Number(team.endData?.wcTitle) || 0,
+        csWin:   Number(team.endData?.csWin)   || 0,
+        wsWin:   Number(team.endData?.wsWin)   || 0,
+      }
+    }
+  } catch (e) { console.error('playoff odds:', e) }
+  return out
+}
+
 function posToUnit(pos: string): 'INF+C' | 'OF' | null {
   if (!pos) return null
   const parts = pos.split('/')
@@ -270,6 +313,7 @@ function updateOnePlayer(
   ctx: {
     standings: Record<string, number>
     projWins: Record<string, number>
+    playoffOdds: Record<string, PlayoffOdds>
     hrCounts: Record<string, number>
     cyStats: Record<string, PitcherStats>
     cyOdds: Record<string, string>
@@ -343,6 +387,12 @@ function updateOnePlayer(
     next.awardsOdds = ctx.awardsOdds
   }
 
+  // Playoff odds (per-team FanGraphs probabilities) — drives the Postseason
+  // projection. Replicated to every blob for the same reason as awardsOdds.
+  if (Object.keys(ctx.playoffOdds).length > 0) {
+    next.playoffOdds = ctx.playoffOdds
+  }
+
   return next
 }
 
@@ -399,9 +449,10 @@ export default async function handler(_req: Request) {
     }
 
     // 3. Fetch all external data concurrently where independent.
-    const [standings, projWins, unitWAR, awardOdds] = await Promise.all([
+    const [standings, projWins, playoffOdds, unitWAR, awardOdds] = await Promise.all([
       fetchStandings(),
       fetchProjectedWins(),
+      fetchPlayoffOdds(),
       fetchUnitWAR(),
       fetchAllAwardOdds(),
     ])
@@ -444,10 +495,11 @@ export default async function handler(_req: Request) {
     updates.push(`CY odds: ${Object.keys(awardOdds.cy).length}`)
     updates.push(`Award categories: ${Object.keys(awardOdds.awards).length}`)
     updates.push(`Projected wins: ${Object.keys(projWins).length}`)
+    updates.push(`Playoff odds: ${Object.keys(playoffOdds).length} teams`)
 
     // 4. Update each player's row.
     const ctx = {
-      standings, projWins,
+      standings, projWins, playoffOdds,
       hrCounts, cyStats,
       cyOdds: awardOdds.cy,
       unitWAR,

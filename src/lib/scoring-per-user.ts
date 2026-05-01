@@ -108,6 +108,7 @@ export interface UserGameScores {
   td: number
   aw: number
   ou: number
+  ps: number
 }
 
 export function scoreAll(picks: UserAppData, actualsMap?: Map<string, string>): UserGameScores {
@@ -119,10 +120,11 @@ export function scoreAll(picks: UserAppData, actualsMap?: Map<string, string>): 
     td: scoreTD(picks.td ?? []),
     aw: scoreAW(picks.aw),
     ou: scoreOU(picks.ou ?? {}),
+    ps: 0, // PS has no "actual" — it's purely projected from FG odds in leaderboard-scoring.
   }
 }
 
 export function totalScore(s: UserGameScores): number {
-  const t = s.fa + s.cy + s.pu + s.hr + s.td + s.aw + s.ou
+  const t = s.fa + s.cy + s.pu + s.hr + s.td + s.aw + s.ou + s.ps
   return Number.isInteger(t) ? t : parseFloat(t.toFixed(1))
 }
