@@ -1,5 +1,54 @@
 # Draft Room — Release Notes
 
+## v1.3.0 — Show-format alignment + standings table
+
+**Date:** 2026-04-30
+
+### Data alignment
+
+- **Scott + Ty's pick counts now match the show.** Free Agent trimmed from
+  16 → 8 picks each, Cy Young from 10 → 5, Position Unit from 12 → 4. The
+  earliest rounds are kept (their actual show-format draft picks).
+- **Eno Sarris added as a Cy Young participant.** He was the third drafter
+  on the CY episode (alongside Trevor + Jolly Olive) and was missing from
+  the player roster. His 5 picks (Skenes, Yamamoto, Hunter Brown, Logan
+  Gilbert, Chase Burns) are now in.
+- **FA scoring now applies to every host.** Previously only Scott + Ty
+  scored points because only their picks had `actual` signing strings
+  filled in. The app now builds a field-wide actuals lookup (player name →
+  signing) so any host who picked the same player gets credit too.
+
+### Standings page
+
+- **New table layout:** every game has its own column (FA, CY, PU, HR, TD,
+  AW, OU, PS) plus a Total column. NA appears in cells where a player
+  didn't play that game.
+- **NA total:** if a player skipped any game, their Total reads "NA" so
+  they don't compete with players who played the full slate.
+- **Ranking:** complete-slate players are ranked by total; NA-total
+  players are listed after them.
+
+### UI fixes
+
+- **Rules page is no longer blank.** A missing rules entry for the
+  Postseason game broke the whole page; that's been added.
+- **HR Team columns no longer overlap.** The 4-column inline grid has been
+  reflowed into a 2-row layout per position so player + team + HR fit
+  inside a 220 px column.
+- **Postseason rows line up across player columns.** Editable selects and
+  read-only spans now share a fixed row height so adjacent player columns
+  stay aligned.
+
+### Known gap
+
+- **Win O/U: 11 show teams still have no pick.** ATL, BAL, BOS, CHC, DET,
+  HOU, MIL, NYM, NYY, SDP, SFG were not covered in the 5 OU/TPP episodes
+  whose transcripts are in the repo. To fill them in, drop the missing
+  episode video IDs into `scripts/fetch-comments-cli.mjs` and re-run the
+  transcript clean + parse pipeline.
+
+---
+
 ## v1.2.0 — Multi-player game tabs
 
 **Date:** 2026-04-29

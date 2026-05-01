@@ -40,6 +40,12 @@ const RULES: Record<string, string[]> = {
     'Over/under projected wins for all 30 teams',
     '3pts per correct pick, max 90pts',
   ],
+  ps: [
+    '6 division winners + 3 wild cards per league',
+    'Pick the AL & NL pennant winners',
+    'Pick the World Series champion',
+    'Locked when the season starts',
+  ],
 }
 
 export default function Rules() {
@@ -47,13 +53,14 @@ export default function Rules() {
     <>
       {Object.keys(GMETA).map(k => {
         const m = GMETA[k]
+        const rules = RULES[k] ?? []
         return (
           <Card key={k} style={{ borderLeft: `3px solid ${m.c}` }}>
             <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>
               {m.i} {m.l}
             </div>
             <ul style={{ margin: 0, paddingLeft: 16, display: 'grid', gap: 4 }}>
-              {RULES[k].map((x, i) => (
+              {rules.map((x, i) => (
                 <li key={i} style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5 }}>{x}</li>
               ))}
             </ul>

@@ -127,16 +127,16 @@ function PSRow({ label, value, editable, onChange, emphasize }: {
   emphasize?: boolean
 }) {
   return (
-    <Card style={{ padding: '6px 10px', ...(emphasize ? { borderLeft: `3px solid ${PS_COLOR}` } : {}) }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', alignItems: 'center', gap: 8 }}>
+    <Card style={{ padding: '6px 10px', minHeight: 38, boxSizing: 'border-box', display: 'flex', alignItems: 'center', ...(emphasize ? { borderLeft: `3px solid ${PS_COLOR}` } : {}) }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', alignItems: 'center', gap: 8, width: '100%' }}>
         <span style={{ fontSize: 11, color: COLORS.muted2, fontWeight: 700 }}>{label}</span>
         {editable ? (
-          <select value={value ?? ''} onChange={e => onChange(e.target.value)} style={{ background: '#1e293b', border: `1px solid ${COLORS.border}`, borderRadius: 5, color: COLORS.text, padding: '3px 8px', fontSize: 12, outline: 'none' }}>
+          <select value={value ?? ''} onChange={e => onChange(e.target.value)} style={{ background: '#1e293b', border: `1px solid ${COLORS.border}`, borderRadius: 5, color: COLORS.text, padding: '3px 8px', fontSize: 12, outline: 'none', height: 26, boxSizing: 'border-box' }}>
             <option value="">—</option>
             {TEAMS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         ) : (
-          <span style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', color: value ? COLORS.text : COLORS.muted, textAlign: 'left' }}>
+          <span style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', color: value ? COLORS.text : COLORS.muted, textAlign: 'left', height: 26, lineHeight: '26px' }}>
             {value || '—'}
           </span>
         )}

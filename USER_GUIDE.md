@@ -18,33 +18,44 @@ then check your email to confirm.
 
 ## The games
 
-Draft Room has seven season-long games. Each is scored independently and your
-total score is the sum across all of them.
+Draft Room has eight season-long games. Each is scored independently and your
+total score is the sum across all of them. **Pick counts match the show's
+format** so Scott + Ty's drafts line up directly with Talkin' Baseball.
 
 | Game | What you pick | When it locks | When it scores |
 |------|---------------|---------------|----------------|
-| Free Agent | Where 32 free agents will sign | Opening Day | After all signings |
-| Cy Young | 10 pitchers who'll get Cy Young votes | Opening Day | End of season |
-| Position Unit | 12 best team-position groups (e.g. Yankees OF) by WAR | Opening Day | Throughout season |
+| Free Agent | 8 free agents and where they sign | Opening Day | After signings |
+| Cy Young | 5 pitchers who'll get Cy Young votes | Opening Day | End of season |
+| Position Unit | 4 best team-position groups (e.g. Yankees OF) by WAR | Opening Day | Throughout season |
 | HR Team | Best home-run lineup (9 positions) | Opening Day | Throughout season |
-| Trade Deadline | 32 players to be traded by the deadline | Aug 3 deadline | After deadline |
+| Trade Deadline | Players you expect to be traded by the deadline | Aug 3 deadline | After deadline |
 | Awards | MVP, ROY, Cy Young, Manager of the Year (AL + NL) | Opening Day | End of season |
-| Win Over/Under | Over or under pick for every team's projected win total | Opening Day | End of season |
+| Win Over/Under | Over or under for each team's projected win total | Opening Day | End of season |
+| Postseason | Division winners, wild cards, pennants, World Series | Opening Day | After playoffs |
 
 ## Comparing against other players
 
-Every game tab has a **"vs [player name] ▾"** dropdown at the top. Pick any
-other player to compare your picks against theirs side-by-side. The right
-column on every game shows their picks (read-only); your edits stay on the
-left.
+Each game tab shows **every player who participated** as a side-by-side
+column. You're always at the top with your edit controls; everyone else is
+read-only. If a host skipped a game, they're listed at the bottom in a
+"Did not play" footnote.
 
 The accounts for the **Talkin' Baseball** hosts (Jomboy, Jolly Olive, Chris
-Rose, Trevor Plouffe) are pre-loaded as players you can compare against. Their
-picks come from actual episodes (Phase 5 will fill these in from the
-transcripts).
+Rose, Trevor Plouffe, plus guest drafters like Eno Sarris on the Cy Young
+episode) are pre-loaded as players you can compare against, with picks
+pulled from the actual episodes.
 
-The **Standings** tab shows everyone ranked by total points. Click any other
-player's row in the standings to set them as your current comparison.
+## The Standings page
+
+The **Standings** tab is a per-game table:
+
+| Player | FA | CY | PU | HR | TD | AW | OU | PS | Total |
+
+Each cell shows that player's score for that game, or **NA** if they didn't
+play it. **A Total only counts if you played every game** — players with
+even one NA cell get an NA total so they don't compete for first place
+without a complete slate. Players with a complete slate are ranked first by
+total; everyone else is listed below.
 
 ## Privacy
 

@@ -72,20 +72,22 @@ function PlayerHRSection({
           const hrs = Number(slot.hr) || 0
           return (
             <Card key={pos} style={{ padding: '8px 10px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '32px 1fr 56px 50px', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', alignItems: 'center', gap: 6, rowGap: 4 }}>
                 <span style={{ fontSize: 11, fontWeight: 800, color: HR_COLOR }}>{pos}</span>
                 {editable ? (
                   <input value={slot.p} placeholder="Player" onChange={e => setSlot(pos, 'p', e.target.value)} style={inputStyle} />
                 ) : (
-                  <span style={{ fontSize: 12, color: slot.p ? COLORS.text : COLORS.muted }}>{slot.p || '—'}</span>
+                  <span style={{ fontSize: 12, color: slot.p ? COLORS.text : COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{slot.p || '—'}</span>
                 )}
-                {editable ? (
-                  <input value={slot.t} placeholder="TEAM" onChange={e => setSlot(pos, 't', e.target.value.toUpperCase())} style={{ ...inputStyle, textAlign: 'center', fontFamily: 'monospace' }} />
-                ) : (
-                  <span style={{ fontSize: 11, color: COLORS.muted2, textAlign: 'center', fontFamily: 'monospace' }}>{slot.t || '—'}</span>
-                )}
-                <span style={{ fontWeight: 900, fontSize: 13, fontFamily: 'monospace', textAlign: 'right', color: hrs > 0 ? HR_COLOR : COLORS.muted }}>
+                <span style={{ fontWeight: 900, fontSize: 13, fontFamily: 'monospace', textAlign: 'right', color: hrs > 0 ? HR_COLOR : COLORS.muted, minWidth: 36 }}>
                   {hrs > 0 ? `${hrs}HR` : '—'}
+                </span>
+                <span style={{ gridColumn: '2 / 4', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {editable ? (
+                    <input value={slot.t} placeholder="TEAM" onChange={e => setSlot(pos, 't', e.target.value.toUpperCase())} style={{ ...inputStyle, width: 70, textAlign: 'center', fontFamily: 'monospace', fontSize: 11 }} />
+                  ) : (
+                    <span style={{ fontSize: 11, color: COLORS.muted2, fontFamily: 'monospace' }}>{slot.t || '—'}</span>
+                  )}
                 </span>
               </div>
             </Card>

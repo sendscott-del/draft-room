@@ -33,7 +33,7 @@ export function SectionHeader({
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '6px 10px', marginBottom: 4,
+      padding: '6px 10px', marginBottom: 4, minHeight: 36, boxSizing: 'border-box',
       background: `${color}10`, border: `1px solid ${color}30`,
       borderRadius: 6, gap: 8, flexWrap: 'wrap',
     }}>

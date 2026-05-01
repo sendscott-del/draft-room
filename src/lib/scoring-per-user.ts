@@ -9,14 +9,20 @@ const AWARD_PTS: Record<AwardResult, number> = {
 
 const AWARD_RESULT_KEYS = ['alMVPR','nlMVPR','alROYR','nlROYR','alCYR','nlCYR','alMGRR','nlMGRR'] as const
 
-export function scoreFA(picks: FAPickPersonal[]): number {
+/**
+ * Score a player's free agent picks. `actualsMap` lets the caller supply a
+ * shared "what each player actually signed for" lookup keyed by player name —
+ * because the same signing is the same fact regardless of who drafted them,
+ * and only Scott/Ty's picks were originally seeded with `actual` strings.
+ * Falls back to `pick.actual` if the map has no entry.
+ */
+export function scoreFA(picks: FAPickPersonal[], actualsMap?: Map<string, string>): number {
   let total = 0
   const seen = new Set<string>()
-  // Important: actual-team "seen" must propagate in round order so the
-  // "after R26 unused team" bonus matches the legacy logic.
   const sorted = [...picks].sort((a, b) => a.round - b.round)
   for (const p of sorted) {
-    const ac = parseActual(p.actual)
+    const actualStr = (actualsMap?.get(p.player) || p.actual || '').trim()
+    const ac = parseActual(actualStr)
     const at = ac.team
     const ay = ac.years
     const tc = !!(at && p.team && at === p.team)
@@ -33,6 +39,19 @@ export function scoreFA(picks: FAPickPersonal[]): number {
     if (at) seen.add(at)
   }
   return total
+}
+
+/** Build a player-name → actual-signing map from every player's FA picks. */
+export function buildActualsMap(allPlayerPicks: Array<{ fa?: FAPickPersonal[] }>): Map<string, string> {
+  const map = new Map<string, string>()
+  for (const u of allPlayerPicks) {
+    for (const p of u.fa ?? []) {
+      if (!p.player || !p.actual) continue
+      const existing = map.get(p.player)
+      if (!existing) map.set(p.player, p.actual)
+    }
+  }
+  return map
 }
 
 export function scoreCY(picks: UserAppData['cy']): number {
@@ -91,9 +110,9 @@ export interface UserGameScores {
   ou: number
 }
 
-export function scoreAll(picks: UserAppData): UserGameScores {
+export function scoreAll(picks: UserAppData, actualsMap?: Map<string, string>): UserGameScores {
   return {
-    fa: scoreFA(picks.fa ?? []),
+    fa: scoreFA(picks.fa ?? [], actualsMap),
     cy: scoreCY(picks.cy ?? []),
     pu: scorePU(picks.pu ?? []),
     hr: scoreHR(picks.hr ?? {}),

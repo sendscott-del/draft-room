@@ -49,6 +49,7 @@ const SHOW_HOSTS = [
   { display_name: 'Chris Rose',         handle: 'chrisrosesports', is_show_account: true, is_public: true, bio: 'Chris Rose Sports' },
   { display_name: 'Trevor Plouffe',     handle: 'trevorplouffe',   is_show_account: true, is_public: true, bio: 'Trevor Plouffe — Talkin’ Baseball' },
   { display_name: 'Jomboy Media',       handle: 'jomboymedia',     is_show_account: true, is_public: true, bio: 'Network account' },
+  { display_name: 'Eno Sarris',         handle: 'enosarris',       is_show_account: true, is_public: true, bio: 'Rates and Barrels — The Athletic' },
 ]
 
 // --- Helpers ---

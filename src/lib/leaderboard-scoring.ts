@@ -2,7 +2,7 @@
 // Header banner and the Standings tab so they always agree.
 
 import type { PlayerProfile, UserAppData, AwardPicks } from '../types'
-import { scoreAll, totalScore, type UserGameScores } from './scoring-per-user'
+import { scoreAll, totalScore, buildActualsMap, type UserGameScores } from './scoring-per-user'
 import { projectCYVotes } from './cyProjection'
 import { projectAwards } from './awardsProjection'
 import { OUL } from '../data/constants'
@@ -13,10 +13,16 @@ const EMPTY_AWARDS: AwardPicks = {
   alCYR: 'none', nlCYR: 'none', alMGRR: 'none', nlMGRR: 'none',
 }
 
+export type GameKey = 'fa' | 'cy' | 'pu' | 'hr' | 'td' | 'aw' | 'ou' | 'ps'
+
 export interface ScoredRow {
   profile: PlayerProfile
   scores: UserGameScores
+  played: Record<GameKey, boolean>
+  /** Total of played games. `null` means "didn't play every game" so this row
+   *  is shown but does not compete for the top of the standings. */
   total: number
+  totalIsComplete: boolean
   hasProj: boolean
   projected: Partial<Record<keyof UserGameScores, true>>
 }
@@ -24,6 +30,34 @@ export interface ScoredRow {
 export interface PlayerRow {
   profile: PlayerProfile
   picks: UserAppData | null
+}
+
+/** Did this player participate in a given game? Looks at their picks blob. */
+export function didPlay(picks: UserAppData | null | undefined, game: GameKey): boolean {
+  if (!picks) return false
+  switch (game) {
+    case 'fa': return (picks.fa?.length ?? 0) > 0
+    case 'cy': return (picks.cy?.length ?? 0) > 0
+    case 'pu': return (picks.pu?.length ?? 0) > 0
+    case 'hr': return Object.values(picks.hr ?? {}).some(s => !!s?.p)
+    case 'td': return (picks.td ?? []).some(p => !!p.player)
+    case 'aw': return !!picks.aw && Object.entries(picks.aw).some(([k, v]) =>
+      !k.endsWith('R') && typeof v === 'string' && v.length > 0
+    )
+    case 'ou': return Object.values(picks.ou ?? {}).some(v => !!v?.pick)
+    case 'ps': {
+      const ps = picks.ps
+      if (!ps) return false
+      if (ps.ws) return true
+      if (ps.divisions && Object.values(ps.divisions).some(v => !!v)) return true
+      if (ps.pennants && (ps.pennants.al || ps.pennants.nl)) return true
+      if (ps.wildCards) {
+        if ((ps.wildCards.al ?? []).some(v => !!v)) return true
+        if ((ps.wildCards.nl ?? []).some(v => !!v)) return true
+      }
+      return false
+    }
+  }
 }
 
 /**
@@ -41,6 +75,10 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
   const cyAL = projectCYVotes(allCYAL)
   const cyNL = projectCYVotes(allCYNL)
 
+  // Field-wide FA actuals: any player who has `actual` filled in becomes the
+  // source of truth for that signing for every host that picked the same player.
+  const actualsMap = buildActualsMap(playable.map(r => r.picks!))
+
   // Awards betting odds — replicated to each picks blob by the stats updater.
   const awardsOdds: Record<string, Record<string, string>> =
     (playable.find(r => (r.picks as unknown as { awardsOdds?: unknown }).awardsOdds)
@@ -50,7 +88,7 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
   return playable
     .map<ScoredRow>(r => {
       const picks = r.picks!
-      const actual = scoreAll(picks)
+      const actual = scoreAll(picks, actualsMap)
 
       const projCY = (picks.cy ?? []).reduce((sum, p) => {
         const map = p.lg === 'AL' ? cyAL : cyNL
@@ -78,13 +116,32 @@ export function computeScoredRows(rows: PlayerRow[]): ScoredRow[] {
       if (actual.ou === 0 && projOU > 0) { display.ou = projOU; projected.ou = true }
       if (actual.aw === 0 && projAW > 0) { display.aw = projAW; projected.aw = true }
 
+      const played: Record<GameKey, boolean> = {
+        fa: didPlay(picks, 'fa'),
+        cy: didPlay(picks, 'cy'),
+        pu: didPlay(picks, 'pu'),
+        hr: didPlay(picks, 'hr'),
+        td: didPlay(picks, 'td'),
+        aw: didPlay(picks, 'aw'),
+        ou: didPlay(picks, 'ou'),
+        ps: didPlay(picks, 'ps'),
+      }
+      const totalIsComplete = Object.values(played).every(v => v)
+
       return {
         profile: r.profile,
         scores: display,
+        played,
         total: totalScore(display),
+        totalIsComplete,
         hasProj: Object.keys(projected).length > 0,
         projected,
       }
     })
-    .sort((a, b) => b.total - a.total)
+    .sort((a, b) => {
+      // Complete players first, ranked by total desc.
+      // Incomplete players ("NA total") sort below, by their played-games total.
+      if (a.totalIsComplete !== b.totalIsComplete) return a.totalIsComplete ? -1 : 1
+      return b.total - a.total
+    })
 }

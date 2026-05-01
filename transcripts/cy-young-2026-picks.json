@@ -72,5 +72,42 @@
       "rookie": false,
       "votes": 0
     }
+  ],
+  "enosarris": [
+    {
+      "round": 1,
+      "pitcher": "Paul Skenes",
+      "lg": "NL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 6,
+      "pitcher": "Yoshinobu Yamamoto",
+      "lg": "NL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 7,
+      "pitcher": "Hunter Brown",
+      "lg": "AL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 12,
+      "pitcher": "Logan Gilbert",
+      "lg": "AL",
+      "rookie": false,
+      "votes": 0
+    },
+    {
+      "round": 13,
+      "pitcher": "Chase Burns",
+      "lg": "NL",
+      "rookie": true,
+      "votes": 0
+    }
   ]
 }
