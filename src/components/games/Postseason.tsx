@@ -9,7 +9,7 @@ import { derivePSOutcomes, hasEnoughOdds, scorePSAgainstOutcomes, type PlayoffOd
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView } from './shared'
 import GameInfo from './GameInfo'
 
-const PS_COLOR = '#e8b54a'
+const PS_COLOR = '#D4A24C' // Studio Talk ballpark gold
 
 interface Props {
   players: PlayerView[]
@@ -163,13 +163,13 @@ function PSRow({ label, value, hit, editable, onChange, emphasize }: {
   emphasize?: boolean
 }) {
   const hitMark = hit === true ? '✓' : hit === false ? '·' : ''
-  const hitColor = hit === true ? '#5eb774' : hit === false ? COLORS.muted : 'transparent'
+  const hitColor = hit === true ? '#4F6B3F' : hit === false ? COLORS.muted : 'transparent'
   return (
     <Card style={{ padding: '6px 10px', minHeight: 38, boxSizing: 'border-box', display: 'flex', alignItems: 'center', ...(emphasize ? { borderLeft: `3px solid ${PS_COLOR}` } : {}) }}>
       <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr 14px', alignItems: 'center', gap: 6, width: '100%' }}>
         <span style={{ fontSize: 11, color: COLORS.muted2, fontWeight: 700 }}>{label}</span>
         {editable ? (
-          <select value={value ?? ''} onChange={e => onChange(e.target.value)} style={{ background: '#1e293b', border: `1px solid ${COLORS.border}`, borderRadius: 5, color: COLORS.text, padding: '3px 8px', fontSize: 12, outline: 'none', height: 26, boxSizing: 'border-box' }}>
+          <select value={value ?? ''} onChange={e => onChange(e.target.value)} style={{ background: '#F2EAD3', border: '1.5px solid #0E1B2C', borderRadius: 0, color: '#0E1B2C', padding: '3px 8px', fontSize: 12, fontFamily: "'Roboto Slab', serif", outline: 'none', height: 28, boxSizing: 'border-box' }}>
             <option value="">—</option>
             {TEAMS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>

@@ -1,5 +1,6 @@
 import { useAuth } from '../lib/auth-context'
-import { COLORS } from '../data/constants'
+import BroadcastBar from './ui/BroadcastBar'
+import Badge from './ui/Badge'
 
 interface Props {
   selectedSeason: number | null
@@ -8,6 +9,9 @@ interface Props {
   onSelectSeason: (s: number) => void
 }
 
+/** Studio Talk top broadcast bar — replaces the old user bar. Shows the
+ *  signed-in user, season selector, and read-only state in the same
+ *  navy/red broadcast strip used by the design system. */
 export default function UserBar({ selectedSeason, currentSeason, availableSeasons, onSelectSeason }: Props) {
   const { profile, session, signOut } = useAuth()
   const name = profile?.display_name ?? session?.user?.email ?? 'Signed in'
@@ -15,44 +19,45 @@ export default function UserBar({ selectedSeason, currentSeason, availableSeason
   const seasons = availableSeasons.length > 0 ? availableSeasons : (currentSeason != null ? [currentSeason] : [])
 
   return (
-    <div
-      style={{
-        background: 'rgba(0,0,0,0.4)',
-        borderBottom: `1px solid ${COLORS.border}`,
-        padding: '6px 16px',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 860,
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 8,
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ fontSize: 11, color: COLORS.muted2, letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span>{'\u{1F464}'} {name}</span>
-          {profile?.is_show_account && (
-            <span style={{ padding: '1px 6px', borderRadius: 4, background: 'rgba(232,181,74,0.15)', color: COLORS.gold, fontSize: 9, fontWeight: 700, letterSpacing: 1 }}>
-              SHOW
-            </span>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <BroadcastBar
+      live
+      status={
+        <span style={{ display: 'inline-flex', gap: 14, alignItems: 'center' }}>
+          <span>Spring Training · 2026</span>
+          <span style={{ opacity: 0.35 }}>/</span>
+          <span style={{ color: '#D4A24C' }}>Studio Edition</span>
+        </span>
+      }
+      right={
+        <>
           {seasons.length > 0 && selectedSeason != null && (
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: COLORS.muted2, letterSpacing: 1 }}>
-              SEASON
+            <label
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 10,
+                color: 'rgba(242,234,211,0.75)',
+                letterSpacing: '0.16em',
+              }}
+            >
+              Season
               <select
                 value={selectedSeason}
                 onChange={e => onSelectSeason(parseInt(e.target.value, 10))}
                 style={{
-                  background: '#1e293b', border: `1px solid ${COLORS.border}`,
-                  borderRadius: 4, color: COLORS.text, padding: '2px 6px',
-                  fontSize: 11, fontWeight: 800, outline: 'none', cursor: 'pointer',
+                  background: '#0E1B2C',
+                  border: '1.5px solid #F2EAD3',
+                  borderRadius: 0,
+                  color: '#F2EAD3',
+                  padding: '2px 6px',
+                  fontFamily: "'Oswald', sans-serif",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.14em',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  textTransform: 'uppercase',
                 }}
               >
                 {seasons.map(s => (
@@ -61,29 +66,29 @@ export default function UserBar({ selectedSeason, currentSeason, availableSeason
               </select>
             </label>
           )}
-          {isPastSeason && (
-            <span style={{ padding: '2px 7px', borderRadius: 4, background: 'rgba(232,181,74,0.15)', border: '1px solid rgba(232,181,74,0.4)', color: COLORS.gold, fontSize: 9, fontWeight: 800, letterSpacing: 1 }}>
-              READ-ONLY
-            </span>
-          )}
+          {isPastSeason && <Badge variant="gold">Read-only</Badge>}
+          <span style={{ opacity: 0.5 }}>{name}</span>
+          {profile?.is_show_account && <Badge variant="gold">Show</Badge>}
           <button
             onClick={signOut}
             style={{
               background: 'transparent',
-              border: `1px solid ${COLORS.border}`,
-              borderRadius: 4,
-              color: COLORS.muted2,
+              border: '1.5px solid rgba(242,234,211,0.4)',
+              borderRadius: 0,
+              color: 'rgba(242,234,211,0.85)',
+              fontFamily: "'Oswald', sans-serif",
               fontSize: 10,
               fontWeight: 700,
-              padding: '3px 8px',
+              padding: '3px 10px',
               cursor: 'pointer',
-              letterSpacing: 1,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
             }}
           >
-            SIGN OUT
+            Sign out
           </button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   )
 }

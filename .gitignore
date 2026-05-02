@@ -28,3 +28,6 @@ dist-ssr
 transcripts/*.en.vtt
 transcripts/*.txt
 transcripts/youtube-comments.json
+
+# Design system source materials (kept locally, not committed)
+new design/

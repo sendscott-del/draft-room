@@ -1,5 +1,63 @@
 # Draft Room — Release Notes
 
+## v1.6.0 — "Studio Talk" redesign
+
+**Date:** 2026-05-02
+
+A full visual overhaul. Draft Room now wears the **Talkin' Baseball
+"Studio Talk" design system** — vintage broadcast meets sports almanac.
+
+### What changed
+
+- **Palette flipped to cream paper.** The dark navy field is gone.
+  The app is now cream (`#F2EAD3`) with navy ink (`#0E1B2C`),
+  studio red (`#C8332C`), and ballpark gold (`#D4A24C`) as accents.
+  Per-game colors recolored to fit (FA→navy, CY→deep blue, PU→outfield
+  green, HR→red, TD→gold, AW→muted purple, OU→red, PS→gold).
+- **New typography.** Oswald (chunky condensed display) for the wordmark,
+  scoreboard, lower-thirds, and labels; Roboto Slab for body copy;
+  JetBrains Mono for stats. Old Anton/Bebas/Inter retired.
+- **New header.** A "DR" red square brand-mark with a gold drop-shadow,
+  rotated -3° — replaces the crossed-bats SVG. Sits in a navy masthead
+  with a halftone dot pattern, a 3-unit countdown box, and a split
+  scoreboard (You vs. Leader).
+- **Top broadcast bar.** A navy strip with an "On Air" pulse + Studio
+  Edition tag + season selector + sign-out — sits above the masthead.
+- **New section headers.** Every game page opens with a `<LowerThird>` —
+  navy bar, gold kicker, big Oswald title, red left edge. Per-player
+  section headers use the same shape, colored by game accent.
+- **Hard-edged cards.** Cards are now cream-2 paper with 1.5px navy
+  borders. Soft rounded shadows are gone — the leaderboard card has a
+  hard 5px navy drop shadow, and the rest are flat. Game-result cards
+  optionally take a 5px left bar in the game's accent.
+- **Leaderboard rebuilt.** The top "who's on top" card is now a
+  hard-bordered cream panel with one row per player: rank (Oswald 30px),
+  name (Oswald 22px), per-game bar chart, projected delta, and a chunky
+  total. The current user's row gets a 5px studio-red left bar.
+  The detailed game-by-game table is still there, restyled.
+- **New Badge component.** `<Badge variant="final|interim|live|locked|gold|red|score">` —
+  replaces the ad-hoc inline pills used throughout the app.
+- **Wider layout.** Page max-width bumped from 860px → 1080px to match
+  the Studio Talk mock; still phone-friendly thanks to the existing
+  responsive layouts.
+- **New favicon.** Red "DR" tile to match the brand mark.
+
+### Files touched
+
+- Tokens: `src/data/constants.ts` (full COLORS rewrite, GMETA recolored)
+- CSS: `src/index.css` (Oswald + Roboto Slab + JetBrains Mono, cream body)
+- New shared UI: `src/components/ui/Badge.tsx`, `LowerThird.tsx`,
+  `HardCard.tsx`, `BroadcastBar.tsx`
+- Rebuilt: `Header.tsx`, `Nav.tsx`, `MultiLeaderboard.tsx`, `SignIn.tsx`,
+  `UserBar.tsx`, `CommentsFeed.tsx`, `games/Rules.tsx`, `games/shared.tsx`
+- Restyled: every game page, every UI primitive (`Card`, `Pill`,
+  `LockBanner`, `SyncDot`, `Countdown`, `InfoPopup`, `GameInfo`)
+- Updated: `App.tsx`, `LiveAppView.tsx`, `public/favicon.svg`
+
+Source brief: `new design/redesign/PORT_NOTES.md` and `redesign/home.html`.
+
+---
+
 ## v1.5.2 — Global FA actuals so every host scores
 
 **Date:** 2026-04-30

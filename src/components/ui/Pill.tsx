@@ -2,19 +2,23 @@ interface PillProps {
   text: string
 }
 
+/** Studio Talk "scoring pill" — small navy badge with cream text. Used to
+ *  display per-pick scoring rules at the top of a game page. */
 export function Pill({ text }: PillProps) {
   return (
     <span
+      className="label"
       style={{
-        background: 'rgba(255,255,255,0.06)',
-        border: '1px solid rgba(255,255,255,0.09)',
-        borderRadius: 20,
-        padding: '2px 9px',
-        fontSize: 11,
-        color: '#94a3b8',
-        marginRight: 5,
-        marginBottom: 4,
+        background: '#0E1B2C',
+        border: '1.5px solid #0E1B2C',
+        borderRadius: 0,
+        padding: '4px 9px',
+        fontSize: 10,
+        color: '#F2EAD3',
+        marginRight: 6,
+        marginBottom: 6,
         display: 'inline-block',
+        letterSpacing: '0.16em',
       }}
     >
       {text}
@@ -24,7 +28,7 @@ export function Pill({ text }: PillProps) {
 
 export function Pills({ items }: { items: string[] }) {
   return (
-    <div style={{ marginBottom: 10 }}>
+    <div style={{ marginBottom: 12, display: 'flex', flexWrap: 'wrap' }}>
       {items.map((t, i) => (
         <Pill key={i} text={t} />
       ))}

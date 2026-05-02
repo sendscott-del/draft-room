@@ -8,8 +8,8 @@ import { scorePU } from '../../lib/scoring-per-user'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 import GameInfo from './GameInfo'
 
-const PU_COLOR = '#a37ed1'
-const UNIT_COLORS: Record<string, string> = { 'INF+C': '#5eb774', OF: '#5b8cc7', SP: '#a37ed1', RP: '#f0a531' }
+const PU_COLOR = '#4F6B3F' // Studio Talk outfield green
+const UNIT_COLORS: Record<string, string> = { 'INF+C': '#0E1B2C', OF: '#1E4A6B', SP: '#4F6B3F', RP: '#D4A24C' }
 
 interface Props {
   players: PlayerView[]

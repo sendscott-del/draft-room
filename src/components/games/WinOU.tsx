@@ -1,12 +1,12 @@
 import { isLocked } from '../../lib/locks'
 import LockBanner from '../ui/LockBanner'
 import { Pills } from '../ui/Pill'
-import { COLORS, OUL } from '../../data/constants'
+import { OUL } from '../../data/constants'
 import { scoreOU } from '../../lib/scoring-per-user'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 import GameInfo from './GameInfo'
 
-const OU_COLOR = '#d4669d'
+const OU_COLOR = '#C8332C' // Studio Talk studio red
 
 interface Props {
   players: PlayerView[]
@@ -69,43 +69,48 @@ function PlayerOUSection({ player, editable, onEdit }: {
           const isUnder = slot.pick === 'under'
           return (
             <div key={t.a} style={{
-              display: 'grid', gridTemplateColumns: '40px 1fr auto', alignItems: 'center', gap: 6,
-              padding: '4px 8px', background: 'rgba(255,255,255,0.03)', borderRadius: 5,
-              border: `1px solid ${COLORS.border}`,
+              display: 'grid', gridTemplateColumns: '44px 1fr auto', alignItems: 'center', gap: 6,
+              padding: '5px 8px', background: '#F2EAD3', borderRadius: 0,
+              border: '1.5px solid #0E1B2C',
             }}>
-              <span style={{ fontSize: 10, fontWeight: 800 }}>{t.a}</span>
-              <span style={{ fontSize: 10, color: COLORS.muted2 }}>{t.l}</span>
+              <span className="label" style={{ fontSize: 10, color: '#0E1B2C', letterSpacing: '0.14em' }}>{t.a}</span>
+              <span className="serif" style={{ fontSize: 11, color: '#4A5466' }}>{t.l}</span>
               {editable ? (
-                <div style={{ display: 'flex', gap: 2 }}>
+                <div style={{ display: 'flex', gap: 0, border: '1.5px solid #0E1B2C' }}>
                   <button
                     type="button"
                     onClick={() => setPick(t.a, isOver ? '' : 'over')}
                     style={{
-                      background: isOver ? '#5eb774' : 'rgba(255,255,255,0.06)',
-                      color: isOver ? '#0c1a2c' : COLORS.muted2,
-                      border: 'none', borderRadius: 3, padding: '2px 6px',
-                      fontSize: 9, fontWeight: 800, cursor: 'pointer',
+                      background: isOver ? '#4F6B3F' : '#F2EAD3',
+                      color: isOver ? '#F2EAD3' : '#4A5466',
+                      border: 'none', borderRadius: 0, padding: '2px 8px',
+                      fontFamily: "'Oswald', sans-serif",
+                      fontSize: 11, fontWeight: 700, cursor: 'pointer',
                     }}
+                    aria-label={`${t.a} over`}
                   >▲</button>
                   <button
                     type="button"
                     onClick={() => setPick(t.a, isUnder ? '' : 'under')}
                     style={{
-                      background: isUnder ? '#5b8cc7' : 'rgba(255,255,255,0.06)',
-                      color: isUnder ? '#0c1a2c' : COLORS.muted2,
-                      border: 'none', borderRadius: 3, padding: '2px 6px',
-                      fontSize: 9, fontWeight: 800, cursor: 'pointer',
+                      background: isUnder ? '#1E4A6B' : '#F2EAD3',
+                      color: isUnder ? '#F2EAD3' : '#4A5466',
+                      border: 'none', borderLeft: '1.5px solid #0E1B2C', borderRadius: 0, padding: '2px 8px',
+                      fontFamily: "'Oswald', sans-serif",
+                      fontSize: 11, fontWeight: 700, cursor: 'pointer',
                     }}
+                    aria-label={`${t.a} under`}
                   >▼</button>
                 </div>
               ) : (
-                <span style={{
-                  fontSize: 10, fontWeight: 800,
-                  color: isOver ? '#5eb774' : isUnder ? '#5b8cc7' : COLORS.muted,
-                  background: isOver ? 'rgba(94,183,116,0.15)' : isUnder ? 'rgba(91,140,199,0.15)' : 'transparent',
-                  borderRadius: 3, padding: '1px 6px',
+                <span className="mono" style={{
+                  fontSize: 11, fontWeight: 700,
+                  color: isOver ? '#4F6B3F' : isUnder ? '#1E4A6B' : '#4A5466',
+                  background: 'transparent',
+                  border: `1.5px solid ${isOver ? '#4F6B3F' : isUnder ? '#1E4A6B' : 'transparent'}`,
+                  borderRadius: 0, padding: '1px 6px',
                 }}>
-                  {isOver ? '▲' : isUnder ? '▼' : '—'}
+                  {isOver ? '▲ Over' : isUnder ? '▼ Under' : '—'}
                 </span>
               )}
             </div>

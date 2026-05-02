@@ -8,7 +8,7 @@ import { scoreHR } from '../../lib/scoring-per-user'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, inputStyle, PlayerColumns, type PlayerView, type EditMine } from './shared'
 import GameInfo from './GameInfo'
 
-const HR_COLOR = '#e45b5b'
+const HR_COLOR = '#C8332C' // Studio Talk studio red
 
 interface Props {
   players: PlayerView[]
@@ -86,7 +86,7 @@ function PlayerHRSection({
                 </span>
                 <span style={{ gridColumn: '2 / 4', display: 'flex', alignItems: 'center', gap: 6 }}>
                   {editable ? (
-                    <input value={slot.t} placeholder="TEAM" onChange={e => setSlot(pos, 't', e.target.value.toUpperCase())} style={{ ...inputStyle, width: 70, textAlign: 'center', fontFamily: 'monospace', fontSize: 11 }} />
+                    <input value={slot.t} placeholder="TEAM" onChange={e => setSlot(pos, 't', e.target.value.toUpperCase())} style={{ ...inputStyle, width: 80, textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }} />
                   ) : (
                     <span style={{ fontSize: 11, color: COLORS.muted2, fontFamily: 'monospace' }}>{slot.t || '—'}</span>
                   )}

@@ -7,19 +7,48 @@ function GatedApp() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14, color: '#f5ede0' }}>
-        <div style={{ width: 56, height: 56, color: '#e8b54a' }}>
-          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
-            <g stroke="currentColor" strokeWidth="5.5" strokeLinecap="round">
-              <path d="M10 54 L48 16" />
-              <path d="M16 10 L54 48" />
-            </g>
-            <circle cx="48" cy="16" r="5" fill="currentColor" />
-            <circle cx="54" cy="48" r="5" fill="currentColor" />
-          </svg>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 14,
+          background: '#F2EAD3',
+          color: '#0E1B2C',
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            width: 72,
+            height: 72,
+            background: '#C8332C',
+            color: '#F2EAD3',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '3px solid #F2EAD3',
+            fontFamily: "'Oswald', sans-serif",
+            fontWeight: 700,
+            fontSize: 36,
+            lineHeight: 1,
+            boxShadow: '4px 4px 0 #D4A24C',
+            transform: 'rotate(-3deg)',
+          }}
+        >
+          DR
         </div>
-        <div className="brand-display" style={{ fontSize: 22, letterSpacing: 3 }}>Draft Room</div>
-        <div style={{ fontSize: 11, color: '#7a8aa0', letterSpacing: 2 }}>LOADING…</div>
+        <div className="brand-display" style={{ fontSize: 28, letterSpacing: '0.04em' }}>
+          Draft <span style={{ color: '#D4A24C' }}>Room.</span>
+        </div>
+        <div
+          className="label"
+          style={{ fontSize: 11, color: '#4A5466', letterSpacing: '0.22em' }}
+        >
+          Loading…
+        </div>
       </div>
     )
   }

@@ -17,24 +17,19 @@ interface HeaderProps {
   hasProjection: boolean
 }
 
+/** Studio Talk masthead — navy field with a halftone dot pattern, a red
+ *  "DR" brand mark with a gold drop-shadow, the countdown box, and a
+ *  two-side scoreboard (You vs. Leader). */
 export default function Header({
   syncStatus, countdown, onStatsUpdated,
-  leftLabel = 'SCOTT', rightLabel = 'TY',
+  leftLabel = 'Scott', rightLabel = 'Ty',
   leftTotal, rightTotal, hasProjection,
 }: HeaderProps) {
-  // The right-side score is whichever non-you player has the highest total
-  // (the leader when you're not winning; 2nd place when you are).
   const youAreLeading = leftTotal > rightTotal
   const youAreTied = leftTotal === rightTotal
-  const rightRole = youAreLeading ? '2ND' : youAreTied ? 'TIED' : 'LEADER'
+  const rightRole = youAreLeading ? '2nd' : youAreTied ? 'Tied' : 'Leader'
   const [updating, setUpdating] = useState(false)
   const [updateMsg, setUpdateMsg] = useState('')
-
-  const tot = { Scott: leftTotal, Ty: rightTotal }
-  const hasProj = hasProjection
-  const leader = tot.Scott > tot.Ty ? 'Scott' : tot.Ty > tot.Scott ? 'Ty' : null
-  const sCol = leader === 'Scott' ? '#fbbf24' : '#f1f5f9'
-  const tCol = leader === 'Ty' ? '#fbbf24' : '#f1f5f9'
 
   const handleUpdateStats = async () => {
     setUpdating(true)
@@ -55,93 +50,230 @@ export default function Header({
     setTimeout(() => setUpdateMsg(''), 5000)
   }
 
+  const youColor   = youAreLeading ? '#D4A24C' : '#F2EAD3'
+  const themColor  = !youAreLeading && !youAreTied ? '#D4A24C' : '#F2EAD3'
+  const proj = hasProjection ? '~' : ''
+
   return (
-    <div
+    <header
       style={{
-        background: 'linear-gradient(180deg, #08121f 0%, rgba(8,18,31,0.92) 100%)',
-        borderBottom: '1px solid rgba(232,181,74,0.18)',
-        padding: '12px 16px',
+        background: '#0E1B2C',
+        color: '#F2EAD3',
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        boxShadow: '0 1px 0 rgba(232,181,74,0.06), 0 8px 24px rgba(0,0,0,0.3)',
+        borderBottom: '3px solid #C8332C',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+      }}
+    >
+      {/* Halftone dot pattern overlay */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(circle at 1.4px 1.4px, rgba(242,234,211,0.07) 1.1px, transparent 1.4px) 0 0/6px 6px',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div
+        style={{
+          maxWidth: 1080,
+          margin: '0 auto',
+          padding: '18px 18px 16px',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0,1fr) auto auto',
+          gap: 20,
+          alignItems: 'center',
+          position: 'relative',
+          flexWrap: 'wrap',
+        }}
+      >
+        {/* Brand */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+          <div
+            aria-hidden
+            style={{
+              width: 56,
+              height: 56,
+              background: '#C8332C',
+              color: '#F2EAD3',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '3px solid #F2EAD3',
+              fontFamily: "'Oswald', sans-serif",
+              fontWeight: 700,
+              fontSize: 28,
+              letterSpacing: 0,
+              lineHeight: 1,
+              boxShadow: '4px 4px 0 #D4A24C',
+              transform: 'rotate(-3deg)',
+              flexShrink: 0,
+            }}
+          >
+            DR
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div
+              className="label"
+              style={{
+                color: '#D4A24C',
+                fontSize: 10,
+                letterSpacing: '0.28em',
+                marginBottom: 3,
+              }}
+            >
+              · The 2026 Season ·
+            </div>
+            <div
+              className="brand-display"
+              style={{
+                fontSize: 28,
+                lineHeight: 0.95,
+                color: '#F2EAD3',
+              }}
+            >
+              Draft <span style={{ color: '#D4A24C' }}>Room.</span>
+            </div>
+            <div
+              className="script-italic"
+              style={{
+                fontSize: 12,
+                color: 'rgba(242,234,211,0.65)',
+                marginTop: 4,
+              }}
+            >
+              A Talkin' Baseball companion
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 6, flexWrap: 'wrap' }}>
+              <SyncDot status={syncStatus} />
+              <button
+                onClick={handleUpdateStats}
+                disabled={updating}
+                className="label"
+                style={{
+                  background: '#C8332C',
+                  border: '1.5px solid #F2EAD3',
+                  borderRadius: 0,
+                  color: '#F2EAD3',
+                  fontSize: 10,
+                  padding: '4px 10px',
+                  cursor: updating ? 'wait' : 'pointer',
+                  letterSpacing: '0.18em',
+                  opacity: updating ? 0.6 : 1,
+                  fontWeight: 700,
+                }}
+              >
+                {updating ? 'Updating…' : 'Update Stats'}
+              </button>
+            </div>
+            {updateMsg && (
+              <div
+                className="mono"
+                style={{
+                  fontSize: 10,
+                  color: updateMsg.startsWith('Error') ? '#E08F89' : '#7DD18C',
+                  marginTop: 4,
+                }}
+              >
+                {updateMsg}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Countdown */}
+        <Countdown state={countdown} />
+
+        {/* Scoreboard */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 0,
+            border: '1.5px solid #F2EAD3',
+            background: 'rgba(0,0,0,0.25)',
+          }}
+        >
+          <ScoreSide
+            role="You"
+            name={leftLabel}
+            score={`${proj}${leftTotal}`}
+            color={youColor}
+            leader={youAreLeading}
+          />
+          <ScoreSide
+            role={rightRole}
+            name={rightLabel}
+            score={`${proj}${rightTotal}`}
+            color={themColor}
+            leader={!youAreLeading && !youAreTied}
+            leftBorder
+          />
+        </div>
+      </div>
+    </header>
+  )
+}
+
+function ScoreSide({
+  role, name, score, color, leader, leftBorder = false,
+}: {
+  role: string
+  name: string
+  score: string
+  color: string
+  leader: boolean
+  leftBorder?: boolean
+}) {
+  return (
+    <div
+      style={{
+        padding: '10px 16px',
+        textAlign: 'center',
+        minWidth: 110,
+        position: 'relative',
+        borderLeft: leftBorder ? '1.5px solid #F2EAD3' : 'none',
       }}
     >
       <div
+        className="label"
         style={{
-          maxWidth: 860,
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 8,
+          fontSize: 9,
+          letterSpacing: '0.24em',
+          color: leader ? '#D4A24C' : '#F2EAD3',
+          marginBottom: 2,
+          fontWeight: 700,
         }}
       >
-        <div>
-          <div style={{ fontSize: 9, letterSpacing: 4, color: '#e8b54a', textTransform: 'uppercase', marginBottom: 1, fontWeight: 700 }}>
-            2026 Season
-          </div>
-          <div className="brand-display" style={{ fontSize: 22, lineHeight: 1, color: '#f5ede0', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ display: 'inline-block', width: 22, height: 22, color: '#e8b54a' }}>
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
-                <g stroke="currentColor" strokeWidth="6" strokeLinecap="round">
-                  <path d="M10 54 L48 16" />
-                  <path d="M16 10 L54 48" />
-                </g>
-                <circle cx="48" cy="16" r="5" fill="currentColor" />
-                <circle cx="54" cy="48" r="5" fill="currentColor" />
-              </svg>
-            </span>
-            <span>Draft Room</span>
-          </div>
-          <div style={{ fontSize: 9, color: '#7a8aa0', marginTop: 1, letterSpacing: 1, fontWeight: 600 }}>
-            A Talkin' Baseball companion
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-            <SyncDot status={syncStatus} />
-            <button
-              onClick={handleUpdateStats}
-              disabled={updating}
-              style={{
-                background: 'rgba(232,181,74,0.12)',
-                border: '1px solid rgba(232,181,74,0.35)',
-                borderRadius: 4,
-                color: '#e8b54a',
-                fontSize: 9,
-                fontWeight: 800,
-                padding: '3px 8px',
-                cursor: updating ? 'wait' : 'pointer',
-                letterSpacing: 1.5,
-                opacity: updating ? 0.5 : 1,
-              }}
-            >
-              {updating ? '\u23F3' : '\uD83D\uDD04'} {updating ? 'UPDATING...' : 'UPDATE STATS'}
-            </button>
-          </div>
-          {updateMsg && (
-            <div style={{ fontSize: 9, color: updateMsg.startsWith('Error') ? '#e45b5b' : '#5eb774', marginTop: 2 }}>
-              {updateMsg}
-            </div>
-          )}
-        </div>
-        <Countdown state={countdown} />
-        <div style={{ display: 'flex', gap: 20 }}>
-          <div style={{ textAlign: 'center' }}>
-            <div className="brand-display" style={{ fontSize: 30, lineHeight: 1, color: sCol }}>
-              {hasProj ? '~' : ''}{tot.Scott}
-            </div>
-            <div style={{ fontSize: 9, letterSpacing: 2, color: '#a4b2c6', fontWeight: 700, marginTop: 2 }}>{leftLabel.toUpperCase()}</div>
-            <div style={{ fontSize: 8, letterSpacing: 1.5, color: '#5eb774', fontWeight: 800, marginTop: 1 }}>YOU</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div className="brand-display" style={{ fontSize: 30, lineHeight: 1, color: tCol }}>
-              {hasProj ? '~' : ''}{tot.Ty}
-            </div>
-            <div style={{ fontSize: 9, letterSpacing: 2, color: '#a4b2c6', fontWeight: 700, marginTop: 2 }}>{rightLabel.toUpperCase()}</div>
-            <div style={{ fontSize: 8, letterSpacing: 1.5, color: '#e8b54a', fontWeight: 800, marginTop: 1 }}>{rightRole}</div>
-          </div>
-        </div>
+        {role}
+      </div>
+      <div
+        className="label"
+        style={{
+          fontSize: 11,
+          letterSpacing: '0.16em',
+          color: 'rgba(242,234,211,0.75)',
+          fontWeight: 600,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          maxWidth: 140,
+        }}
+      >
+        {name}
+      </div>
+      <div
+        className="brand-display"
+        style={{
+          fontSize: 40,
+          lineHeight: 1,
+          color,
+          marginTop: 4,
+        }}
+      >
+        {score}
       </div>
     </div>
   )

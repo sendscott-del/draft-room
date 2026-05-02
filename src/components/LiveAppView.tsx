@@ -5,7 +5,6 @@ import { loadAllPicks, saveMyPicks, getCurrentSeason, listSeasons } from '../lib
 import { EMPTY_USER_PICKS } from '../lib/data-adapter'
 import { computeScoredRows } from '../lib/leaderboard-scoring'
 import { getCountdownState, type CountdownState } from '../lib/locks'
-import { COLORS } from '../data/constants'
 
 import UserBar from './UserBar'
 import Header from './Header'
@@ -154,20 +153,47 @@ export default function LiveAppView() {
 
   if (!profile || (syncStatus === 'loading' && isInitialLoad.current)) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14, color: COLORS.text }}>
-        <div style={{ width: 56, height: 56, color: COLORS.gold }}>
-          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
-            <g stroke="currentColor" strokeWidth="5.5" strokeLinecap="round">
-              <path d="M10 54 L48 16" />
-              <path d="M16 10 L54 48" />
-            </g>
-            <circle cx="48" cy="16" r="5" fill="currentColor" />
-            <circle cx="54" cy="48" r="5" fill="currentColor" />
-          </svg>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 14,
+          color: '#0E1B2C',
+          background: '#F2EAD3',
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            width: 72,
+            height: 72,
+            background: '#C8332C',
+            color: '#F2EAD3',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '3px solid #F2EAD3',
+            fontFamily: "'Oswald', sans-serif",
+            fontWeight: 700,
+            fontSize: 36,
+            lineHeight: 1,
+            boxShadow: '4px 4px 0 #D4A24C',
+            transform: 'rotate(-3deg)',
+          }}
+        >
+          DR
         </div>
-        <div className="brand-display" style={{ fontSize: 22, color: COLORS.text, letterSpacing: 3 }}>Draft Room</div>
-        <div style={{ fontSize: 11, color: COLORS.muted, letterSpacing: 2 }}>
-          {!profile ? 'RESOLVING PROFILE…' : 'LOADING PICKS…'}
+        <div className="brand-display" style={{ fontSize: 28, color: '#0E1B2C', letterSpacing: '0.04em' }}>
+          Draft <span style={{ color: '#D4A24C' }}>Room.</span>
+        </div>
+        <div
+          className="label"
+          style={{ fontSize: 11, color: '#4A5466', letterSpacing: '0.22em' }}
+        >
+          {!profile ? 'Resolving profile…' : 'Loading picks…'}
         </div>
       </div>
     )
@@ -175,12 +201,42 @@ export default function LiveAppView() {
 
   if (syncStatus === 'error' && rows.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12, color: '#f1f5f9', padding: 24, textAlign: 'center' }}>
-        <div style={{ fontSize: 32 }}>{'⚠️'}</div>
-        <div style={{ fontSize: 14, color: '#fca5a5' }}>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 12,
+          color: '#0E1B2C',
+          padding: 24,
+          textAlign: 'center',
+          background: '#F2EAD3',
+        }}
+      >
+        <div style={{ fontSize: 32 }}>⚠️</div>
+        <div className="serif" style={{ fontSize: 14, color: '#C8332C' }}>
           Couldn't load draft room data. Open browser console for details.
         </div>
-        <button onClick={() => window.location.reload()} style={{ marginTop: 8, padding: '8px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, color: '#f1f5f9', cursor: 'pointer' }}>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            marginTop: 8,
+            padding: '10px 16px',
+            background: '#0E1B2C',
+            border: '1.5px solid #0E1B2C',
+            borderRadius: 0,
+            color: '#F2EAD3',
+            cursor: 'pointer',
+            fontFamily: "'Oswald', sans-serif",
+            fontWeight: 700,
+            fontSize: 12,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            boxShadow: '3px 3px 0 #0E1B2C',
+          }}
+        >
           Reload
         </button>
       </div>
@@ -254,9 +310,9 @@ export default function LiveAppView() {
         }}
       />
       <Nav activePage={activePage} onPageChange={setActivePage} />
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '18px 12px 60px' }}>
+      <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 18px 80px' }}>
         {renderPage()}
-      </div>
+      </main>
     </>
   )
 }

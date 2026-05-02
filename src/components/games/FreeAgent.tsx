@@ -9,7 +9,7 @@ import { COLORS } from '../../data/constants'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 import GameInfo from './GameInfo'
 
-const FA_COLOR = '#5eb774'
+const FA_COLOR = '#0E1B2C' // Studio Talk navy
 
 interface Props {
   players: PlayerView[]
@@ -58,7 +58,7 @@ function PlayerFASection({ player, actualsMap }: { player: PlayerView & { score:
           return (
             <Card key={pick.round} style={{ padding: '7px 10px', minHeight: 56, boxSizing: 'border-box' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-                <span style={{ background: 'rgba(94,183,116,0.12)', color: FA_COLOR, borderRadius: 4, padding: '2px 6px', fontSize: 10, fontWeight: 800, flexShrink: 0 }}>
+                <span className="label" style={{ background: '#D4A24C', color: '#0E1B2C', border: '1.5px solid #0E1B2C', padding: '2px 6px', fontSize: 10, flexShrink: 0, letterSpacing: '0.16em' }}>
                   R{pick.round}
                 </span>
                 <span style={{ fontWeight: 700, fontSize: 13, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

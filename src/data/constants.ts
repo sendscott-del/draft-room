@@ -4,32 +4,30 @@ export const POS = ["C","1B","2B","3B","SS","LF","CF","RF","DH"]
 
 export const PLAYERS = ["Scott","Ty"] as const
 
+// Studio Talk palette: cream paper, navy ink, studio red, ballpark gold.
+// Per-game accents are recolored to fit the new palette per PORT_NOTES.md.
 export const GMETA: Record<string, { l: string; i: string; c: string; status: 'final' | 'interim' }> = {
-  fa: { l: "Free Agent",     i: "\u{1F4B0}", c: "#5eb774", status: "final" },
-  cy: { l: "Cy Young",       i: "\u26BE",    c: "#5b8cc7", status: "interim" },
-  // Position Unit: jersey emoji reads better as "team unit" than the
-  // stadium icon it replaced, which lots of testers read as "stats."
-  pu: { l: "Position Unit",  i: "\u{1F3BD}", c: "#a37ed1", status: "interim" },
-  hr: { l: "HR Team",        i: "\u{1F4A5}", c: "#e45b5b", status: "interim" },
-  aw: { l: "MVP & RoY",      i: "\u{1F3C6}", c: "#39a9bd", status: "interim" },
-  // Win O/U: balance scale is a clearer "over vs under" symbol than the
-  // bar-chart icon it replaced.
-  ou: { l: "Win O/U",        i: "\u2696\uFE0F", c: "#d4669d", status: "interim" },
-  td: { l: "Trade Deadline", i: "\u{1F504}", c: "#f0a531", status: "interim" },
-  ps: { l: "Postseason",     i: "\u{2B50}",  c: "#e8b54a", status: "interim" },
+  fa: { l: "Free Agent",     i: "\u{1F4B0}", c: "#0E1B2C", status: "final"   },
+  cy: { l: "Cy Young",       i: "⚾",    c: "#1E4A6B", status: "interim" },
+  pu: { l: "Position Unit",  i: "\u{1F3BD}", c: "#4F6B3F", status: "interim" },
+  hr: { l: "HR Team",        i: "\u{1F4A5}", c: "#C8332C", status: "interim" },
+  aw: { l: "MVP & RoY",      i: "\u{1F3C6}", c: "#7A3B68", status: "interim" },
+  ou: { l: "Win O/U",        i: "⚖️", c: "#C8332C", status: "interim" },
+  td: { l: "Trade Deadline", i: "\u{1F504}", c: "#D4A24C", status: "interim" },
+  ps: { l: "Postseason",     i: "\u{2B50}",  c: "#D4A24C", status: "interim" },
 }
 
 export const NAV = [
-  { id: "lb", l: "\u{1F3C6} Standings" },
-  { id: "fa", l: "\u{1F4B0} Free Agent" },
-  { id: "cy", l: "\u26BE Cy Young" },
-  { id: "pu", l: "\u{1F3BD} Position Unit" },
-  { id: "hr", l: "\u{1F4A5} HR Team" },
-  { id: "td", l: "\u{1F504} Trade Deadline" },
-  { id: "ou", l: "\u2696\uFE0F O/U" },
-  { id: "ps", l: "\u2B50 Postseason" },
-  { id: "aw", l: "\u{1F3C6} Awards" },
-  { id: "ru", l: "\u{1F4D6} Rules" },
+  { id: "lb", l: "Standings"      },
+  { id: "fa", l: "Free Agency"    },
+  { id: "cy", l: "Cy Young"       },
+  { id: "pu", l: "Position Unit"  },
+  { id: "hr", l: "HR Team"        },
+  { id: "td", l: "Trades"         },
+  { id: "ou", l: "Win O/U"        },
+  { id: "ps", l: "Postseason"     },
+  { id: "aw", l: "Awards"         },
+  { id: "ru", l: "Rules"          },
 ]
 
 // Win totals locked from the Talkin' Baseball TPP episodes (DraftKings line
@@ -79,37 +77,54 @@ export const GAME_STATUS: Record<string, 'final' | 'interim'> = {
   ps: 'interim',
 }
 
-// Talkin' Baseball-inspired palette: deep navy field, cream highlights,
-// warm vintage-baseball gold accent. The merch uses navy + cream + gold +
-// crossed-bats motifs heavily, so the app borrows those.
+// Studio Talk palette — cream-field paper, navy ink, studio red, ballpark
+// gold. Hard-edged, almanac-style. Field names preserved for back-compat
+// with existing components; the game-accent fields (green, blue, etc.)
+// have been re-mapped to fit the new palette so old call-sites still
+// produce valid colors.
 export const COLORS = {
-  bg:         '#0c1a2c', // deep TB navy
-  bg2:        '#08121f', // even darker — for header / cards-on-cards
-  cardBg:     'rgba(255,255,255,0.045)',
-  border:     'rgba(245,233,200,0.12)', // border gets a subtle cream tint
-  text:       '#f5ede0', // cream (vs cool white)
-  textBright: '#ffffff',
-  muted:      '#7a8aa0',
-  muted2:     '#a4b2c6',
-  // Game accent colors — kept recognizable but tonally adjusted toward warm
-  green:  '#5eb774',
-  blue:   '#5b8cc7',
-  purple: '#a37ed1',
-  red:    '#e45b5b',
-  amber:  '#f0a531',
-  cyan:   '#39a9bd',
-  pink:   '#d4669d',
-  gold:   '#e8b54a', // warm TB gold (vs old neon #fbbf24)
+  // Surfaces
+  bg:         '#F2EAD3', // cream field
+  bg2:        '#E9DFC2', // cream card field
+  cardBg:     '#E9DFC2', // (alias for back-compat)
+  cardBg2:    '#DCCFAA', // warm rule / shadow
+  border:     '#0E1B2C', // navy ink — used as 1.5px hard border
+  borderSoft: '#DCCFAA', // soft cream divider line
+  // Ink (text)
+  text:       '#0E1B2C',
+  textBright: '#0E1B2C',
+  cream:      '#F2EAD3',
+  muted:      '#4A5466',
+  muted2:     '#6B7385',
+  // Accents
+  red:        '#C8332C', // studio red
+  redDeep:    '#9A2620',
+  gold:       '#D4A24C', // ballpark gold
+  goldDeep:   '#A77A2C',
+  // Game accents (recolored for cream/navy palette)
+  fa:         '#0E1B2C', // navy
+  cy:         '#1E4A6B', // deep cyan-blue
+  pu:         '#4F6B3F', // outfield green
+  hr:         '#C8332C', // red
+  td:         '#D4A24C', // gold
+  aw:         '#7A3B68', // muted purple
+  ou:         '#C8332C', // red
+  ps:         '#D4A24C', // gold
+  // Legacy field names — kept so older components don't break.
+  // These now map onto the Studio Talk palette.
+  green:      '#4F6B3F', // outfield grass
+  blue:       '#1E4A6B', // deep cyan-blue
+  purple:     '#7A3B68', // muted purple
+  amber:      '#D4A24C', // ballpark gold
+  cyan:       '#1E4A6B',
+  pink:       '#C8332C',
 }
 
-// Brand SVG: crossed bats — used in the header and sign-in screen.
+// "DR" wordmark — replaces the old crossed-bats SVG. Rendered as a styled
+// element rather than SVG so it can use Oswald + the gold drop-shadow trick
+// from the Studio Talk mock. Components import this for the loading splash
+// only; the Header has its own inline mark.
 export const CROSSED_BATS_SVG = `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <g stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
-    <path d="M10 54 L48 16" />
-    <path d="M16 10 L54 48" />
-  </g>
-  <g fill="currentColor">
-    <circle cx="48" cy="16" r="4.5" />
-    <circle cx="54" cy="48" r="4.5" />
-  </g>
+  <rect x="6" y="6" width="52" height="52" fill="#C8332C" stroke="#F2EAD3" stroke-width="3"/>
+  <text x="32" y="42" text-anchor="middle" fill="#F2EAD3" font-family="Oswald, Impact, sans-serif" font-weight="700" font-size="28">DR</text>
 </svg>`

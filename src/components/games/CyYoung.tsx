@@ -9,7 +9,7 @@ import { projectCYVotes, buildCYPlacementMap } from '../../lib/cyProjection'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, PlayerColumns, type PlayerView, type EditMine } from './shared'
 import GameInfo from './GameInfo'
 
-const CY_COLOR = '#5b8cc7'
+const CY_COLOR = '#1E4A6B' // Studio Talk deep cyan-blue
 
 interface Props {
   players: PlayerView[]

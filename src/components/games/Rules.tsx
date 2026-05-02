@@ -1,5 +1,6 @@
 import { GMETA } from '../../data/constants'
-import Card from '../ui/Card'
+import HardCard from '../ui/HardCard'
+import LowerThird from '../ui/LowerThird'
 
 const RULES: Record<string, string[]> = {
   fa: [
@@ -51,22 +52,34 @@ const RULES: Record<string, string[]> = {
 export default function Rules() {
   return (
     <>
-      {Object.keys(GMETA).map(k => {
-        const m = GMETA[k]
-        const rules = RULES[k] ?? []
-        return (
-          <Card key={k} style={{ borderLeft: `3px solid ${m.c}` }}>
-            <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>
-              {m.i} {m.l}
-            </div>
-            <ul style={{ margin: 0, paddingLeft: 16, display: 'grid', gap: 4 }}>
-              {rules.map((x, i) => (
-                <li key={i} style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5 }}>{x}</li>
-              ))}
-            </ul>
-          </Card>
-        )
-      })}
+      <LowerThird kicker="The Rule Book" title="How It All Scores" />
+      <div style={{ display: 'grid', gap: 12 }}>
+        {Object.keys(GMETA).map(k => {
+          const m = GMETA[k]
+          const rules = RULES[k] ?? []
+          return (
+            <HardCard key={k} variant="paper" accent={m.c}>
+              <div
+                className="brand-display"
+                style={{ fontSize: 18, marginBottom: 8, color: '#0E1B2C', letterSpacing: '0.04em' }}
+              >
+                {m.l}
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 4 }}>
+                {rules.map((x, i) => (
+                  <li
+                    key={i}
+                    className="serif"
+                    style={{ fontSize: 13, color: '#0E1B2C', lineHeight: 1.55 }}
+                  >
+                    {x}
+                  </li>
+                ))}
+              </ul>
+            </HardCard>
+          )
+        })}
+      </div>
     </>
   )
 }

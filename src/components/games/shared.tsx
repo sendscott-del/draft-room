@@ -1,5 +1,4 @@
 import type { UserAppData, PlayerProfile } from '../../types'
-import { COLORS } from '../../data/constants'
 
 export interface PlayerView {
   profile: PlayerProfile
@@ -7,19 +6,23 @@ export interface PlayerView {
   isCurrentUser: boolean
 }
 
+/** Shared input style — cream paper, navy ink, hard 1.5px border. */
 export const inputStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.08)',
-  border: '1px solid rgba(255,255,255,0.09)',
-  borderRadius: 4,
-  color: COLORS.text,
-  padding: '3px 6px',
+  background: '#F2EAD3',
+  border: '1.5px solid #0E1B2C',
+  borderRadius: 0,
+  color: '#0E1B2C',
+  padding: '4px 7px',
+  fontFamily: "'Roboto Slab', serif",
   fontSize: 12,
   outline: 'none',
   width: '100%',
   boxSizing: 'border-box',
-  fontFamily: 'inherit',
 }
 
+/** Per-player section header — Studio Talk lower-third with the player's
+ *  name in Oswald, a YOU / SHOW badge, an optional editable tag, and a
+ *  big monospace score in the game's accent color. */
 export function SectionHeader({
   player, score, unit, color, editable, suffix,
 }: {
@@ -31,74 +34,155 @@ export function SectionHeader({
   suffix?: React.ReactNode
 }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '6px 10px', marginBottom: 4, minHeight: 36, boxSizing: 'border-box',
-      background: `${color}10`, border: `1px solid ${color}30`,
-      borderRadius: 6, gap: 8, flexWrap: 'wrap',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 0 }}>
-        <span style={{ fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap' }}>{player.profile.display_name}</span>
+    <div
+      style={{
+        background: '#0E1B2C',
+        color: '#F2EAD3',
+        padding: '10px 14px',
+        marginBottom: 6,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 10,
+        flexWrap: 'wrap',
+        borderLeft: `5px solid ${color}`,
+        position: 'relative',
+        overflow: 'hidden',
+        minHeight: 42,
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          left: 'auto',
+          width: 60,
+          background: 'repeating-linear-gradient(135deg, transparent 0 6px, rgba(212,162,76,0.18) 6px 12px)',
+          pointerEvents: 'none',
+        }}
+      />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0, flexWrap: 'wrap' }}>
+        <span
+          style={{
+            fontFamily: "'Oswald', sans-serif",
+            fontWeight: 700,
+            fontSize: 16,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: '#F2EAD3',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {player.profile.display_name}
+        </span>
         {player.isCurrentUser && (
-          <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1, color: '#5eb774', background: 'rgba(94,183,116,0.15)', border: '1px solid rgba(94,183,116,0.3)', borderRadius: 8, padding: '1px 5px' }}>YOU</span>
+          <span
+            style={{
+              fontFamily: "'Oswald', sans-serif",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: '0.18em',
+              color: '#F2EAD3',
+              background: '#C8332C',
+              border: '1.5px solid #F2EAD3',
+              padding: '2px 6px',
+              textTransform: 'uppercase',
+            }}
+          >
+            You
+          </span>
         )}
         {player.profile.is_show_account && (
-          <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1, color: COLORS.gold, background: 'rgba(232,181,74,0.15)', border: '1px solid rgba(232,181,74,0.3)', borderRadius: 8, padding: '1px 5px' }}>SHOW</span>
+          <span
+            style={{
+              fontFamily: "'Oswald', sans-serif",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: '0.18em',
+              color: '#0E1B2C',
+              background: '#D4A24C',
+              border: '1.5px solid #F2EAD3',
+              padding: '2px 6px',
+              textTransform: 'uppercase',
+            }}
+          >
+            Show
+          </span>
         )}
         {editable && (
-          <span style={{ fontSize: 9, color: COLORS.muted, letterSpacing: 1 }}>(editable)</span>
+          <span
+            className="script-italic"
+            style={{ fontSize: 11, color: 'rgba(242,234,211,0.75)' }}
+          >
+            (editable)
+          </span>
         )}
         {suffix}
       </div>
-      <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'monospace', color }}>
-        {score}{unit ? <span style={{ fontSize: 9, marginLeft: 3 }}>{unit}</span> : null}
+      <div
+        className="brand-display"
+        style={{
+          fontSize: 22,
+          color,
+          letterSpacing: '0.02em',
+          position: 'relative',
+        }}
+      >
+        {score}
+        {unit ? (
+          <span
+            className="label"
+            style={{ fontSize: 10, marginLeft: 4, color: 'rgba(242,234,211,0.7)', letterSpacing: '0.18em' }}
+          >
+            {unit}
+          </span>
+        ) : null}
       </div>
     </div>
   )
 }
 
+/** "Did Not Play" footnote — dashed border, italic note in muted ink. */
 export function DidNotPlay({ names, game }: { names: string[]; game: string }) {
   if (names.length === 0) return null
   return (
-    <div style={{
-      marginTop: 18,
-      padding: '8px 10px',
-      borderRadius: 6,
-      background: 'rgba(255,255,255,0.02)',
-      border: '1px dashed rgba(255,255,255,0.09)',
-      fontSize: 11,
-      color: COLORS.muted2,
-      fontStyle: 'italic',
-    }}>
+    <div
+      className="serif"
+      style={{
+        marginTop: 18,
+        padding: '8px 12px',
+        background: '#F2EAD3',
+        border: '1.5px dashed #4A5466',
+        fontSize: 12,
+        color: '#4A5466',
+        fontStyle: 'italic',
+      }}
+    >
       Did not play {game}: {names.join(', ')}
     </div>
   )
 }
 
 export function sortPlayersForGame<T extends PlayerView & { score: number }>(rows: T[]): T[] {
-  // Pure descending score order. The current user is highlighted (YOU
-  // badge + green tint in their section header) but no longer pinned to
-  // the leftmost position — the row order is "who's winning right now."
   return [...rows].sort((a, b) => b.score - a.score)
 }
 
 export type EditMine = (fn: (mine: UserAppData) => UserAppData) => void
 
-/** Horizontal-scrolling grid of player columns. Min 240 px per column so
- *  text + scores stay legible on a phone, and `minWidth: 0` on each column
- *  lets long content (player names, "→ 5yr LAD") truncate cleanly via
- *  ellipsis instead of overflowing into the next column. */
+/** Horizontal-scrolling grid of player columns. Each column is at least
+ *  240 px wide so text + scores stay legible on a phone. */
 export function PlayerColumns({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
         display: 'grid',
         gridAutoFlow: 'column',
-        gridAutoColumns: 'minmax(240px, 1fr)',
+        gridAutoColumns: 'minmax(260px, 1fr)',
         gap: 14,
         overflowX: 'auto',
         paddingBottom: 8,
-        marginTop: 12,
+        marginTop: 10,
         scrollSnapType: 'x proximity',
       }}
     >

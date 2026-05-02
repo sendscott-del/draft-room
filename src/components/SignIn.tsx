@@ -5,51 +5,60 @@ import {
   signUpWithPassword,
   signInWithGoogle,
 } from '../lib/supabase'
-import { COLORS } from '../data/constants'
 
 type Mode = 'magic' | 'password' | 'signup'
 
 const card: React.CSSProperties = {
-  background: COLORS.cardBg,
-  border: `1px solid ${COLORS.border}`,
-  borderRadius: 12,
-  padding: 24,
+  background: '#E9DFC2',
+  border: '1.5px solid #0E1B2C',
+  borderRadius: 0,
+  padding: 28,
   maxWidth: 420,
   margin: '0 auto',
-  color: COLORS.text,
+  color: '#0E1B2C',
+  boxShadow: '6px 6px 0 #0E1B2C',
+  position: 'relative',
 }
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '10px 12px',
-  background: 'rgba(0,0,0,0.25)',
-  border: `1px solid ${COLORS.border}`,
-  borderRadius: 8,
-  color: COLORS.text,
-  fontSize: 14,
-  marginTop: 4,
+  background: '#F2EAD3',
+  border: '1.5px solid #0E1B2C',
+  borderRadius: 0,
+  color: '#0E1B2C',
+  fontSize: 15,
+  marginTop: 6,
   boxSizing: 'border-box',
+  fontFamily: "'Roboto Slab', serif",
 }
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 12,
-  color: COLORS.muted2,
-  letterSpacing: 1,
+  fontFamily: "'Oswald', sans-serif",
+  fontSize: 11,
+  color: '#4A5466',
+  letterSpacing: '0.16em',
   textTransform: 'uppercase',
+  fontWeight: 600,
 }
 
 function buttonStyle(primary: boolean, disabled: boolean): React.CSSProperties {
   return {
-    padding: '10px 16px',
-    borderRadius: 8,
-    border: primary ? 'none' : `1px solid ${COLORS.border}`,
-    background: primary ? COLORS.gold : 'transparent',
-    color: primary ? '#0f172a' : COLORS.text,
+    padding: '11px 16px',
+    borderRadius: 0,
+    border: '1.5px solid #0E1B2C',
+    background: primary ? '#0E1B2C' : '#F2EAD3',
+    color: primary ? '#F2EAD3' : '#0E1B2C',
+    fontFamily: "'Oswald', sans-serif",
     fontWeight: 700,
-    fontSize: 14,
+    fontSize: 13,
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
     cursor: disabled ? 'not-allowed' : 'pointer',
     opacity: disabled ? 0.6 : 1,
     width: '100%',
+    boxShadow: '3px 3px 0 #0E1B2C',
+    transition: 'transform 0.08s ease, box-shadow 0.08s ease',
   }
 }
 
@@ -96,46 +105,90 @@ export default function SignIn() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: COLORS.bg }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        background: '#F2EAD3',
+      }}
+    >
       <div style={card}>
-        <div style={{ textAlign: 'center', marginBottom: 18 }}>
-          <div style={{ width: 48, height: 48, color: COLORS.gold, margin: '0 auto 8px' }}>
-            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
-              <g stroke="currentColor" strokeWidth="5.5" strokeLinecap="round">
-                <path d="M10 54 L48 16" />
-                <path d="M16 10 L54 48" />
-              </g>
-              <circle cx="48" cy="16" r="5" fill="currentColor" />
-              <circle cx="54" cy="48" r="5" fill="currentColor" />
-            </svg>
+        <div
+          aria-hidden
+          style={{ position: 'absolute', inset: 6, border: '1px solid #DCCFAA', pointerEvents: 'none' }}
+        />
+
+        <div style={{ textAlign: 'center', marginBottom: 22, position: 'relative' }}>
+          <div
+            aria-hidden
+            style={{
+              width: 72,
+              height: 72,
+              background: '#C8332C',
+              color: '#F2EAD3',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '3px solid #F2EAD3',
+              fontFamily: "'Oswald', sans-serif",
+              fontWeight: 700,
+              fontSize: 36,
+              lineHeight: 1,
+              boxShadow: '4px 4px 0 #D4A24C',
+              transform: 'rotate(-3deg)',
+              margin: '0 auto 14px',
+            }}
+          >
+            DR
           </div>
-          <div style={{ fontSize: 9, letterSpacing: 4, color: COLORS.gold, textTransform: 'uppercase', marginBottom: 2, fontWeight: 700 }}>
+          <div
+            className="label"
+            style={{ fontSize: 10, letterSpacing: '0.28em', color: '#D4A24C', marginBottom: 4 }}
+          >
             · 2026 Season ·
           </div>
-          <div className="brand-display" style={{ fontSize: 36, color: COLORS.text, lineHeight: 1 }}>
-            Draft Room
+          <div className="brand-display" style={{ fontSize: 38, color: '#0E1B2C', lineHeight: 0.95 }}>
+            Draft <span style={{ color: '#D4A24C' }}>Room.</span>
           </div>
-          <div style={{ color: COLORS.muted2, fontSize: 12, marginTop: 6, letterSpacing: 1 }}>
+          <div
+            className="script-italic"
+            style={{ color: '#4A5466', fontSize: 13, marginTop: 8 }}
+          >
             A Talkin' Baseball companion
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 4, marginBottom: 16, padding: 4, background: 'rgba(0,0,0,0.2)', borderRadius: 8 }}>
-          {(['magic', 'password', 'signup'] as Mode[]).map(m => (
+        <div
+          style={{
+            display: 'flex',
+            gap: 0,
+            marginBottom: 18,
+            border: '1.5px solid #0E1B2C',
+            position: 'relative',
+          }}
+        >
+          {(['magic', 'password', 'signup'] as Mode[]).map((m, i) => (
             <button
               key={m}
               type="button"
               onClick={() => { setMode(m); setMsg(null) }}
               style={{
                 flex: 1,
-                padding: '6px 10px',
-                borderRadius: 6,
+                padding: '8px 8px',
+                borderRadius: 0,
                 border: 'none',
-                background: mode === m ? COLORS.cardBg : 'transparent',
-                color: mode === m ? COLORS.text : COLORS.muted2,
-                fontSize: 12,
-                fontWeight: 600,
+                borderLeft: i === 0 ? 'none' : '1.5px solid #0E1B2C',
+                background: mode === m ? '#0E1B2C' : '#F2EAD3',
+                color: mode === m ? '#F2EAD3' : '#4A5466',
+                fontFamily: "'Oswald', sans-serif",
+                fontSize: 11,
+                fontWeight: 700,
                 cursor: 'pointer',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
               }}
             >
               {m === 'magic' ? 'Magic Link' : m === 'password' ? 'Sign In' : 'Sign Up'}
@@ -143,7 +196,7 @@ export default function SignIn() {
           ))}
         </div>
 
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
           {mode === 'signup' && (
             <label>
               <div style={labelStyle}>Display name</div>
@@ -165,10 +218,22 @@ export default function SignIn() {
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '16px 0', color: COLORS.muted, fontSize: 11 }}>
-          <div style={{ flex: 1, height: 1, background: COLORS.border }} />
-          OR
-          <div style={{ flex: 1, height: 1, background: COLORS.border }} />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            margin: '18px 0',
+            color: '#4A5466',
+            fontFamily: "'Oswald', sans-serif",
+            fontSize: 11,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+          }}
+        >
+          <div style={{ flex: 1, height: 1, background: '#DCCFAA' }} />
+          Or
+          <div style={{ flex: 1, height: 1, background: '#DCCFAA' }} />
         </div>
 
         <button type="button" onClick={googleSignIn} disabled={busy} style={buttonStyle(false, busy)}>
@@ -176,15 +241,18 @@ export default function SignIn() {
         </button>
 
         {msg && (
-          <div style={{
-            marginTop: 14,
-            padding: 10,
-            borderRadius: 8,
-            fontSize: 13,
-            background: msg.kind === 'ok' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
-            border: `1px solid ${msg.kind === 'ok' ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`,
-            color: msg.kind === 'ok' ? '#86efac' : '#fca5a5',
-          }}>
+          <div
+            className="serif"
+            style={{
+              marginTop: 16,
+              padding: 10,
+              borderRadius: 0,
+              fontSize: 13,
+              background: msg.kind === 'ok' ? '#D4A24C' : '#C8332C',
+              border: '1.5px solid #0E1B2C',
+              color: msg.kind === 'ok' ? '#0E1B2C' : '#F2EAD3',
+            }}
+          >
             {msg.text}
           </div>
         )}

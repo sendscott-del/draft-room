@@ -6,7 +6,7 @@ import { COLORS, TEAMS } from '../../data/constants'
 import { SectionHeader, DidNotPlay, sortPlayersForGame, inputStyle, PlayerColumns, type PlayerView, type EditMine } from './shared'
 import GameInfo from './GameInfo'
 
-const TD_COLOR = '#f0a531'
+const TD_COLOR = '#D4A24C' // Studio Talk ballpark gold
 
 interface Props {
   players: PlayerView[]
@@ -64,7 +64,7 @@ function PlayerTDSection({ player, editable, onEdit }: {
         {[...picks].sort((a, b) => a.round - b.round).map((pick, i) => (
           <Card key={pick.round} style={{ padding: '7px 10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <span style={{ background: 'rgba(240,165,49,0.12)', color: TD_COLOR, borderRadius: 4, padding: '2px 6px', fontSize: 10, fontWeight: 800, flexShrink: 0 }}>R{pick.round}</span>
+              <span className="label" style={{ background: TD_COLOR, color: '#0E1B2C', border: '1.5px solid #0E1B2C', padding: '2px 6px', fontSize: 10, flexShrink: 0, letterSpacing: '0.16em' }}>R{pick.round}</span>
               {editable ? (
                 <input value={pick.player} placeholder="Player" onChange={e => setField(i, 'player', e.target.value)} style={inputStyle} />
               ) : (

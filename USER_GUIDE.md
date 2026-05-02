@@ -4,6 +4,31 @@ Draft Room is a season-long baseball prediction game inspired by the
 **Talkin' Baseball** podcast. You make picks at the start of the season and
 your score updates throughout the year as real games are played.
 
+## What you're looking at (v1.6 — "Studio Talk" redesign)
+
+The app now wears the **Studio Talk** look — vintage broadcast meets sports
+almanac. Cream paper, navy ink, studio red, ballpark gold.
+
+- **Top of the page:** a navy "On Air" broadcast bar with your name, season
+  selector, and sign-out — and below it, the masthead with the red **DR**
+  brand mark, a 3-unit countdown (Days · Hrs · Min), and a split scoreboard
+  (You vs. Leader). The leader's score is gold; everyone else is cream.
+- **Sync status:** the small dot next to the wordmark shows "Saved",
+  "Saving", or "Save error" so you always know your picks are persisted.
+- **Update Stats button** is the small red one in the masthead — it pulls
+  the latest WAR, HRs, Cy Young vote totals, and team win totals from MLB.
+- **Tabs (the nav):** cream strip, navy text, **studio-red underline** on
+  the active tab. Same nine destinations: Standings, Free Agency, Cy Young,
+  Position Unit, HR Team, Trades, Win O/U, Postseason, Awards, Rules.
+- **Section headers** (the dark "lower-third" bars) introduce every game
+  page. Each one shows a kicker (gold), a chunky title, and a status badge
+  (Final / Interim / Live).
+- **Cards** are hard-edged paper with 1.5px navy borders — no soft rounding,
+  no drop shadows except where they earn it (the leaderboard panel and
+  buttons get a 5px / 3px hard navy shadow).
+- **Numbers do the talking.** Big condensed Oswald for scores, JetBrains
+  Mono for stat lines.
+
 ## Signing in
 
 You need an account to use Draft Room. There are three ways to sign in:
@@ -68,6 +93,22 @@ in your profile settings; only you and the show hosts will be visible to you.
 Stats refresh from MLB throughout the season. Use the **Update Stats** button
 in the header to pull the latest WAR, HR totals, Cy Young vote counts, and
 team win totals.
+
+## Reading the leaderboard
+
+The top "Who's On Top?" card lists every player in order:
+
+- **Rank** in big Oswald numerals (with a "★ Leader" eyebrow on the leader).
+- **Name** — your row is marked with a red left bar and "— you" in italics.
+- **Bar chart** — one bar per game, height proportional to the score in that
+  game. The leader's best game is highlighted red; greyed-out bars mean the
+  player skipped that game.
+- **Delta** — projected points still pending for that player.
+- **Total** — the chunky number on the right. NA means the player hasn't
+  played every required game yet.
+
+Below the headline card, a **Game-by-Game** table lists the same data in
+stat-sheet form for quick scanning.
 
 ## Help
 

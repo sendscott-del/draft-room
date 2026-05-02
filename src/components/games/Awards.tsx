@@ -16,7 +16,7 @@ const EMPTY_AWARDS: AwardPicks = {
   alCYR: 'none', nlCYR: 'none', alMGRR: 'none', nlMGRR: 'none',
 }
 
-const AW_COLOR = '#39a9bd'
+const AW_COLOR = '#7A3B68' // Studio Talk muted purple
 
 const CATEGORIES: Array<[label: string, pickKey: keyof AwardPicks, resultKey: keyof AwardPicks]> = [
   ['AL MVP', 'alMVP', 'alMVPR'],
@@ -122,7 +122,7 @@ function PlayerAWSection({ player, editable, onEdit }: {
                   {pickName || <span style={{ color: COLORS.muted }}>—</span>}
                 </span>
                 {editable && pickName ? (
-                  <select value={result} onChange={e => setResult(resultKey, e.target.value as AwardResult)} style={{ background: '#1e293b', border: `1px solid ${COLORS.border}`, borderRadius: 4, color: COLORS.text, padding: '2px 6px', fontSize: 11, outline: 'none' }}>
+                  <select value={result} onChange={e => setResult(resultKey, e.target.value as AwardResult)} style={{ background: '#F2EAD3', border: '1.5px solid #0E1B2C', borderRadius: 0, color: '#0E1B2C', padding: '2px 6px', fontSize: 11, fontFamily: "'Roboto Slab', serif", outline: 'none' }}>
                     {RESULT_OPTS.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
                   </select>
                 ) : pickName ? (

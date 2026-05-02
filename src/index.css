@@ -1,5 +1,7 @@
-/* Talkin' Baseball-inspired display font for headlines + condensed body text */
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap');
+/* Studio Talk redesign — vintage broadcast meets sports almanac.
+   Cream-field paper, navy ink, studio red, ballpark gold.
+   Oswald display, Roboto Slab body, JetBrains Mono for stats. */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto+Slab:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap');
 @import "tailwindcss";
 
 * {
@@ -9,32 +11,51 @@
 }
 
 body {
-  /* Subtle baseball-stitch radial vignette over the deep TB navy field. */
-  background:
-    radial-gradient(ellipse 1200px 700px at 50% -10%, rgba(232,181,74,0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 800px 500px at 100% 100%, rgba(91,140,199,0.04) 0%, transparent 60%),
-    #0c1a2c;
-  color: #f5ede0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #F2EAD3;
+  color: #0E1B2C;
+  font-family: 'Roboto Slab', Georgia, serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-input, select, button {
+input, select, button, textarea {
   font-family: inherit;
 }
 
-/* Display class for headlines — chunky condensed sans, very TB merch */
-.brand-display {
-  font-family: 'Anton', 'Bebas Neue', Impact, sans-serif;
-  letter-spacing: 0.04em;
+/* Display: chunky condensed Oswald — wordmark, headlines, scoreboard. */
+.brand-display,
+.display {
+  font-family: 'Oswald', Impact, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
+  line-height: 0.92;
 }
 
-.brand-script {
-  font-family: Georgia, 'Times New Roman', serif;
+/* Italic editorial kicker — taglines, the rare quote attribution. */
+.brand-script,
+.serif {
+  font-family: 'Roboto Slab', Georgia, serif;
+}
+
+.script-italic {
+  font-family: 'Roboto Slab', Georgia, serif;
   font-style: italic;
+}
+
+/* Eyebrow / label — the "FREE AGENCY · ROUND 04" treatment. */
+.label {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+}
+
+/* Mono — stats, numbers, scoring breakdowns. */
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 ::-webkit-scrollbar {
@@ -42,12 +63,18 @@ input, select, button {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.04);
+  background: #DCCFAA;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(232,181,74,0.25);
-  border-radius: 3px;
+  background: #0E1B2C;
+  border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(232,181,74,0.4);
+  background: #C8332C;
+}
+
+/* Pulsing red dot for "On Air" / "Live" indicators in the broadcast bar. */
+@keyframes tb-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
 }
