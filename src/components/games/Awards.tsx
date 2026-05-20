@@ -116,9 +116,9 @@ function PlayerAWSection({ player, editable, onEdit }: {
           const result = (aw?.[resultKey] as AwardResult) ?? 'none'
           return (
             <Card key={pickKey} style={{ padding: '7px 10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 10, color: COLORS.muted2, fontWeight: 700, width: 90, flexShrink: 0 }}>{label}</span>
-                <span style={{ fontWeight: 700, fontSize: 12, flex: 1 }}>
+              <div className="dr-aw-row">
+                <span className="dr-aw-label">{label}</span>
+                <span style={{ fontWeight: 700, fontSize: 12, flex: 1, minWidth: 120 }}>
                   {pickName || <span style={{ color: COLORS.muted }}>—</span>}
                 </span>
                 {editable && pickName ? (

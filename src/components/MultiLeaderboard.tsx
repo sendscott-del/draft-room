@@ -124,6 +124,7 @@ export default function MultiLeaderboard({ rows, myProfileId }: Props) {
         >
           <div className="label" style={{ marginBottom: 10 }}>Game by Game</div>
           <table
+            className="dr-lb-table"
             style={{
               borderCollapse: 'separate',
               borderSpacing: 0,
@@ -288,13 +289,10 @@ function LBRow({
 
   return (
     <div
+      className="dr-lb-row"
       style={{
-        display: 'grid',
-        gridTemplateColumns: '60px 1fr 140px 80px 110px',
-        alignItems: 'center',
         padding: '14px 16px',
         borderBottom: isLast ? 'none' : '1px solid #DCCFAA',
-        gap: 12,
         position: 'relative',
         background: isLeader ? 'linear-gradient(90deg, rgba(212,162,76,0.22), transparent 65%)' : 'transparent',
       }}
@@ -317,7 +315,7 @@ function LBRow({
           </div>
         )}
         <div
-          className="brand-display"
+          className="brand-display dr-lb-rank-number"
           style={{
             fontSize: 30,
             color: isLeader ? '#C8332C' : '#0E1B2C',
@@ -331,7 +329,7 @@ function LBRow({
       {/* Name */}
       <div style={{ minWidth: 0 }}>
         <div
-          className="brand-display"
+          className="brand-display dr-lb-name-display"
           style={{
             fontSize: 22,
             letterSpacing: '0.04em',
@@ -367,7 +365,7 @@ function LBRow({
       </div>
 
       {/* Bar chart */}
-      <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 26 }}>
+      <div className="dr-lb-bars" style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 26 }}>
         {games.map(g => {
           const v = row.scores[g] || 0
           const played = row.played[g]
@@ -390,7 +388,7 @@ function LBRow({
 
       {/* Delta */}
       <div
-        className="mono"
+        className="mono dr-lb-delta"
         style={{
           fontSize: 12,
           fontWeight: 700,
@@ -404,7 +402,7 @@ function LBRow({
       {/* Total */}
       <div style={{ textAlign: 'right' }}>
         <div
-          className="brand-display"
+          className="brand-display dr-lb-total"
           style={{
             fontSize: 36,
             lineHeight: 1,

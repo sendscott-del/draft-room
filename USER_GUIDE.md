@@ -4,7 +4,7 @@ Draft Room is a season-long baseball prediction game inspired by the
 **Talkin' Baseball** podcast. You make picks at the start of the season and
 your score updates throughout the year as real games are played.
 
-## What you're looking at (v1.6 — "Studio Talk" redesign)
+## What you're looking at (v1.7 — Studio Talk, mobile-ready)
 
 The app now wears the **Studio Talk** look — vintage broadcast meets sports
 almanac. Cream paper, navy ink, studio red, ballpark gold.
@@ -28,6 +28,22 @@ almanac. Cream paper, navy ink, studio red, ballpark gold.
   buttons get a 5px / 3px hard navy shadow).
 - **Numbers do the talking.** Big condensed Oswald for scores, JetBrains
   Mono for stat lines.
+
+### On a phone
+
+The whole app is responsive — drop below a tablet width and the layout
+re-flows so nothing pushes off-screen:
+
+- The masthead stacks vertically: brand on top, then countdown +
+  scoreboard side-by-side underneath, then the nav.
+- The Standings rows simplify to **rank · name · total** so each row
+  stays on one line; the per-game bar chart and pending-points delta
+  are still in the game-by-game detail table just below.
+- Game pages stack each player vertically instead of side-by-side, so
+  every picker takes the full screen width.
+- All paddings, font sizes, and the countdown digits shrink
+  proportionally — the desktop layout is unchanged on tablets and
+  bigger.
 
 ## Signing in
 

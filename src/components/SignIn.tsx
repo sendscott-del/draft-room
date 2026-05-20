@@ -115,7 +115,7 @@ export default function SignIn() {
         background: '#F2EAD3',
       }}
     >
-      <div style={card}>
+      <div className="dr-signin-card" style={card}>
         <div
           aria-hidden
           style={{ position: 'absolute', inset: 6, border: '1px solid #DCCFAA', pointerEvents: 'none' }}

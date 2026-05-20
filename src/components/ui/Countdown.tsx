@@ -10,6 +10,7 @@ export default function Countdown({ state }: CountdownProps) {
   if (state.isDone) {
     return (
       <div
+        className="dr-countdown"
         style={{
           border: '1.5px solid rgba(242,234,211,0.25)',
           padding: '10px 16px',
@@ -56,6 +57,7 @@ export default function Countdown({ state }: CountdownProps) {
 
   return (
     <div
+      className="dr-countdown"
       style={{
         border: '1.5px solid rgba(242,234,211,0.25)',
         padding: '8px 14px',
@@ -92,6 +94,7 @@ function Unit({ n, l }: { n: string; l: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div
+        className="dr-countdown-digit"
         style={{
           fontFamily: "'Oswald', sans-serif",
           fontWeight: 700,

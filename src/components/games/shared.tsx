@@ -35,6 +35,7 @@ export function SectionHeader({
 }) {
   return (
     <div
+      className="dr-section-header"
       style={{
         background: '#0E1B2C',
         color: '#F2EAD3',
@@ -64,6 +65,7 @@ export function SectionHeader({
       />
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0, flexWrap: 'wrap' }}>
         <span
+          className="dr-section-header-name"
           style={{
             fontFamily: "'Oswald', sans-serif",
             fontWeight: 700,
@@ -121,7 +123,7 @@ export function SectionHeader({
         {suffix}
       </div>
       <div
-        className="brand-display"
+        className="brand-display dr-section-header-score"
         style={{
           fontSize: 22,
           color,
@@ -170,22 +172,12 @@ export function sortPlayersForGame<T extends PlayerView & { score: number }>(row
 
 export type EditMine = (fn: (mine: UserAppData) => UserAppData) => void
 
-/** Horizontal-scrolling grid of player columns. Each column is at least
- *  240 px wide so text + scores stay legible on a phone. */
+/** Horizontal-scrolling grid of player columns on desktop; vertical
+ *  stack on mobile (so each picker takes the full screen width). The
+ *  responsive switch lives in index.css under `.dr-player-columns`. */
 export function PlayerColumns({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridAutoFlow: 'column',
-        gridAutoColumns: 'minmax(260px, 1fr)',
-        gap: 14,
-        overflowX: 'auto',
-        paddingBottom: 8,
-        marginTop: 10,
-        scrollSnapType: 'x proximity',
-      }}
-    >
+    <div className="dr-player-columns">
       {Array.isArray(children)
         ? children.map((child, i) => (
             <div key={i} style={{ minWidth: 0, overflow: 'hidden' }}>{child}</div>

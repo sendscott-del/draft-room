@@ -78,3 +78,222 @@ input, select, button, textarea {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.55; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Responsive layout primitives. Components add these classes to opt   */
+/* into mobile-friendly stacking. Breakpoint: 760px (typical tablet/  */
+/* phone split). Inline styles on the same elements should NOT also    */
+/* set the grid/flex props we control here, or they'll win at desktop. */
+/* ------------------------------------------------------------------ */
+
+/* Masthead: brand | countdown | scoreboard. Desktop = 3 columns;     */
+/* mobile stacks brand on top, then countdown + scoreboard share a    */
+/* row when there's room, otherwise stack.                            */
+.dr-masthead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 20px;
+  align-items: center;
+}
+@media (max-width: 760px) {
+  .dr-masthead {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .dr-masthead-extras {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+  .dr-masthead-extras > * {
+    flex: 1 1 160px;
+    min-width: 0;
+  }
+}
+
+/* Brand block — shrink the DR badge and wordmark on small screens. */
+@media (max-width: 760px) {
+  .dr-brand-badge {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 22px !important;
+    box-shadow: 3px 3px 0 #D4A24C !important;
+  }
+  .dr-brand-wordmark {
+    font-size: 22px !important;
+  }
+}
+
+/* Countdown — narrower digits + min-width on phones. */
+@media (max-width: 760px) {
+  .dr-countdown {
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+  }
+  .dr-countdown-digit {
+    font-size: 22px !important;
+  }
+}
+
+/* Scoreboard — clamp the per-side min-width so it doesn't overflow. */
+@media (max-width: 760px) {
+  .dr-scoreboard {
+    width: 100%;
+  }
+  .dr-scoreboard-side {
+    flex: 1;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+  }
+  .dr-scoreboard-score {
+    font-size: 32px !important;
+  }
+}
+
+/* Leaderboard row: 5-col desktop -> 2-col mobile (rank+name top,    */
+/* total right; bar chart + delta hidden on the narrowest viewports). */
+.dr-lb-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 140px 80px 110px;
+  align-items: center;
+  gap: 12px;
+}
+@media (max-width: 760px) {
+  .dr-lb-row {
+    grid-template-columns: 54px 1fr auto;
+    gap: 8px;
+    padding: 12px 12px !important;
+  }
+  .dr-lb-bars,
+  .dr-lb-delta {
+    display: none !important;
+  }
+  .dr-lb-rank-number {
+    font-size: 26px !important;
+  }
+  .dr-lb-name-display {
+    font-size: 18px !important;
+  }
+  .dr-lb-total {
+    font-size: 30px !important;
+  }
+}
+
+/* Player columns — horizontal scroll on desktop, vertical stack on  */
+/* mobile so each picker takes the full screen width comfortably.    */
+.dr-player-columns {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 1fr);
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-top: 10px;
+  scroll-snap-type: x proximity;
+}
+@media (max-width: 760px) {
+  .dr-player-columns {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
+}
+
+/* Awards row — fixed-width label can squeeze the player name on phones. */
+.dr-aw-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dr-aw-label {
+  font-size: 10px;
+  color: #6B7385;
+  font-weight: 700;
+  width: 90px;
+  flex-shrink: 0;
+}
+@media (max-width: 760px) {
+  .dr-aw-label {
+    width: 100%;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+}
+
+/* Main content padding — give a bit more room on phones. */
+@media (max-width: 760px) {
+  .dr-main {
+    padding: 16px 12px 80px !important;
+  }
+}
+
+/* Section header on game pages — drop the score font on mobile so the */
+/* player name never gets pushed onto its own line just from sizing.   */
+@media (max-width: 760px) {
+  .dr-section-header {
+    padding: 8px 12px !important;
+  }
+  .dr-section-header-name {
+    font-size: 14px !important;
+  }
+  .dr-section-header-score {
+    font-size: 18px !important;
+  }
+}
+
+/* User/broadcast bar — let the right-hand cluster wrap below the      */
+/* status line on phones instead of pushing off-screen.                */
+@media (max-width: 640px) {
+  .dr-broadcast-bar {
+    padding: 9px 12px !important;
+    font-size: 10px !important;
+    letter-spacing: 0.12em !important;
+  }
+  .dr-broadcast-right {
+    margin-left: 0 !important;
+    width: 100%;
+    justify-content: flex-start !important;
+  }
+}
+
+/* Update Stats button + sync dot can drop to next line cleanly. */
+@media (max-width: 480px) {
+  .dr-brand-stack {
+    width: 100%;
+  }
+}
+
+/* LowerThird title shrinks on phones so meta badges don't wrap awkwardly. */
+@media (max-width: 760px) {
+  .dr-lower-third-title {
+    font-size: 18px !important;
+  }
+  .dr-lower-third {
+    padding: 10px 12px !important;
+    gap: 10px !important;
+  }
+}
+
+/* MultiLeaderboard sticky-name column gets shorter on phones. */
+@media (max-width: 760px) {
+  .dr-lb-table {
+    font-size: 11px !important;
+  }
+  .dr-lb-table th,
+  .dr-lb-table td {
+    padding: 6px 3px !important;
+  }
+}
+
+/* SignIn card — tighten padding on small phones. */
+@media (max-width: 480px) {
+  .dr-signin-card {
+    padding: 20px !important;
+  }
+}

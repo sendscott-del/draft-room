@@ -33,6 +33,7 @@ export default function BroadcastBar({ status, right, live = false }: Props) {
         }}
       />
       <div
+        className="dr-broadcast-bar"
         style={{
           maxWidth: 1080,
           margin: '0 auto',
@@ -73,6 +74,7 @@ export default function BroadcastBar({ status, right, live = false }: Props) {
         {status && <span>{status}</span>}
         {right && (
           <span
+            className="dr-broadcast-right"
             style={{
               marginLeft: 'auto',
               display: 'inline-flex',

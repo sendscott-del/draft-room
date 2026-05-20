@@ -1,5 +1,52 @@
 # Draft Room — Release Notes
 
+## v1.7.0 — Mobile pass
+
+**Date:** 2026-05-19
+
+Top-to-bottom responsive sweep. The Studio Talk redesign was built
+desktop-first; this release closes the gaps on phones without
+disturbing the desktop layout.
+
+### What changed
+
+- **Masthead stacks on phones.** The DR brand, countdown, and
+  scoreboard now stack into a single column below 760px so nothing
+  pushes off-screen. The brand badge, wordmark, and countdown digits
+  shrink proportionally; the two-side scoreboard becomes a full-width
+  side-by-side strip.
+- **Standings rows simplify on mobile.** The 5-column row
+  (rank · name · bar-chart · delta · total) collapses to a 3-column
+  layout (rank · name · total) below 760px — the bar chart and pending
+  delta are hidden so the row never wraps. The game-by-game detail
+  table keeps its horizontal scroll.
+- **Game pickers stack vertically on mobile.** The horizontal
+  `PlayerColumns` carousel used by every game tab (FA / CY / PU / HR /
+  TD / AW / O/U / PS) now flows top-to-bottom on phones, giving each
+  player section the full viewport width.
+- **All section headers, lower-thirds, and broadcast bars tighten
+  paddings and font sizes on phones** so titles and badges don't wrap
+  awkwardly.
+- **Awards rows wrap.** The fixed 90px category label (AL MVP, NL Cy
+  Young, etc.) now wraps above the player name on phones instead of
+  squeezing it.
+- **Sign-in card** gets tighter padding under 480px so the box stays
+  comfortable on small phones.
+- **Breakpoint:** single 760px breakpoint with a secondary 480px tweak
+  for the smallest phones. No layout shift between 760px and 1080px.
+
+### Files
+
+- `src/index.css` — new `.dr-*` responsive utility classes + media queries
+- `src/components/Header.tsx`, `src/components/ui/Countdown.tsx`,
+  `src/components/ui/BroadcastBar.tsx`,
+  `src/components/ui/LowerThird.tsx`, `src/components/MultiLeaderboard.tsx`,
+  `src/components/SignIn.tsx`, `src/components/LiveAppView.tsx`,
+  `src/components/games/shared.tsx`, `src/components/games/Awards.tsx`
+  — applied responsive classes to grid/flex containers
+
+---
+
 ## v1.6.0 — "Studio Talk" redesign
 
 **Date:** 2026-05-02

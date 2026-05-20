@@ -16,6 +16,7 @@ interface Props {
 export default function LowerThird({ kicker, title, meta, accent = '#C8332C', style }: Props) {
   return (
     <div
+      className="dr-lower-third"
       style={{
         background: '#0E1B2C',
         color: '#F2EAD3',
@@ -62,6 +63,7 @@ export default function LowerThird({ kicker, title, meta, accent = '#C8332C', st
           </div>
         )}
         <div
+          className="dr-lower-third-title"
           style={{
             fontFamily: "'Oswald', sans-serif",
             fontWeight: 700,

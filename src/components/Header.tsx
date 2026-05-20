@@ -78,22 +78,19 @@ export default function Header({
       />
 
       <div
+        className="dr-masthead"
         style={{
           maxWidth: 1080,
           margin: '0 auto',
           padding: '18px 18px 16px',
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0,1fr) auto auto',
-          gap: 20,
-          alignItems: 'center',
           position: 'relative',
-          flexWrap: 'wrap',
         }}
       >
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+        <div className="dr-brand-stack" style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
           <div
             aria-hidden
+            className="dr-brand-badge"
             style={{
               width: 56,
               height: 56,
@@ -128,7 +125,7 @@ export default function Header({
               · The 2026 Season ·
             </div>
             <div
-              className="brand-display"
+              className="brand-display dr-brand-wordmark"
               style={{
                 fontSize: 28,
                 lineHeight: 0.95,
@@ -189,6 +186,7 @@ export default function Header({
 
         {/* Scoreboard */}
         <div
+          className="dr-scoreboard"
           style={{
             display: 'flex',
             gap: 0,
@@ -229,6 +227,7 @@ function ScoreSide({
 }) {
   return (
     <div
+      className="dr-scoreboard-side"
       style={{
         padding: '10px 16px',
         textAlign: 'center',
@@ -265,7 +264,7 @@ function ScoreSide({
         {name}
       </div>
       <div
-        className="brand-display"
+        className="brand-display dr-scoreboard-score"
         style={{
           fontSize: 40,
           lineHeight: 1,

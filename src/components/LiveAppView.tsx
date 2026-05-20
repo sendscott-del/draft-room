@@ -310,7 +310,7 @@ export default function LiveAppView() {
         }}
       />
       <Nav activePage={activePage} onPageChange={setActivePage} />
-      <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 18px 80px' }}>
+      <main className="dr-main" style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 18px 80px' }}>
         {renderPage()}
       </main>
     </>
